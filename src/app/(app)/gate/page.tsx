@@ -13,10 +13,6 @@ import { toast } from '@/components/ui/Toast';
 import { todayStr, dateToInput, inputToDate, fmtDate } from '@/lib/utils';
 import type { Satis } from '@/types';
 
-function SectionHeader({ children }: { children: React.ReactNode }) {
-  return <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">{children}</p>;
-}
-
 export default function GatePage() {
   const { user } = useAuth();
   const satisList = useSatisList();
@@ -164,46 +160,55 @@ export default function GatePage() {
   return (
     <div className="space-y-6">
 
-      {/* ─── Araçlar ─── */}
-      <div className="glass-card rounded-2xl p-6">
-        <div className="flex flex-wrap gap-8 items-start">
+      {/* ─── Sayfa Başlığı ─── */}
+      <div className="mb-10">
+        <h1 className="text-[26px] font-semibold tracking-tight">Kapı Kontrol</h1>
+        <p className="text-mu text-[13px] mt-1">Bilet okutma ve giriş yönetimi</p>
+      </div>
 
-          {/* Tarih */}
-          <div>
-            <SectionHeader>Gün Seç</SectionHeader>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSelectedTarih(todayStr())}
-                className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
-                  selectedTarih === todayStr() ? 'bg-btn text-white border-btn' : 'bg-sf2 text-tx border-bd hover:border-ac hover:text-ac'
-                }`}
-              >Bugün</button>
-              <input
-                type="date"
-                value={dateToInput(selectedTarih)}
-                onChange={e => setSelectedTarih(inputToDate(e.target.value))}
-                className="bg-sf2 border border-bd rounded-xl px-4 py-2 text-tx font-mono text-sm outline-none focus:border-ac cursor-pointer"
-              />
-              {selectedTarih !== todayStr() && (
-                <span className="text-sm text-ac font-medium">{fmtDate(selectedTarih)}</span>
-              )}
+      {/* ─── Filtrele ─── */}
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd">
+          <h2 className="text-[15px] font-semibold text-tx">Filtrele</h2>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-2 gap-8 items-start">
+
+            {/* Tarih */}
+            <div>
+              <div className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-3">Gün Seç</div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSelectedTarih(todayStr())}
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
+                    selectedTarih === todayStr() ? 'bg-btn text-white border-btn' : 'bg-sf2 text-tx border-bd hover:border-ac hover:text-ac'
+                  }`}
+                >Bugün</button>
+                <input
+                  type="date"
+                  value={dateToInput(selectedTarih)}
+                  onChange={e => setSelectedTarih(inputToDate(e.target.value))}
+                  className="bg-sf2 border border-bd rounded-xl px-4 py-2 text-tx font-mono text-sm outline-none focus:border-ac cursor-pointer"
+                />
+                {selectedTarih !== todayStr() && (
+                  <span className="text-sm text-ac font-medium">{fmtDate(selectedTarih)}</span>
+                )}
+              </div>
             </div>
-          </div>
 
-          <div className="w-px self-stretch bg-bd" />
-
-          {/* Arama */}
-          <div className="flex-1 min-w-64">
-            <SectionHeader>Sorgula</SectionHeader>
-            <div className="flex items-center gap-3">
-              <input
-                value={aramaInput}
-                onChange={e => setAramaInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSorgula()}
-                placeholder="PNR veya ad soyad..."
-                className="flex-1 bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none focus:border-ac"
-              />
-              <Button variant="accent" size="sm" onClick={handleSorgula}>Sorgula</Button>
+            {/* Arama */}
+            <div>
+              <div className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-3">PNR / Ad Sorgula</div>
+              <div className="flex items-center gap-3">
+                <input
+                  value={aramaInput}
+                  onChange={e => setAramaInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSorgula()}
+                  placeholder="PNR veya ad soyad..."
+                  className="flex-1 bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none focus:border-ac"
+                />
+                <Button variant="accent" size="sm" onClick={handleSorgula}>Sorgula</Button>
+              </div>
             </div>
           </div>
         </div>
@@ -216,22 +221,19 @@ export default function GatePage() {
       </div>
 
       {/* ─── Tablo ─── */}
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <SectionHeader>
-            Seçili Günün Biletleri
-            {selectedTarih !== todayStr() && (
-              <span className="text-ac normal-case ml-2 font-normal">{fmtDate(selectedTarih)}</span>
-            )}
-          </SectionHeader>
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd flex items-center justify-between">
+          <h2 className="text-[15px] font-semibold text-tx">
+            Günün Satışları {fmtDate(selectedTarih)}
+          </h2>
+          <span className="text-[13px] text-mu font-mono">{filteredSatislar.length} kayıt</span>
         </div>
-
-        <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="p-0">
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="border-b border-bd">
                 {['PNR','Ad Soyad','Telefon','Seans','Tam','Çocuk','Yab.','Kur.','Saat','Durum','İşlem'].map(h => (
-                  <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold text-mu uppercase tracking-wide">
+                  <th key={h} className="px-6 py-4 text-left text-[10px] font-semibold text-mu uppercase tracking-wide">
                     {h}
                   </th>
                 ))}
@@ -248,22 +250,22 @@ export default function GatePage() {
                 const total = (t.tam||0)+(t.cocuk||0)+(t.yabanci||0)+(t.davetli||0)+(t.kurumsal||0);
                 return (
                   <tr key={t.id} className="border-b border-bd last:border-0 hover:bg-sf2/60 transition-colors">
-                    <td className="px-4 py-3.5 font-mono text-[11px] text-ac tracking-wide">{t.pnr ?? '—'}</td>
-                    <td className="px-4 py-3.5 text-[13px] font-medium">{t.musteriAd ?? '—'}</td>
-                    <td className="px-4 py-3.5 text-xs text-mu font-mono">{t.musteriTel ?? '—'}</td>
-                    <td className="px-4 py-3.5 text-xs text-mu font-mono">{t.seans ?? '—'}</td>
-                    <td className="px-4 py-3.5 text-[13px]">{t.tam ?? 0}</td>
-                    <td className="px-4 py-3.5 text-[13px]">{t.cocuk ?? 0}</td>
-                    <td className="px-4 py-3.5 text-[13px]">{t.yabanci ?? 0}</td>
-                    <td className="px-4 py-3.5 text-[13px] text-vi font-semibold">{t.kurumsal ?? 0}</td>
-                    <td className="px-4 py-3.5 text-[11px] text-mu font-mono">{t.satisZamani ?? '—'}</td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-6 py-4 font-mono text-[11px] text-ac tracking-wide">{t.pnr ?? '—'}</td>
+                    <td className="px-6 py-4 text-[13px] font-medium">{t.musteriAd ?? '—'}</td>
+                    <td className="px-6 py-4 text-xs text-mu font-mono">{t.musteriTel ?? '—'}</td>
+                    <td className="px-6 py-4 text-xs text-mu font-mono">{t.seans ?? '—'}</td>
+                    <td className="px-6 py-4 text-[13px]">{t.tam ?? 0}</td>
+                    <td className="px-6 py-4 text-[13px]">{t.cocuk ?? 0}</td>
+                    <td className="px-6 py-4 text-[13px]">{t.yabanci ?? 0}</td>
+                    <td className="px-6 py-4 text-[13px] text-vi font-semibold">{t.kurumsal ?? 0}</td>
+                    <td className="px-6 py-4 text-[11px] text-mu font-mono">{t.satisZamani ?? '—'}</td>
+                    <td className="px-6 py-4">
                       {kullanildi
                         ? <Badge variant="inactive">Kullanıldı</Badge>
                         : <Badge variant="active">{kullanilan}/{total} Giriş</Badge>
                       }
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-6 py-4">
                       <div className="flex gap-1.5 flex-wrap">
                         {!kullanildi && t.pnr && (
                           <Button variant="accent" size="sm" onClick={() => hizliGiris(t)}>Giriş Ver</Button>

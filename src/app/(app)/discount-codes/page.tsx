@@ -13,10 +13,6 @@ import type { CodeBatch } from '@/types';
 
 const PAGE_SIZE = 25;
 
-function SectionHeader({ children }: { children: React.ReactNode }) {
-  return <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">{children}</p>;
-}
-
 export default function DiscountCodesPage() {
   const codes   = useCodes();
   const batches = useBatches();
@@ -137,68 +133,101 @@ export default function DiscountCodesPage() {
   return (
     <div className="space-y-6">
 
+      {/* ─── Sayfa Başlığı ─── */}
+      <div className="mb-10">
+        <h1 className="text-[26px] font-semibold tracking-tight">İndirim Kodları</h1>
+        <p className="text-mu text-[13px] mt-1">Kod stok yönetimi</p>
+      </div>
+
       {/* ─── KPI ─── */}
       <div className="grid grid-cols-3 gap-6">
-        <div className="glass-card rounded-2xl p-6 text-center hover-lift">
-          <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam</div>
-          <div className="font-mono text-3xl font-semibold text-tx">{codes.length}</div>
+        <div className="glass-card rounded-2xl overflow-hidden hover-lift">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">Toplam</h2>
+          </div>
+          <div className="p-7 text-center">
+            <div className="font-mono text-3xl font-semibold text-tx">{codes.length}</div>
+          </div>
         </div>
-        <div className="glass-card rounded-2xl p-6 text-center hover-lift">
-          <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Aktif</div>
-          <div className="font-mono text-3xl font-semibold text-gn">{aktif}</div>
+        <div className="glass-card rounded-2xl overflow-hidden hover-lift">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">Aktif</h2>
+          </div>
+          <div className="p-7 text-center">
+            <div className="font-mono text-3xl font-semibold text-gn">{aktif}</div>
+          </div>
         </div>
-        <div className="glass-card rounded-2xl p-6 text-center hover-lift">
-          <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Kullanılan</div>
-          <div className="font-mono text-3xl font-semibold text-rd">
-            {deaktif}
-            <span className="text-mu text-base font-normal ml-2">(%{pct})</span>
+        <div className="glass-card rounded-2xl overflow-hidden hover-lift">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">Kullanılan</h2>
+          </div>
+          <div className="p-7 text-center">
+            <div className="font-mono text-3xl font-semibold text-rd">
+              {deaktif}
+              <span className="text-mu text-base font-normal ml-2">(%{pct})</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ─── Araçlar ─── */}
-      <div className="glass-card rounded-2xl p-5">
-        <div className="flex gap-3 flex-wrap items-center">
-          <div className="relative flex-1 min-w-48">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mu text-sm">🔍</span>
-            <input
-              value={search}
-              onChange={e => { setSearch(e.target.value); setPage(0); }}
-              placeholder="Kod veya grup ara..."
-              className="w-full bg-sf2 border border-bd rounded-xl pl-10 pr-4 py-2.5 text-tx font-mono text-sm outline-none focus:border-ac"
-            />
+      {/* ─── Filtrele ─── */}
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd">
+          <h2 className="text-[15px] font-semibold text-tx">Filtrele</h2>
+        </div>
+        <div className="p-5">
+          <div className="flex gap-3 flex-wrap items-center">
+            <div className="relative flex-1 min-w-48">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mu text-sm">🔍</span>
+              <input
+                value={search}
+                onChange={e => { setSearch(e.target.value); setPage(0); }}
+                placeholder="Kod veya grup ara..."
+                className="w-full bg-sf2 border border-bd rounded-xl pl-10 pr-4 py-2.5 text-tx font-mono text-sm outline-none focus:border-ac"
+              />
+            </div>
+            <select
+              value={durumFilter}
+              onChange={e => { setDurum(e.target.value as typeof durumFilter); setPage(0); }}
+              className="bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none cursor-pointer"
+            >
+              <option value="hepsi">Tüm Kodlar</option>
+              <option value="aktif">Sadece Aktif</option>
+              <option value="deaktif">Sadece Deaktif</option>
+            </select>
+            <select
+              value={grupFilter}
+              onChange={e => { setGrup(e.target.value); setPage(0); }}
+              className="bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none cursor-pointer"
+            >
+              <option value="hepsi">Tüm Gruplar</option>
+              {gruplar.map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
+            <Button variant="danger" size="sm" onClick={() => setTopluModal(true)}>Toplu Deaktif</Button>
+            <Button variant="accent" size="sm" onClick={() => setBatchModal(true)}>+ Yeni Grup</Button>
           </div>
-          <select
-            value={durumFilter}
-            onChange={e => { setDurum(e.target.value as typeof durumFilter); setPage(0); }}
-            className="bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none cursor-pointer"
-          >
-            <option value="hepsi">Tüm Kodlar</option>
-            <option value="aktif">Sadece Aktif</option>
-            <option value="deaktif">Sadece Deaktif</option>
-          </select>
-          <select
-            value={grupFilter}
-            onChange={e => { setGrup(e.target.value); setPage(0); }}
-            className="bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none cursor-pointer"
-          >
-            <option value="hepsi">Tüm Gruplar</option>
-            {gruplar.map(g => <option key={g} value={g}>{g}</option>)}
-          </select>
-          <Button variant="danger" size="sm" onClick={() => setTopluModal(true)}>Toplu Deaktif</Button>
-          <Button variant="accent" size="sm" onClick={() => setBatchModal(true)}>+ Yeni Grup</Button>
         </div>
       </div>
 
       {/* ─── Tablo ─── */}
-      <div>
-        <SectionHeader>Kod Listesi</SectionHeader>
-        <div className="glass-card rounded-2xl overflow-hidden">
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd flex items-center justify-between flex-wrap gap-3">
+          <h2 className="text-[15px] font-semibold text-tx">Kod Listesi</h2>
+          <div className="flex items-center gap-3">
+            <span className="text-[13px] text-mu font-mono">{filtered.length} kod</span>
+            <Button size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>← Önceki</Button>
+            <span className="text-[12px] text-mu font-mono">
+              {page + 1}/{Math.max(1, totalPages)}
+            </span>
+            <Button size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Sonraki →</Button>
+          </div>
+        </div>
+        <div className="p-0">
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="border-b border-bd">
                 {['#','Kod','Grup','İndirim','Durum','Kullanan','Tarih','İşlem'].map(h => (
-                  <th key={h} className="px-5 py-4 text-left text-[10px] font-semibold text-mu uppercase tracking-wide">
+                  <th key={h} className="px-6 py-4 text-left text-[10px] font-semibold text-mu uppercase tracking-wide">
                     {h}
                   </th>
                 ))}
@@ -209,18 +238,18 @@ export default function DiscountCodesPage() {
                 <tr><td colSpan={8} className="text-center py-12 text-mu">Kod bulunamadı</td></tr>
               ) : paged.map((c, idx) => (
                 <tr key={c._key} className="border-b border-bd last:border-0 hover:bg-sf2/60 transition-colors">
-                  <td className="px-5 py-3.5 text-xs text-mu">{page * PAGE_SIZE + idx + 1}</td>
-                  <td className="px-5 py-3.5 font-mono text-[13px] text-ac tracking-wide">{c.code}</td>
-                  <td className="px-5 py-3.5 text-xs text-mu">{c.group ?? '—'}</td>
-                  <td className="px-5 py-3.5 text-xs font-mono font-semibold">%{c.indirim ?? '—'}</td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-6 py-4 text-xs text-mu">{page * PAGE_SIZE + idx + 1}</td>
+                  <td className="px-6 py-4 font-mono text-[13px] text-ac tracking-wide">{c.code}</td>
+                  <td className="px-6 py-4 text-xs text-mu">{c.group ?? '—'}</td>
+                  <td className="px-6 py-4 text-xs font-mono font-semibold">%{c.indirim ?? '—'}</td>
+                  <td className="px-6 py-4">
                     <Badge variant={c.status === 'aktif' ? 'active' : 'inactive'}>
                       {c.status === 'aktif' ? 'Aktif' : 'Kullanıldı'}
                     </Badge>
                   </td>
-                  <td className="px-5 py-3.5 text-xs">{c.kullanan ?? '—'}</td>
-                  <td className="px-5 py-3.5 text-xs text-mu font-mono">{c.date || '—'}</td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-6 py-4 text-xs">{c.kullanan ?? '—'}</td>
+                  <td className="px-6 py-4 text-xs text-mu font-mono">{c.date || '—'}</td>
+                  <td className="px-6 py-4">
                     {c.status === 'aktif'
                       ? <Button variant="danger" size="sm" onClick={() => handleDeaktif(c._key, c.code)}>Deaktif</Button>
                       : <Button size="sm" onClick={() => handleAktif(c._key)}>Aktif Et</Button>
@@ -231,27 +260,15 @@ export default function DiscountCodesPage() {
             </tbody>
           </table>
         </div>
-
-        {/* Sayfalama */}
-        <div className="flex justify-between items-center mt-4">
-          <span className="text-xs text-mu font-mono">
-            {filtered.length} kod · Sayfa {page + 1}/{Math.max(1, totalPages)}
-          </span>
-          <div className="flex gap-2">
-            <Button size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>← Önceki</Button>
-            <Button size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Sonraki →</Button>
-          </div>
-        </div>
       </div>
 
       {/* ─── Kod Grupları ─── */}
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <SectionHeader>Kod Grupları</SectionHeader>
-          <Button variant="accent" size="sm" onClick={() => setBatchModal(true)}>+ Yeni Grup Ekle</Button>
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd flex items-center justify-between">
+          <h2 className="text-[15px] font-semibold text-tx">Kod Grupları</h2>
+          <Button variant="accent" size="sm" onClick={() => setBatchModal(true)}>+ Yeni Grup</Button>
         </div>
-
-        <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="p-0">
           {batches.length === 0 ? (
             <div className="text-mu text-sm text-center py-10">Henüz grup yok</div>
           ) : (

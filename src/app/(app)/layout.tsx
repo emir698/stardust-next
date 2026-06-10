@@ -27,7 +27,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-bg">
       <Topbar />
-      <main className="max-w-[1280px] mx-auto px-8 py-10">
+      <main className="max-w-[1440px] mx-auto px-10 lg:px-16 py-12">
         <Tabs />
         {children}
       </main>

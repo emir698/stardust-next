@@ -100,12 +100,6 @@ function buildSeansCounts(satisList: Satis[], tarih: string): Record<string, num
     }, {} as Record<string, number>);
 }
 
-// ─── Section Header ───────────────────────────────────────────────────────────
-
-function SectionHeader({ children }: { children: React.ReactNode }) {
-  return <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">{children}</p>;
-}
-
 // ─── Ana Sayfa ────────────────────────────────────────────────────────────────
 
 export default function TicketsPage() {
@@ -274,29 +268,39 @@ export default function TicketsPage() {
   return (
     <div className="space-y-6">
 
+      {/* ─── Sayfa Başlığı ─── */}
+      <div className="mb-10">
+        <h1 className="text-[26px] font-semibold tracking-tight">Bilet Sat</h1>
+        <p className="text-mu text-[13px] mt-1">Yeni bilet oluştur</p>
+      </div>
+
       {/* ─── Tarih Seçici ─── */}
-      <div className="glass-card rounded-2xl px-6 py-5">
-        <SectionHeader>Tarih Seç</SectionHeader>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => handleTarihChange(todayStr())}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
-              selectedTarih === todayStr()
-                ? 'bg-btn text-white border-btn'
-                : 'bg-sf2 text-tx border-bd hover:border-ac hover:text-ac'
-            }`}
-          >
-            Bugün
-          </button>
-          <input
-            type="date"
-            value={dateToInput(selectedTarih)}
-            onChange={e => handleTarihChange(inputToDate(e.target.value))}
-            className="bg-sf2 border border-bd rounded-xl px-4 py-2 text-tx font-mono text-sm outline-none focus:border-ac cursor-pointer"
-          />
-          {selectedTarih !== todayStr() && (
-            <span className="text-sm text-ac font-medium">{fmtDate(selectedTarih)}</span>
-          )}
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd">
+          <h2 className="text-[15px] font-semibold text-tx">Tarih</h2>
+        </div>
+        <div className="p-7">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => handleTarihChange(todayStr())}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
+                selectedTarih === todayStr()
+                  ? 'bg-btn text-white border-btn'
+                  : 'bg-sf2 text-tx border-bd hover:border-ac hover:text-ac'
+              }`}
+            >
+              Bugün
+            </button>
+            <input
+              type="date"
+              value={dateToInput(selectedTarih)}
+              onChange={e => handleTarihChange(inputToDate(e.target.value))}
+              className="bg-sf2 border border-bd rounded-xl px-4 py-2 text-tx font-mono text-sm outline-none focus:border-ac cursor-pointer"
+            />
+            {selectedTarih !== todayStr() && (
+              <span className="text-sm text-ac font-medium">{fmtDate(selectedTarih)}</span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -306,147 +310,154 @@ export default function TicketsPage() {
           Bu tarihte etkinlik yok — yalnızca Cuma, Cumartesi ve Pazar seansları mevcuttur.
         </div>
       ) : (
-        <div className="glass-card rounded-2xl p-6">
-          <SectionHeader>
-            Seans Seç — <span className="text-ac normal-case font-normal">{fmtDate(selectedTarih)}</span>
-          </SectionHeader>
-          <div className="grid grid-cols-5 gap-3">
-            {(saatler ?? []).map((saat, idx) => (
-              <button
-                key={saat}
-                onClick={() => setSelectedSeans(saat)}
-                className={`border-2 rounded-2xl py-4 px-2 text-center cursor-pointer transition-all hover-lift ${
-                  selectedSeans === saat
-                    ? 'border-bl bg-bl/10'
-                    : 'border-bd bg-sf2/60 hover:border-bd2'
-                }`}
-              >
-                <div className="text-[30px] font-semibold font-mono text-ac leading-none">
-                  {idx + 1}
-                </div>
-                <div className="text-[11px] text-mu mt-2">{saat}</div>
-                <div className="text-sm text-tx mt-2 font-mono font-semibold">
-                  {seansCounts[saat] ?? 0}
-                </div>
-              </button>
-            ))}
+        <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">
+              Seans Seç — <span className="text-ac font-normal">{fmtDate(selectedTarih)}</span>
+            </h2>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-5 gap-3">
+              {(saatler ?? []).map((saat, idx) => (
+                <button
+                  key={saat}
+                  onClick={() => setSelectedSeans(saat)}
+                  className={`border-2 rounded-2xl py-4 px-2 text-center cursor-pointer transition-all hover-lift ${
+                    selectedSeans === saat
+                      ? 'border-bl bg-bl/10'
+                      : 'border-bd bg-sf2/60 hover:border-bd2'
+                  }`}
+                >
+                  <div className="text-[30px] font-semibold font-mono text-ac leading-none">
+                    {idx + 1}
+                  </div>
+                  <div className="text-[11px] text-mu mt-2">{saat}</div>
+                  <div className="text-sm text-tx mt-2 font-mono font-semibold">
+                    {seansCounts[saat] ?? 0}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
       {/* ─── Müşteri + Biletler ─── */}
       {selectedSeans && (
-        <div className="glass-card rounded-2xl p-7">
-
-          {/* Müşteri bilgileri */}
-          <SectionHeader>Müşteri Bilgileri</SectionHeader>
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <Input label="Ad"      value={ad}    onChange={e => setAd(e.target.value)}    placeholder="Ad" />
-            <Input label="Soyad"   value={soyad} onChange={e => setSoyad(e.target.value)} placeholder="Soyad" />
-            <Input label="Telefon" value={tel}   onChange={e => setTel(e.target.value)}   placeholder="+90 555 000 00 00" type="tel" />
-            <Input label="E-posta" value={mail}  onChange={e => setMail(e.target.value)}  placeholder="musteri@mail.com" type="email" />
+        <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">
+              Seans {selectedSeans} — {fmtDate(selectedTarih)}
+            </h2>
           </div>
+          <div className="p-7">
 
-          {/* Vito sürücüsü */}
-          {activeDrivers.length > 0 && (
-            <div className="mb-8">
-              <label className="text-[11px] font-semibold text-mu uppercase tracking-widest block mb-3">
-                Vito Sürücüsü <span className="text-mu2 normal-case font-normal text-[10px]">(opsiyonel)</span>
-              </label>
-              <select
-                value={vitoSurucuKey}
-                onChange={e => setVitoSurucuKey(e.target.value)}
-                className="w-full bg-sf2 border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
-              >
-                <option value="">— Sürücü yok —</option>
-                {activeDrivers.map(d => (
-                  <option key={d._key} value={d._key}>{d.ad} · {d.plaka}</option>
-                ))}
-              </select>
-              {vitoSurucu && (
-                <div className="mt-3 bg-bl/8 border border-bl/20 rounded-xl px-5 py-4">
-                  <div className="text-[10px] text-bl uppercase tracking-widest mb-3 font-semibold">Komisyon Önizleme</div>
-                  <div className="flex justify-between text-mu mb-2 text-sm"><span>Sürücü</span><span className="text-tx font-medium">{vitoSurucu.ad}</span></div>
-                  <div className="flex justify-between text-mu mb-2 text-sm"><span>Plaka</span><span className="text-ac font-mono">{vitoSurucu.plaka}</span></div>
-                  <div className="flex justify-between text-mu mb-2 text-sm"><span>Oran</span><span>%{vitoSurucu.komisyonOran}</span></div>
-                  <div className="flex justify-between text-gn font-semibold border-t border-bl/15 pt-3 mt-2 text-sm">
-                    <span>Komisyon</span><span>{fmtMoney(vitoKomisyon)}</span>
-                  </div>
-                </div>
-              )}
+            {/* Müşteri bilgileri */}
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <Input label="Ad"      value={ad}    onChange={e => setAd(e.target.value)}    placeholder="Ad" />
+              <Input label="Soyad"   value={soyad} onChange={e => setSoyad(e.target.value)} placeholder="Soyad" />
+              <Input label="Telefon" value={tel}   onChange={e => setTel(e.target.value)}   placeholder="+90 555 000 00 00" type="tel" />
+              <Input label="E-posta" value={mail}  onChange={e => setMail(e.target.value)}  placeholder="musteri@mail.com" type="email" />
             </div>
-          )}
 
-          {/* Divider */}
-          <div className="h-px bg-bd mb-8" />
-
-          {/* Bilet türleri */}
-          <SectionHeader>
-            Bilet Türü — Seans <span className="text-ac normal-case font-normal">{selectedSeans}</span>
-          </SectionHeader>
-          <div className="space-y-1 mb-6">
-            {TICKET_TYPES.map(tp => (
-              <div
-                key={tp.key}
-                className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-4 rounded-xl hover:bg-sf2/50 transition-colors"
-              >
-                <div>
-                  <div className="text-[14px] font-medium">{tp.label}</div>
-                  <div className="text-[11px] text-mu mt-0.5">{tp.sub}</div>
-                </div>
-                <div className={`text-sm font-mono font-semibold ${tp.color} whitespace-nowrap`}>
-                  {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : '0 ₺'}
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setQty(q => ({ ...q, [tp.key]: Math.max(0, q[tp.key] - 1) }))}
-                    className="w-9 h-9 rounded-xl border border-bd bg-sf text-tx text-lg cursor-pointer hover:border-ac hover:text-ac flex items-center justify-center transition-all"
-                  >−</button>
-                  <span className="w-8 text-center font-semibold font-mono text-[16px]">{qty[tp.key]}</span>
-                  <button
-                    onClick={() => setQty(q => ({ ...q, [tp.key]: q[tp.key] + 1 }))}
-                    className="w-9 h-9 rounded-xl border border-bd bg-sf text-tx text-lg cursor-pointer hover:border-ac hover:text-ac flex items-center justify-center transition-all"
-                  >+</button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* İndirim kodu */}
-          {toplam > 0 && (
-            <div className="bg-sf2/60 border border-bd rounded-2xl p-5">
-              <div className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">İndirim Kodu</div>
-              <div className="flex gap-3">
-                <input
-                  value={indirimInput}
-                  onChange={e => setIndirimInput(e.target.value.toUpperCase())}
-                  disabled={!!aktifIndirimKodu}
-                  placeholder="Kodu girin..."
-                  className="flex-1 bg-bg border border-bd rounded-xl px-4 py-2.5 text-tx font-mono text-sm outline-none focus:border-ac disabled:opacity-50"
-                />
-                {!aktifIndirimKodu ? (
-                  <Button variant="accent" size="sm" onClick={handleIndirimUygula} disabled={indirimChecking}>
-                    Uygula
-                  </Button>
-                ) : (
-                  <Button variant="danger" size="sm" onClick={handleIndirimIptal}>İptal</Button>
+            {/* Vito sürücüsü */}
+            {activeDrivers.length > 0 && (
+              <div className="mb-8">
+                <label className="text-[11px] font-semibold text-mu uppercase tracking-widest block mb-3">
+                  Vito Sürücüsü <span className="text-mu2 normal-case font-normal text-[10px]">(opsiyonel)</span>
+                </label>
+                <select
+                  value={vitoSurucuKey}
+                  onChange={e => setVitoSurucuKey(e.target.value)}
+                  className="w-full bg-sf2 border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
+                >
+                  <option value="">— Sürücü yok —</option>
+                  {activeDrivers.map(d => (
+                    <option key={d._key} value={d._key}>{d.ad} · {d.plaka}</option>
+                  ))}
+                </select>
+                {vitoSurucu && (
+                  <div className="mt-3 bg-bl/8 border border-bl/20 rounded-xl px-5 py-4">
+                    <div className="text-[10px] text-bl uppercase tracking-widest mb-3 font-semibold">Komisyon Önizleme</div>
+                    <div className="flex justify-between text-mu mb-2 text-sm"><span>Sürücü</span><span className="text-tx font-medium">{vitoSurucu.ad}</span></div>
+                    <div className="flex justify-between text-mu mb-2 text-sm"><span>Plaka</span><span className="text-ac font-mono">{vitoSurucu.plaka}</span></div>
+                    <div className="flex justify-between text-mu mb-2 text-sm"><span>Oran</span><span>%{vitoSurucu.komisyonOran}</span></div>
+                    <div className="flex justify-between text-gn font-semibold border-t border-bl/15 pt-3 mt-2 text-sm">
+                      <span>Komisyon</span><span>{fmtMoney(vitoKomisyon)}</span>
+                    </div>
+                  </div>
                 )}
               </div>
-              {indirimMsg && (
-                <p className={`text-xs mt-3 ${aktifIndirimKodu ? 'text-gn' : 'text-rd'}`}>{indirimMsg}</p>
-              )}
+            )}
+
+            {/* Divider */}
+            <div className="h-px bg-bd mb-8" />
+
+            {/* Bilet türleri */}
+            <div className="space-y-1 mb-6">
+              {TICKET_TYPES.map(tp => (
+                <div
+                  key={tp.key}
+                  className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-4 rounded-xl hover:bg-sf2/50 transition-colors"
+                >
+                  <div>
+                    <div className="text-[14px] font-medium">{tp.label}</div>
+                    <div className="text-[11px] text-mu mt-0.5">{tp.sub}</div>
+                  </div>
+                  <div className={`text-sm font-mono font-semibold ${tp.color} whitespace-nowrap`}>
+                    {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : '0 ₺'}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setQty(q => ({ ...q, [tp.key]: Math.max(0, q[tp.key] - 1) }))}
+                      className="w-9 h-9 rounded-xl border border-bd bg-sf text-tx text-lg cursor-pointer hover:border-ac hover:text-ac flex items-center justify-center transition-all"
+                    >−</button>
+                    <span className="w-8 text-center font-semibold font-mono text-[16px]">{qty[tp.key]}</span>
+                    <button
+                      onClick={() => setQty(q => ({ ...q, [tp.key]: q[tp.key] + 1 }))}
+                      className="w-9 h-9 rounded-xl border border-bd bg-sf text-tx text-lg cursor-pointer hover:border-ac hover:text-ac flex items-center justify-center transition-all"
+                    >+</button>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
 
-          {/* Özet */}
-          <OzetBox qty={qty} indirimKodu={aktifIndirimKodu} indirimOrani={indirimOrani} />
+            {/* İndirim kodu */}
+            {toplam > 0 && (
+              <div className="bg-sf2/60 border border-bd rounded-2xl p-5">
+                <div className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">İndirim Kodu</div>
+                <div className="flex gap-3">
+                  <input
+                    value={indirimInput}
+                    onChange={e => setIndirimInput(e.target.value.toUpperCase())}
+                    disabled={!!aktifIndirimKodu}
+                    placeholder="Kodu girin..."
+                    className="flex-1 bg-bg border border-bd rounded-xl px-4 py-2.5 text-tx font-mono text-sm outline-none focus:border-ac disabled:opacity-50"
+                  />
+                  {!aktifIndirimKodu ? (
+                    <Button variant="accent" size="sm" onClick={handleIndirimUygula} disabled={indirimChecking}>
+                      Uygula
+                    </Button>
+                  ) : (
+                    <Button variant="danger" size="sm" onClick={handleIndirimIptal}>İptal</Button>
+                  )}
+                </div>
+                {indirimMsg && (
+                  <p className={`text-xs mt-3 ${aktifIndirimKodu ? 'text-gn' : 'text-rd'}`}>{indirimMsg}</p>
+                )}
+              </div>
+            )}
 
-          {/* Butonlar */}
-          <div className="flex gap-3 mt-6 pt-6 border-t border-bd">
-            <Button variant="ghost" onClick={resetForm}>İptal</Button>
-            <Button variant="accent" disabled={toplam === 0 || !ad.trim()} onClick={() => setConfirmOpen(true)}>
-              Satışı Tamamla
-            </Button>
+            {/* Özet */}
+            <OzetBox qty={qty} indirimKodu={aktifIndirimKodu} indirimOrani={indirimOrani} />
+
+            {/* Butonlar */}
+            <div className="flex gap-3 mt-6 pt-6 border-t border-bd">
+              <Button variant="ghost" onClick={resetForm}>İptal</Button>
+              <Button variant="accent" disabled={toplam === 0 || !ad.trim()} onClick={() => setConfirmOpen(true)}>
+                Satışı Tamamla
+              </Button>
+            </div>
           </div>
         </div>
       )}

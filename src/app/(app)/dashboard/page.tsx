@@ -76,14 +76,6 @@ function ProgressBar({ pct }: { pct: number }) {
   );
 }
 
-// ─── Section Header ───────────────────────────────────────────────────────────
-
-function SectionHeader({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">{children}</p>
-  );
-}
-
 // ─── Ana Sayfa ────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -152,12 +144,15 @@ export default function DashboardPage() {
   const totalPct = codes.length > 0 ? Math.round(kodKullanilan / codes.length * 100) : 0;
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
 
-      {/* ─── Tarih Filtresi ────────────────────────────────────────────────────── */}
-      <div className="glass-card rounded-2xl px-6 py-5">
-        <SectionHeader>Dönem Seç</SectionHeader>
-        <div className="flex items-center gap-3 flex-wrap">
+      {/* ─── Sayfa Başlığı + Tarih Filtresi ────────────────────────────────────── */}
+      <div className="flex items-start justify-between gap-6 mb-10 flex-wrap">
+        <div>
+          <h1 className="text-[26px] font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-mu text-[13px] mt-1">Satış ve gelir özeti</p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap glass-card rounded-2xl px-5 py-3">
           {[{ l: 'Bugün', d: 1 }, { l: '7 Gün', d: 7 }, { l: '30 Gün', d: 30 }].map(({ l, d }) => (
             <button
               key={l}
@@ -185,28 +180,29 @@ export default function DashboardPage() {
       </div>
 
       {/* ─── KPI ───────────────────────────────────────────────────────────────── */}
-      <div>
-        <SectionHeader>Dönem Özeti</SectionHeader>
-        <div className="grid grid-cols-4 gap-6">
-          <KpiCard label="Dönem Bilet" value={donemBilet.toLocaleString('tr-TR')} sub="kişi" color="ac" />
-          <KpiCard label="Dönem Gelir" value={fmtMoney(donemGelir)} color="gn" />
-          <KpiCard label="Aktif Kod" value={kodAktif.toLocaleString('tr-TR')} sub={`${kodKullanilan} kullanıldı`} color="bl" />
-          <KpiCard label="Dönem Kullanım" value={kodDonem} sub="seçili aralıkta" color="rd" />
-        </div>
+      <div className="grid grid-cols-4 gap-6">
+        <KpiCard label="Dönem Bilet" value={donemBilet.toLocaleString('tr-TR')} sub="kişi" color="ac" />
+        <KpiCard label="Dönem Gelir" value={fmtMoney(donemGelir)} color="gn" />
+        <KpiCard label="Aktif Kod" value={kodAktif.toLocaleString('tr-TR')} sub={`${kodKullanilan} kullanıldı`} color="bl" />
+        <KpiCard label="Dönem Kullanım" value={kodDonem} sub="seçili aralıkta" color="rd" />
       </div>
 
       {/* ─── Dağılım + Seans ───────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-[3fr_2fr] gap-6">
-        <div>
-          <SectionHeader>Bilet Türü Dağılımı</SectionHeader>
-          <div className="glass-card rounded-2xl p-8">
+      <div className="grid grid-cols-5 gap-6">
+        <div className="col-span-3 glass-card rounded-2xl overflow-hidden">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">Bilet Dağılımı</h2>
+          </div>
+          <div className="p-7">
             <DonutChart data={donutData} />
           </div>
         </div>
 
-        <div>
-          <SectionHeader>Seans Bazlı</SectionHeader>
-          <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="col-span-2 glass-card rounded-2xl overflow-hidden">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">Seans</h2>
+          </div>
+          <div className="p-0">
             <div className="grid grid-cols-3 px-6 py-3 border-b border-bd">
               <span className="text-[10px] text-mu uppercase tracking-wide">Seans</span>
               <span className="text-[10px] text-mu uppercase tracking-wide text-center">Bilet</span>
@@ -226,60 +222,62 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ─── İndirim Kodları ───────────────────────────────────────────────────── */}
-      <div>
-        <SectionHeader>İndirim Kodu Durumu</SectionHeader>
-
-        <div className="glass-card rounded-2xl p-7 mb-4">
+      {/* ─── İndirim Kodu Durumu ───────────────────────────────────────────────── */}
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd flex items-center justify-between">
+          <h2 className="text-[15px] font-semibold text-tx">İndirim Kodu Durumu</h2>
+          <div className="flex items-center gap-4 text-[12px] font-mono text-mu tabular-nums">
+            <span className="text-rd">{kodKullanilan} kullanıldı</span>
+            <span className="text-bd2">·</span>
+            <span className="text-gn">{kodAktif} kaldı</span>
+          </div>
+        </div>
+        <div className="p-7">
           <div className="flex justify-between items-center mb-4">
             <span className="text-[14px] font-semibold">Toplam Stok</span>
-            <div className="flex items-center gap-4 text-[12px] font-mono text-mu tabular-nums">
-              <span className="text-rd">{kodKullanilan} kullanıldı</span>
-              <span className="text-bd2">·</span>
-              <span className="text-gn">{kodAktif} kaldı</span>
-            </div>
+            <p className="text-[11px] text-mu tabular-nums">%{totalPct}</p>
           </div>
           <ProgressBar pct={totalPct} />
-          <p className="text-right text-[11px] text-mu mt-2 tabular-nums">%{totalPct}</p>
-        </div>
 
-        {grupData.length > 0 && (
-          <div className="space-y-3">
-            {grupData.map(g => {
-              const pct = g.toplam > 0 ? Math.round(g.kullanilan / g.toplam * 100) : 0;
-              return (
-                <div key={g.name} className="glass-card rounded-2xl px-6 py-5">
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-[14px] font-medium">{g.name}</span>
-                      {pct >= 80 && (
-                        <span className="text-[10px] text-rd font-semibold bg-rdd px-2 py-0.5 rounded-full">Stok azalıyor</span>
-                      )}
-                      {g.donem > 0 && (
-                        <span className="text-[10px] text-bl font-mono">+{g.donem} bu dönem</span>
-                      )}
+          {grupData.length > 0 && (
+            <div className="space-y-3 mt-6">
+              {grupData.map(g => {
+                const pct = g.toplam > 0 ? Math.round(g.kullanilan / g.toplam * 100) : 0;
+                return (
+                  <div key={g.name} className="glass-card rounded-2xl px-6 py-5">
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-[14px] font-medium">{g.name}</span>
+                        {pct >= 80 && (
+                          <span className="text-[10px] text-rd font-semibold bg-rdd px-2 py-0.5 rounded-full">Stok azalıyor</span>
+                        )}
+                        {g.donem > 0 && (
+                          <span className="text-[10px] text-bl font-mono">+{g.donem} bu dönem</span>
+                        )}
+                      </div>
+                      <span className="text-[13px] font-mono text-mu tabular-nums">{g.kullanilan}/{g.toplam}</span>
                     </div>
-                    <span className="text-[13px] font-mono text-mu tabular-nums">{g.kullanilan}/{g.toplam}</span>
+                    <ProgressBar pct={pct} />
                   </div>
-                  <ProgressBar pct={pct} />
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ─── Kurumsal Paketler ──────────────────────────────────────────────────── */}
       {kurumsalPaketler.length > 0 && (
-        <div>
-          <SectionHeader>Kurumsal Paketler</SectionHeader>
-          <div className="grid grid-cols-3 gap-6">
-            {kurumsalPaketler.map(p => {
-              const pct = p.adet > 0 ? Math.round(p.kullanilanAdet / p.adet * 100) : 0;
-              return (
-                <div key={p._key} className="glass-card rounded-2xl p-7">
-                  <p className="text-[14px] font-semibold mb-1">{p.firma}</p>
-                  <p className="text-[11px] text-mu mb-5">{p.baslangic} — {p.bitis}</p>
+        <div className="grid grid-cols-3 gap-6">
+          {kurumsalPaketler.map(p => {
+            const pct = p.adet > 0 ? Math.round(p.kullanilanAdet / p.adet * 100) : 0;
+            return (
+              <div key={p._key} className="glass-card rounded-2xl overflow-hidden">
+                <div className="px-7 py-5 border-b border-bd">
+                  <h2 className="text-[15px] font-semibold text-tx">{p.firma}</h2>
+                  <p className="text-[11px] text-mu mt-1">{p.baslangic} — {p.bitis}</p>
+                </div>
+                <div className="p-7">
                   <p className="text-3xl font-semibold tracking-tight text-ac tabular-nums mb-4">
                     {p.kullanilanAdet}
                     <span className="text-mu text-lg font-normal">/{p.adet}</span>
@@ -287,63 +285,63 @@ export default function DashboardPage() {
                   <ProgressBar pct={pct} />
                   <p className="text-[11px] text-mu mt-2 tabular-nums text-right">%{pct}</p>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* ─── Vito Raporu ────────────────────────────────────────────────────────── */}
+      {/* ─── Vito Komisyon ─────────────────────────────────────────────────────── */}
       {vitoRapor.length > 0 && (
-        <div>
-          <SectionHeader>Vito Komisyon</SectionHeader>
-          <div className="glass-card rounded-2xl overflow-hidden">
-
-            {/* Özet satırı */}
-            <div className="grid grid-cols-3 border-b border-bd">
-              {[
-                { label: 'Tur Sayısı', value: vitoRapor.reduce((s, v) => s + v.turSayisi, 0), color: '' },
-                { label: 'Toplam Kişi', value: vitoRapor.reduce((s, v) => s + v.toplamKisi, 0), color: '' },
-                { label: 'Toplam Hakediş', value: fmtMoney(vitoRapor.reduce((s, v) => s + v.toplamHakedis, 0)), color: 'text-bl' },
-              ].map((k, i) => (
-                <div key={k.label} className={`px-7 py-5 ${i < 2 ? 'border-r border-bd' : ''}`}>
-                  <p className="text-[11px] text-mu uppercase tracking-wide mb-1.5">{k.label}</p>
-                  <p className={`text-2xl font-semibold tabular-nums ${k.color}`}>{k.value}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Detay tablosu */}
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-bd">
-                  {['Sürücü', 'Tarih', 'Seans', 'Kişi', 'Hakediş', 'Ödeme'].map(h => (
-                    <th key={h} className="px-5 py-3.5 text-left text-[10px] font-semibold text-mu uppercase tracking-wide">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {vitoRapor.flatMap(v =>
-                  v.turler.map(t => (
-                    <tr key={t.id} className="border-b border-bd last:border-0 hover:bg-sf2/60 transition-colors">
-                      <td className="px-5 py-4 font-medium">{v.driver.ad}</td>
-                      <td className="px-5 py-4 font-mono text-mu">{t.tarih}</td>
-                      <td className="px-5 py-4 font-mono">{t.seans}</td>
-                      <td className="px-5 py-4 font-mono tabular-nums">{(t.tam||0)+(t.cocuk||0)+(t.yabanci||0)}</td>
-                      <td className="px-5 py-4 text-bl font-mono tabular-nums font-semibold">{fmtMoney(t.vitoKomisyon||0)}</td>
-                      <td className="px-5 py-4">
-                        <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${t.vitoOdendi ? 'bg-gd text-gn' : 'bg-rdd text-rd'}`}>
-                          {t.vitoOdendi ? 'Ödendi' : 'Bekliyor'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+        <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">Vito Komisyon</h2>
           </div>
+
+          {/* Özet satırı */}
+          <div className="grid grid-cols-3 border-b border-bd">
+            {[
+              { label: 'Tur Sayısı', value: vitoRapor.reduce((s, v) => s + v.turSayisi, 0), color: '' },
+              { label: 'Toplam Kişi', value: vitoRapor.reduce((s, v) => s + v.toplamKisi, 0), color: '' },
+              { label: 'Toplam Hakediş', value: fmtMoney(vitoRapor.reduce((s, v) => s + v.toplamHakedis, 0)), color: 'text-bl' },
+            ].map((k, i) => (
+              <div key={k.label} className={`px-7 py-5 ${i < 2 ? 'border-r border-bd' : ''}`}>
+                <p className="text-[11px] text-mu uppercase tracking-wide mb-1.5">{k.label}</p>
+                <p className={`text-2xl font-semibold tabular-nums ${k.color}`}>{k.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Detay tablosu */}
+          <table className="w-full text-[13px]">
+            <thead>
+              <tr className="border-b border-bd">
+                {['Sürücü', 'Tarih', 'Seans', 'Kişi', 'Hakediş', 'Ödeme'].map(h => (
+                  <th key={h} className="px-6 py-4 text-left text-[10px] font-semibold text-mu uppercase tracking-wide">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {vitoRapor.flatMap(v =>
+                v.turler.map(t => (
+                  <tr key={t.id} className="border-b border-bd last:border-0 hover:bg-sf2/60 transition-colors">
+                    <td className="px-6 py-4 font-medium">{v.driver.ad}</td>
+                    <td className="px-6 py-4 font-mono text-mu">{t.tarih}</td>
+                    <td className="px-6 py-4 font-mono">{t.seans}</td>
+                    <td className="px-6 py-4 font-mono tabular-nums">{(t.tam||0)+(t.cocuk||0)+(t.yabanci||0)}</td>
+                    <td className="px-6 py-4 text-bl font-mono tabular-nums font-semibold">{fmtMoney(t.vitoKomisyon||0)}</td>
+                    <td className="px-6 py-4">
+                      <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${t.vitoOdendi ? 'bg-gd text-gn' : 'bg-rdd text-rd'}`}>
+                        {t.vitoOdendi ? 'Ödendi' : 'Bekliyor'}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       )}
 
