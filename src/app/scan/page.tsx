@@ -30,12 +30,15 @@ function nowSaat() {
 
 export default function ScanPage() {
   const satisList = useSatisList();
-  const [input, setInput]         = useState('');
-  const [result, setResult]       = useState<ScanResult>(IDLE);
-  const [girisModal, setGirisModal] = useState(false);
-  const [pnrData, setPnrData]     = useState<{ pnr: string; musteriAd: string; tarih: string; seans: string; bekleyenler: Array<{ no: string; tur: string; checked: boolean }> } | null>(null);
+  const [input, setInput]             = useState('');
+  const [result, setResult]           = useState<ScanResult>(IDLE);
+  const [girisModal, setGirisModal]   = useState(false);
+  const [pnrData, setPnrData]         = useState<{
+    pnr: string; musteriAd: string; tarih: string; seans: string;
+    bekleyenler: Array<{ no: string; tur: string; checked: boolean }>;
+  } | null>(null);
   const [nameResults, setNameResults] = useState<Satis[]>([]);
-  const [nameModal, setNameModal] = useState(false);
+  const [nameModal, setNameModal]     = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const resetResult = () => setResult(IDLE);
@@ -68,7 +71,6 @@ export default function ScanPage() {
         setResult({ state: 'invalid', icon: '✗', msg: 'PNR Bulunamadı', detail: 'Bu PNR sistemde kayıtlı değil.' });
         return;
       }
-      // Fetch tickets for this PNR
       await openPnrModal(val, p);
       return;
     }
@@ -130,39 +132,54 @@ export default function ScanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col items-center px-4 py-8">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-bg flex flex-col items-center justify-start px-4 pt-10 pb-10">
+      <div className="w-full max-w-[480px] space-y-5">
+
         {/* Başlık */}
-        <div className="text-center mb-8">
-          <div className="text-[11px] tracking-[4px] text-mu mb-1">✦ STARDUST ✦</div>
-          <div className="text-xl font-semibold">Bilet Tarama</div>
+        <div className="glass-card rounded-2xl px-6 py-6 text-center">
+          <div className="text-[10px] tracking-[4px] text-mu mb-2 font-medium">✦ STARDUST ✦</div>
+          <h1 className="text-[22px] font-semibold tracking-tight">Bilet Kontrol</h1>
+          <p className="text-mu text-[12px] mt-1.5">PNR, bilet no veya ad soyad ile sorgula</p>
         </div>
 
-        {/* Arama Alanı */}
-        <div className="mb-4">
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={e => { setInput(e.target.value); resetResult(); }}
-            onKeyDown={e => e.key === 'Enter' && handleSearch()}
-            placeholder="PNR, SD- no veya ad soyad"
-            autoFocus
-            autoComplete="off"
-            autoCapitalize="characters"
-            className="w-full bg-sf border-2 border-ac rounded-xl px-5 py-4 text-tx font-mono text-lg outline-none text-center tracking-widest focus:border-ac-hover placeholder:text-mu placeholder:text-base placeholder:tracking-normal"
-          />
+        {/* Arama */}
+        <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">Sorgulama</h2>
+          </div>
+          <div className="p-6">
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={e => { setInput(e.target.value); resetResult(); }}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              placeholder="SD-… · PNR-… · Ad Soyad"
+              autoFocus
+              autoComplete="off"
+              autoCapitalize="characters"
+              className="w-full bg-bg border-2 border-bd rounded-xl px-5 py-4 text-tx font-mono text-lg outline-none text-center tracking-wider focus:border-ac placeholder:text-mu placeholder:text-sm placeholder:tracking-normal mb-4"
+            />
+            <Button variant="accent" onClick={handleSearch} className="w-full py-3 text-[15px] font-semibold">
+              Sorgula
+            </Button>
+          </div>
         </div>
-        <Button variant="accent" onClick={handleSearch} className="w-full mb-6 py-3 text-base font-semibold">Sorgula</Button>
 
         {/* Sonuç */}
         {result.state !== 'idle' && (
-          <div className={`rounded-xl p-6 text-center ${result.state === 'valid' ? 'bg-gd border-2 border-gn' : 'bg-rdd border-2 border-rd'}`}>
-            <div className="text-5xl mb-3 leading-none">{result.icon}</div>
-            <div className={`text-xl font-bold mb-2 ${result.state === 'valid' ? 'text-gn' : 'text-rd'}`}>{result.msg}</div>
+          <div className={`rounded-2xl p-8 text-center border-2 ${
+            result.state === 'valid' ? 'bg-gd border-gn' : 'bg-rdd border-rd'
+          }`}>
+            <div className="text-6xl mb-4 leading-none">{result.icon}</div>
+            <div className={`text-2xl font-bold mb-3 ${result.state === 'valid' ? 'text-gn' : 'text-rd'}`}>
+              {result.msg}
+            </div>
             <div className="text-sm text-mu whitespace-pre-line leading-relaxed">{result.detail}</div>
             {result.state === 'valid' && result.biletNo && (
-              <button onClick={handleBiletGiris}
-                className="mt-4 bg-gn text-black font-bold px-6 py-2.5 rounded-xl text-sm hover:bg-gn/90 transition-all w-full">
+              <button
+                onClick={handleBiletGiris}
+                className="mt-5 bg-gn text-black font-bold px-6 py-3 rounded-xl text-[15px] hover:bg-gn/90 transition-all w-full"
+              >
                 ✓ Giriş Ver
               </button>
             )}
