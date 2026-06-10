@@ -146,12 +146,6 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
 
-      {/* ─── Sayfa Başlığı ──────────────────────────────────────────────────────── */}
-      <div>
-        <h1 className="text-4xl font-bold tracking-tight text-tx">Dashboard</h1>
-        <p className="text-mu text-base mt-2">Satış ve gelir özeti</p>
-      </div>
-
       {/* ─── Tarih Filtre Kartı ─────────────────────────────────────────────────── */}
       <div className="glass-card rounded-2xl border border-bd2 p-6 flex items-center gap-3 flex-wrap">
         <span className="text-sm font-semibold text-mu uppercase tracking-widest mr-2">Dönem</span>
@@ -273,7 +267,8 @@ export default function DashboardPage() {
       {kurumsalPaketler.length > 0 && (
         <div className="grid grid-cols-3 gap-6">
           {kurumsalPaketler.map(p => {
-            const pct = p.adet > 0 ? Math.round(p.kullanilanAdet / p.adet * 100) : 0;
+            const kullanilanAdet = p.kullanilanAdet ?? 0;
+            const pct = p.adet > 0 ? Math.round(kullanilanAdet / p.adet * 100) : 0;
             return (
               <div key={p._key} className="glass-card rounded-2xl border border-bd2 overflow-hidden">
                 <div className="px-6 py-5 border-b border-bd2">
@@ -282,8 +277,8 @@ export default function DashboardPage() {
                 </div>
                 <div className="p-6">
                   <p className="text-4xl font-bold tracking-tight text-ac tabular-nums mb-4">
-                    {p.kullanilanAdet}
-                    <span className="text-mu text-xl font-normal">/{p.adet}</span>
+                    {kullanilanAdet}
+                    <span className="text-mu text-xl font-normal">/{p.adet ?? 0}</span>
                   </p>
                   <ProgressBar pct={pct} />
                   <p className="text-sm text-mu mt-2 tabular-nums text-right font-mono">%{pct}</p>
