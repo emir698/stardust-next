@@ -33,10 +33,6 @@ const ROLE_LABELS: Record<string, string> = {
   management1: 'Management',
 };
 
-function SectionHeader({ children }: { children: React.ReactNode }) {
-  return <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">{children}</p>;
-}
-
 // ─── Kullanıcı Yönetimi ───────────────────────────────────────────────────────
 
 function KullaniciYonetimi() {
@@ -84,7 +80,7 @@ function KullaniciYonetimi() {
   return (
     <div className="glass-card rounded-2xl overflow-hidden">
       <div className="flex justify-between items-center px-7 py-5 border-b border-bd">
-        <SectionHeader>Kullanıcılar</SectionHeader>
+        <h2 className="text-[15px] font-semibold text-tx">Kullanıcılar</h2>
         <Button variant="accent" size="sm" onClick={() => setAddModal(true)}>+ Kullanıcı Ekle</Button>
       </div>
       <div className="divide-y divide-bd">
@@ -195,7 +191,7 @@ function KurumsalYonetimi() {
   return (
     <div className="glass-card rounded-2xl overflow-hidden">
       <div className="flex justify-between items-center px-7 py-5 border-b border-bd">
-        <SectionHeader>Kurumsal Paketler</SectionHeader>
+        <h2 className="text-[15px] font-semibold text-tx">Kurumsal Paketler</h2>
         <Button variant="accent" size="sm" onClick={openAdd}>+ Paket Ekle</Button>
       </div>
       {paketler.length === 0 ? (
@@ -273,7 +269,7 @@ function TehlikeliIslemler() {
   return (
     <div className="rounded-2xl overflow-hidden border border-rd/20" style={{ background: 'rgba(248,113,113,0.04)' }}>
       <div className="px-7 py-5 border-b border-rd/15">
-        <p className="text-[11px] font-semibold text-rd uppercase tracking-widest">Tehlikeli İşlemler</p>
+        <h2 className="text-[15px] font-semibold text-rd">Tehlikeli İşlemler</h2>
       </div>
       <div className="px-7 py-6">
         <div className="flex gap-3">
@@ -307,7 +303,11 @@ export default function AdminPage() {
   const aktifKod    = codes.filter(c => c?.status === 'aktif').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-[26px] font-semibold tracking-tight">Yönetim Paneli</h1>
+        <p className="text-mu text-[13px] mt-1">Sistem ve kullanıcı ayarları</p>
+      </div>
 
       {/* ─── KPI ─── */}
       <div className="grid grid-cols-3 gap-6">

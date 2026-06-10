@@ -13,10 +13,10 @@ import { toast } from '@/components/ui/Toast';
 import QRCode from 'qrcode';
 import {
   todayStr, dateToInput, inputToDate, getSaatler,
-  isEtkinlikGunu, fmtMoney, genID, genPNR, getDayName, fmtDate,
+  isEtkinlikGunu, fmtMoney, genID, genPNR, fmtDate,
 } from '@/lib/utils';
 import { hesaplaFiyat } from '@/lib/pricing';
-import { TICKET_PRICES, type TicketQty, type Satis, type PNRKayit, type IndirimKodu, type VitoDriver } from '@/types';
+import { type TicketQty, type Satis, type IndirimKodu, type VitoDriver } from '@/types';
 
 const EMPTY_QTY: TicketQty = { tam: 0, cocuk: 0, yabanci: 0, davetli: 0, kurumsal: 0 };
 const TICKET_TYPES = [
@@ -28,10 +28,6 @@ const TICKET_TYPES = [
 
 async function buildQRUrl(text: string): Promise<string> {
   return QRCode.toDataURL(text, { width: 160, margin: 1 });
-}
-
-function SectionHeader({ children }: { children: React.ReactNode }) {
-  return <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">{children}</p>;
 }
 
 // ─── Sekme: Bilet Sat ────────────────────────────────────────────────────────
@@ -62,7 +58,7 @@ function VitoBiletSat({ drivers, satisList, user }: {
   const [lastPNR, setLastPNR]           = useState('');
   const [lastAdSoyad, setLastAdSoyad]   = useState('');
 
-  const saatler = getSaatler(selectedTarih);
+  const saatler    = getSaatler(selectedTarih);
   const isEtkinlik = isEtkinlikGunu(selectedTarih);
   const seansCounts = useMemo(() =>
     satisList.filter(s => s.tarih === selectedTarih).reduce((acc, s) => {
@@ -71,13 +67,13 @@ function VitoBiletSat({ drivers, satisList, user }: {
     }, {} as Record<string, number>)
   , [satisList, selectedTarih]);
 
-  const driver = drivers.find(d => d._key === selectedDriver);
-  const toplam = qty.tam + qty.cocuk + qty.yabanci + qty.davetli + qty.kurumsal;
-  const p = hesaplaFiyat(qty.tam, qty.cocuk, qty.yabanci);
+  const driver    = drivers.find(d => d._key === selectedDriver);
+  const toplam    = qty.tam + qty.cocuk + qty.yabanci + qty.davetli + qty.kurumsal;
+  const p         = hesaplaFiyat(qty.tam, qty.cocuk, qty.yabanci);
   const gelirBase = p.gelir;
   const indirimTutar = indirimOrani > 0 ? Math.round(gelirBase * indirimOrani) : 0;
   const sonToplam = gelirBase - indirimTutar;
-  const vitoKom = driver ? Math.round(gelirBase * (driver.komisyonOran / 100)) : 0;
+  const vitoKom   = driver ? Math.round(gelirBase * (driver.komisyonOran / 100)) : 0;
 
   const handleIndirimUygula = () => {
     const kod = indirimInput.trim().toUpperCase();
@@ -93,11 +89,11 @@ function VitoBiletSat({ drivers, satisList, user }: {
   const handleTamamla = async () => {
     if (!selectedSeans || !user) return;
     setConfirmOpen(false);
-    const adSoyad = `${ad.trim()} ${soyad.trim()}`.trim();
-    const pnr = 'PNR-' + genPNR();
-    const now = new Date();
-    const saat = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-    const satisId = genID();
+    const adSoyad  = `${ad.trim()} ${soyad.trim()}`.trim();
+    const pnr      = 'PNR-' + genPNR();
+    const now      = new Date();
+    const saat     = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+    const satisId  = genID();
 
     const biletNolar: string[] = [];
     const biletlerFirebase: Record<string, unknown> = {};
@@ -145,132 +141,151 @@ function VitoBiletSat({ drivers, satisList, user }: {
     <div className="space-y-6">
 
       {/* Sürücü seçimi */}
-      <div className="glass-card rounded-2xl px-6 py-5">
-        <SectionHeader>Vito Sürücüsü</SectionHeader>
-        <select
-          value={selectedDriver}
-          onChange={e => setSelectedDriver(e.target.value)}
-          className="w-full bg-sf2 border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
-        >
-          <option value="">— Sürücü seçin —</option>
-          {activeDrivers.map(d => <option key={d._key} value={d._key}>{d.ad} · {d.plaka}</option>)}
-        </select>
-        {driver && (
-          <div className="mt-3 bg-bl/8 border border-bl/20 rounded-xl px-4 py-3 text-xs">
-            <div className="text-[10px] text-bl uppercase tracking-widest mb-2 font-semibold">Seçili Sürücü</div>
-            <div className="flex gap-6 text-mu">
-              <span className="text-tx font-medium">{driver.ad}</span>
-              <span className="font-mono text-ac">{driver.plaka}</span>
-              <span>%{driver.komisyonOran} komisyon</span>
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd">
+          <h2 className="text-[15px] font-semibold text-tx">Vito Sürücüsü</h2>
+        </div>
+        <div className="p-7">
+          <select
+            value={selectedDriver}
+            onChange={e => setSelectedDriver(e.target.value)}
+            className="w-full bg-sf2 border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
+          >
+            <option value="">— Sürücü seçin —</option>
+            {activeDrivers.map(d => <option key={d._key} value={d._key}>{d.ad} · {d.plaka}</option>)}
+          </select>
+          {driver && (
+            <div className="mt-4 bg-bl/8 border border-bl/20 rounded-xl px-4 py-3 text-xs">
+              <div className="text-[10px] text-bl uppercase tracking-widest mb-2 font-semibold">Seçili Sürücü</div>
+              <div className="flex gap-6 text-mu">
+                <span className="text-tx font-medium">{driver.ad}</span>
+                <span className="font-mono text-ac">{driver.plaka}</span>
+                <span>%{driver.komisyonOran} komisyon</span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Tarih */}
-      <div className="glass-card rounded-2xl px-6 py-5">
-        <SectionHeader>Tarih Seç</SectionHeader>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => { setSelectedTarih(todayStr()); setSelectedSeans(null); }}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
-              selectedTarih === todayStr() ? 'bg-btn text-white border-btn' : 'bg-sf2 text-tx border-bd hover:border-bd2'
-            }`}
-          >
-            Bugün
-          </button>
-          <input
-            type="date"
-            value={dateToInput(selectedTarih)}
-            onChange={e => { setSelectedTarih(inputToDate(e.target.value)); setSelectedSeans(null); }}
-            className="bg-sf2 border border-bd rounded-xl px-4 py-2 text-tx font-mono text-sm outline-none focus:border-ac cursor-pointer"
-          />
-          {selectedTarih !== todayStr() && (
-            <span className="text-sm text-ac font-medium">{fmtDate(selectedTarih)}</span>
-          )}
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd">
+          <h2 className="text-[15px] font-semibold text-tx">Tarih Seç</h2>
+        </div>
+        <div className="px-7 py-5">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { setSelectedTarih(todayStr()); setSelectedSeans(null); }}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
+                selectedTarih === todayStr() ? 'bg-btn text-white border-btn' : 'bg-sf2 text-tx border-bd hover:border-bd2'
+              }`}
+            >
+              Bugün
+            </button>
+            <input
+              type="date"
+              value={dateToInput(selectedTarih)}
+              onChange={e => { setSelectedTarih(inputToDate(e.target.value)); setSelectedSeans(null); }}
+              className="bg-sf2 border border-bd rounded-xl px-4 py-2 text-tx font-mono text-sm outline-none focus:border-ac cursor-pointer"
+            />
+            {selectedTarih !== todayStr() && (
+              <span className="text-sm text-ac font-medium">{fmtDate(selectedTarih)}</span>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Seans */}
       {isEtkinlik && saatler && (
-        <div className="glass-card rounded-2xl p-6">
-          <SectionHeader>Seans Seç</SectionHeader>
-          <div className="grid grid-cols-5 gap-3">
-            {saatler.map((saat, idx) => (
-              <button
-                key={saat}
-                onClick={() => setSelectedSeans(saat)}
-                className={`border-2 rounded-2xl py-4 px-2 text-center cursor-pointer transition-all hover-lift ${
-                  selectedSeans === saat ? 'border-bl bg-bl/10' : 'border-bd bg-sf2/60 hover:border-bd2'
-                }`}
-              >
-                <div className="text-[28px] font-semibold font-mono text-bl leading-none">{idx + 1}</div>
-                <div className="text-[11px] text-mu mt-2">{saat}</div>
-                <div className="text-sm text-tx font-mono font-semibold mt-1">{seansCounts[saat] ?? 0}</div>
-              </button>
-            ))}
+        <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">Seans Seç</h2>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-5 gap-3">
+              {saatler.map((saat, idx) => (
+                <button
+                  key={saat}
+                  onClick={() => setSelectedSeans(saat)}
+                  className={`border-2 rounded-2xl py-4 px-2 text-center cursor-pointer transition-all hover-lift ${
+                    selectedSeans === saat ? 'border-bl bg-bl/10' : 'border-bd bg-sf2/60 hover:border-bd2'
+                  }`}
+                >
+                  <div className="text-[28px] font-semibold font-mono text-bl leading-none">{idx + 1}</div>
+                  <div className="text-[11px] text-mu mt-2">{saat}</div>
+                  <div className="text-sm text-tx font-mono font-semibold mt-1">{seansCounts[saat] ?? 0}</div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
       {/* Müşteri + Biletler */}
       {selectedSeans && (
-        <div className="glass-card rounded-2xl p-7">
-          <SectionHeader>Müşteri Bilgileri</SectionHeader>
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <Input label="Ad"      value={ad}    onChange={e => setAd(e.target.value)}    placeholder="Ad" />
-            <Input label="Soyad"   value={soyad} onChange={e => setSoyad(e.target.value)} placeholder="Soyad" />
-            <Input label="Telefon" value={tel}   onChange={e => setTel(e.target.value)}   type="tel" />
-            <Input label="E-posta" value={mail}  onChange={e => setMail(e.target.value)}  type="email" />
+        <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">
+              Satış — Seans <span className="text-ac font-normal">{selectedSeans}</span>
+            </h2>
           </div>
+          <div className="p-7">
+            <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">Müşteri Bilgileri</p>
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <Input label="Ad"      value={ad}    onChange={e => setAd(e.target.value)}    placeholder="Ad" />
+              <Input label="Soyad"   value={soyad} onChange={e => setSoyad(e.target.value)} placeholder="Soyad" />
+              <Input label="Telefon" value={tel}   onChange={e => setTel(e.target.value)}   type="tel" />
+              <Input label="E-posta" value={mail}  onChange={e => setMail(e.target.value)}  type="email" />
+            </div>
 
-          <div className="h-px bg-bd mb-8" />
-          <SectionHeader>Bilet Türü — Seans <span className="text-ac normal-case font-normal">{selectedSeans}</span></SectionHeader>
+            <div className="h-px bg-bd mb-8" />
+            <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">Bilet Türleri</p>
 
-          <div className="space-y-1 mb-6">
-            {TICKET_TYPES.map(tp => (
-              <div key={tp.key} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-4 rounded-xl hover:bg-sf2/50 transition-colors">
-                <div className="text-[14px] font-medium">{tp.label}</div>
-                <div className="text-sm font-mono text-ac font-semibold whitespace-nowrap">
-                  {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : '0 ₺'}
+            <div className="space-y-1 mb-6">
+              {TICKET_TYPES.map(tp => (
+                <div key={tp.key} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-4 rounded-xl hover:bg-sf2/50 transition-colors">
+                  <div className="text-[14px] font-medium">{tp.label}</div>
+                  <div className="text-sm font-mono text-ac font-semibold whitespace-nowrap">
+                    {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : '0 ₺'}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setQty(q => ({ ...q, [tp.key]: Math.max(0, q[tp.key] - 1) }))}
+                      className="w-9 h-9 rounded-xl border border-bd bg-sf text-tx text-lg flex items-center justify-center hover:border-ac hover:text-ac transition-all"
+                    >−</button>
+                    <span className="w-8 text-center font-semibold font-mono text-[16px]">{qty[tp.key]}</span>
+                    <button
+                      onClick={() => setQty(q => ({ ...q, [tp.key]: q[tp.key] + 1 }))}
+                      className="w-9 h-9 rounded-xl border border-bd bg-sf text-tx text-lg flex items-center justify-center hover:border-ac hover:text-ac transition-all"
+                    >+</button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setQty(q => ({ ...q, [tp.key]: Math.max(0, q[tp.key] - 1) }))}
-                    className="w-9 h-9 rounded-xl border border-bd bg-sf text-tx text-lg flex items-center justify-center hover:border-ac hover:text-ac transition-all"
-                  >−</button>
-                  <span className="w-8 text-center font-semibold font-mono text-[16px]">{qty[tp.key]}</span>
-                  <button
-                    onClick={() => setQty(q => ({ ...q, [tp.key]: q[tp.key] + 1 }))}
-                    className="w-9 h-9 rounded-xl border border-bd bg-sf text-tx text-lg flex items-center justify-center hover:border-ac hover:text-ac transition-all"
-                  >+</button>
+              ))}
+            </div>
+
+            {toplam > 0 && driver && (
+              <div className="bg-bl/8 border border-bl/20 rounded-xl px-5 py-4 mb-4">
+                <div className="text-[10px] text-bl uppercase tracking-widest mb-2 font-semibold">Vito Komisyon</div>
+                <div className="flex justify-between text-gn font-semibold text-sm">
+                  <span>{driver.ad} · {driver.plaka}</span>
+                  <span>{fmtMoney(vitoKom)} (%{driver.komisyonOran})</span>
                 </div>
               </div>
-            ))}
-          </div>
+            )}
 
-          {toplam > 0 && driver && (
-            <div className="bg-bl/8 border border-bl/20 rounded-xl px-5 py-4 mb-4">
-              <div className="text-[10px] text-bl uppercase tracking-widest mb-2 font-semibold">Vito Komisyon</div>
-              <div className="flex justify-between text-gn font-semibold text-sm">
-                <span>{driver.ad} · {driver.plaka}</span>
-                <span>{fmtMoney(vitoKom)} (%{driver.komisyonOran})</span>
+            {toplam > 0 && (
+              <div className="flex justify-between items-center bg-sf2/60 border border-bd rounded-xl px-5 py-4 mb-6">
+                <span className="text-sm text-mu">TOPLAM ({toplam} kişi)</span>
+                <span className="font-mono font-semibold text-[16px] text-ac">{fmtMoney(sonToplam)}</span>
               </div>
-            </div>
-          )}
+            )}
 
-          {toplam > 0 && (
-            <div className="flex justify-between items-center bg-sf2/60 border border-bd rounded-xl px-5 py-4 mb-6">
-              <span className="text-sm text-mu">TOPLAM ({toplam} kişi)</span>
-              <span className="font-mono font-semibold text-[16px] text-ac">{fmtMoney(sonToplam)}</span>
+            <div className="flex gap-3 pt-4 border-t border-bd">
+              <Button variant="ghost" onClick={() => { setSelectedSeans(null); setQty({ ...EMPTY_QTY }); }}>İptal</Button>
+              <Button variant="accent" disabled={toplam === 0 || !ad.trim()} onClick={() => setConfirmOpen(true)}>
+                Satışı Tamamla
+              </Button>
             </div>
-          )}
-
-          <div className="flex gap-3 pt-4 border-t border-bd">
-            <Button variant="ghost" onClick={() => { setSelectedSeans(null); setQty({ ...EMPTY_QTY }); }}>İptal</Button>
-            <Button variant="accent" disabled={toplam === 0 || !ad.trim()} onClick={() => setConfirmOpen(true)}>
-              Satışı Tamamla
-            </Button>
           </div>
         </div>
       )}
@@ -319,10 +334,10 @@ function VitoBiletSat({ drivers, satisList, user }: {
 // ─── Sekme: Sürücüler ────────────────────────────────────────────────────────
 
 function VitoSurucular({ drivers }: { drivers: VitoDriver[] }) {
-  const [ad, setAd]     = useState('');
+  const [ad, setAd]       = useState('');
   const [plaka, setPlaka] = useState('');
-  const [tel, setTel]   = useState('');
-  const [oran, setOran] = useState('20');
+  const [tel, setTel]     = useState('');
+  const [oran, setOran]   = useState('20');
 
   const handleEkle = async () => {
     if (!ad.trim() || !plaka.trim()) { toast('Ad ve plaka zorunlu', 'err'); return; }
@@ -334,29 +349,34 @@ function VitoSurucular({ drivers }: { drivers: VitoDriver[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card rounded-2xl p-7">
-        <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-5">Yeni Sürücü Ekle</p>
-        <div className="grid grid-cols-2 gap-4 mb-5">
-          <Input label="Ad Soyad" value={ad}    onChange={e => setAd(e.target.value)}    placeholder="Ahmet Yılmaz" />
-          <Input label="Plaka"    value={plaka} onChange={e => setPlaka(e.target.value)} placeholder="34 ABC 123" />
-          <Input label="Telefon"  value={tel}   onChange={e => setTel(e.target.value)}   type="tel" />
-          <div>
-            <label className="text-[11px] font-semibold text-mu uppercase tracking-widest block mb-2">Komisyon Oranı</label>
-            <select
-              value={oran}
-              onChange={e => setOran(e.target.value)}
-              className="w-full bg-sf2 border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
-            >
-              {[10,15,20,25,30].map(v => <option key={v} value={String(v)}>%{v}</option>)}
-            </select>
-          </div>
+      <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd">
+          <h2 className="text-[15px] font-semibold text-tx">Yeni Sürücü Ekle</h2>
         </div>
-        <Button variant="accent" onClick={handleEkle}>+ Sürücü Ekle</Button>
+        <div className="p-7">
+          <div className="grid grid-cols-2 gap-4 mb-5">
+            <Input label="Ad Soyad" value={ad}    onChange={e => setAd(e.target.value)}    placeholder="Ahmet Yılmaz" />
+            <Input label="Plaka"    value={plaka} onChange={e => setPlaka(e.target.value)} placeholder="34 ABC 123" />
+            <Input label="Telefon"  value={tel}   onChange={e => setTel(e.target.value)}   type="tel" />
+            <div>
+              <label className="text-[11px] font-semibold text-mu uppercase tracking-widest block mb-2">Komisyon Oranı</label>
+              <select
+                value={oran}
+                onChange={e => setOran(e.target.value)}
+                className="w-full bg-sf2 border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
+              >
+                {[10,15,20,25,30].map(v => <option key={v} value={String(v)}>%{v}</option>)}
+              </select>
+            </div>
+          </div>
+          <Button variant="accent" onClick={handleEkle}>+ Sürücü Ekle</Button>
+        </div>
       </div>
 
       <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd">
-          <p className="text-[11px] font-semibold text-mu uppercase tracking-widest">Sürücü Listesi</p>
+        <div className="px-7 py-5 border-b border-bd flex items-center justify-between">
+          <h2 className="text-[15px] font-semibold text-tx">Sürücü Listesi</h2>
+          <span className="text-[11px] text-mu">{drivers.length} sürücü</span>
         </div>
         {drivers.length === 0 ? (
           <div className="text-mu text-sm text-center py-10">Henüz sürücü yok</div>
@@ -394,8 +414,8 @@ function VitoSurucular({ drivers }: { drivers: VitoDriver[] }) {
 function VitoKomisyon({ drivers, satisList }: { drivers: VitoDriver[]; satisList: Satis[] }) {
   const [filtreSurucu, setFiltreSurucu] = useState('');
 
-  const vitoSatislar = satisList.filter(t => t.vitoSurucu);
-  const filtered = filtreSurucu ? vitoSatislar.filter(t => t.vitoSurucu === filtreSurucu) : vitoSatislar;
+  const vitoSatislar  = satisList.filter(t => t.vitoSurucu);
+  const filtered      = filtreSurucu ? vitoSatislar.filter(t => t.vitoSurucu === filtreSurucu) : vitoSatislar;
   filtered.sort((a, b) => b.tarih.localeCompare(a.tarih));
 
   const toplamTur     = filtered.length;
@@ -410,37 +430,46 @@ function VitoKomisyon({ drivers, satisList }: { drivers: VitoDriver[]; satisList
   return (
     <div className="space-y-6">
 
-      {/* Filtre */}
-      <div className="glass-card rounded-2xl px-6 py-5">
-        <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">Sürücü Filtresi</p>
-        <select
-          value={filtreSurucu}
-          onChange={e => setFiltreSurucu(e.target.value)}
-          className="bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none"
-        >
-          <option value="">Tüm Sürücüler</option>
-          {drivers.filter(d => d.aktif).map(d => <option key={d._key} value={d._key}>{d.ad}</option>)}
-        </select>
-      </div>
+      {/* Filtre + KPI yan yana */}
+      <div className="grid grid-cols-[260px_1fr] gap-6 items-start">
+        <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="px-7 py-5 border-b border-bd">
+            <h2 className="text-[15px] font-semibold text-tx">Sürücü Filtresi</h2>
+          </div>
+          <div className="px-7 py-5">
+            <select
+              value={filtreSurucu}
+              onChange={e => setFiltreSurucu(e.target.value)}
+              className="w-full bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none focus:border-ac"
+            >
+              <option value="">Tüm Sürücüler</option>
+              {drivers.filter(d => d.aktif).map(d => <option key={d._key} value={d._key}>{d.ad}</option>)}
+            </select>
+          </div>
+        </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-6">
-        <div className="glass-card rounded-2xl p-6 text-center hover-lift">
-          <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Tur</div>
-          <div className="font-mono text-3xl font-semibold">{toplamTur}</div>
-        </div>
-        <div className="glass-card rounded-2xl p-6 text-center hover-lift">
-          <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Kişi</div>
-          <div className="font-mono text-3xl font-semibold">{toplamKisi}</div>
-        </div>
-        <div className="glass-card rounded-2xl p-6 text-center hover-lift">
-          <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Hakediş</div>
-          <div className="font-mono text-2xl font-semibold text-bl">{fmtMoney(toplamHakedis)}</div>
+        <div className="grid grid-cols-3 gap-6">
+          <div className="glass-card rounded-2xl p-6 text-center hover-lift">
+            <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Tur</div>
+            <div className="font-mono text-3xl font-semibold">{toplamTur}</div>
+          </div>
+          <div className="glass-card rounded-2xl p-6 text-center hover-lift">
+            <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Kişi</div>
+            <div className="font-mono text-3xl font-semibold">{toplamKisi}</div>
+          </div>
+          <div className="glass-card rounded-2xl p-6 text-center hover-lift">
+            <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Hakediş</div>
+            <div className="font-mono text-2xl font-semibold text-bl">{fmtMoney(toplamHakedis)}</div>
+          </div>
         </div>
       </div>
 
       {/* Tablo */}
       <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="px-7 py-5 border-b border-bd flex items-center justify-between">
+          <h2 className="text-[15px] font-semibold text-tx">Vito Turları</h2>
+          <span className="text-[11px] text-mu">{filtered.length} kayıt</span>
+        </div>
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="border-b border-bd">
@@ -489,9 +518,9 @@ function VitoKomisyon({ drivers, satisList }: { drivers: VitoDriver[]; satisList
 // ─── Ana Sayfa ────────────────────────────────────────────────────────────────
 
 export default function VitoPage() {
-  const { user } = useAuth();
-  const drivers   = useVitoDrivers();
-  const satisList = useSatisList();
+  const { user }   = useAuth();
+  const drivers    = useVitoDrivers();
+  const satisList  = useSatisList();
   const [activeTab, setActiveTab] = useState<'satis'|'surucular'|'komisyon'>('satis');
 
   const tabs = [
@@ -502,6 +531,11 @@ export default function VitoPage() {
 
   return (
     <div>
+      <div className="mb-10">
+        <h1 className="text-[26px] font-semibold tracking-tight">Vito Yönetimi</h1>
+        <p className="text-mu text-[13px] mt-1">Vito satışları ve komisyon takibi</p>
+      </div>
+
       {/* Alt sekmeler */}
       <div className="flex gap-1.5 mb-8 p-1.5 bg-sf2/60 border border-bd rounded-2xl w-fit">
         {tabs.map(t => (
