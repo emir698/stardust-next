@@ -2,44 +2,29 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* ── Backgrounds ─────────────────────────────────── */
-  --color-bg:   #0a0f1e;   /* midnight navy               */
-  --color-sf:   #0f1729;   /* card surface                */
-  --color-sf2:  #131e35;   /* input / secondary surface   */
-  --color-sf3:  #1a2745;   /* hover / tertiary            */
-
-  /* ── Borders ─────────────────────────────────────── */
-  --color-bd:   #1e2d4a;
-  --color-bd2:  #2a3f66;
-
-  /* ── Text ────────────────────────────────────────── */
-  --color-tx:   #e2e8f0;   /* slate-200                   */
-  --color-mu:   #64748b;   /* slate-500                   */
-  --color-mu2:  #3d5070;   /* between bd2 and mu          */
-
-  /* ── Silver accent ───────────────────────────────── */
-  --color-ac:       #94a3b8;   /* slate-400  */
-  --color-ac-hover: #cbd5e1;   /* slate-300  */
-
-  /* ── Navy button ─────────────────────────────────── */
-  --color-btn:      #1e40af;
-  --color-btn-hov:  #2563eb;
-
-  /* ── Status ──────────────────────────────────────── */
-  --color-gn:  #34d399;   /* emerald-400  */
-  --color-rd:  #f87171;   /* red-400      */
-  --color-bl:  #60a5fa;   /* blue-400     */
-  --color-or:  #fb923c;   /* orange-400   */
-  --color-vi:  #a78bfa;   /* violet-400   */
-  --color-pk:  #f472b6;   /* pink-400     */
-
-  /* ── Status tonal backgrounds ────────────────────── */
-  --color-gd:   rgba(52, 211, 153, 0.10);
-  --color-rdd:  rgba(248, 113, 113, 0.10);
-
-  /* ── Typography ──────────────────────────────────── */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-  --font-mono: 'IBM Plex Mono', 'SF Mono', 'Fira Code', monospace;
+  --color-bg:   #0f0f0f;
+  --color-sf:   #1a1a1a;
+  --color-sf2:  #242424;
+  --color-sf3:  #2a2a2a;
+  --color-bd:   #2a2a2a;
+  --color-bd2:  #3a3a3a;
+  --color-tx:   #f0f0f0;
+  --color-mu:   #666666;
+  --color-mu2:  #888888;
+  --color-ac:   #e8c547;
+  --color-ac-hover: #f0cf5a;
+  --color-btn:  #e8c547;
+  --color-btn-hov: #f0cf5a;
+  --color-gn:   #4ade80;
+  --color-rd:   #f87171;
+  --color-bl:   #60a5fa;
+  --color-or:   #fb923c;
+  --color-vi:   #a78bfa;
+  --color-pk:   #f472b6;
+  --color-gd:   rgba(74,222,128,0.08);
+  --color-rdd:  rgba(248,113,113,0.08);
+  --font-sans: 'DM Sans', -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 }
 
 /* ── Reset ───────────────────────────────────────────── */
@@ -54,11 +39,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'cv11', 'ss01';
 
-  /* Midnight with subtle aurora glow */
-  background-color: #0a0f1e;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -15%, rgba(30,64,175,0.15) 0%, transparent 65%),
-    radial-gradient(ellipse 35% 35% at 92% 95%,  rgba(99,102,241,0.07) 0%, transparent 55%);
+  background: var(--color-bg);
 }
 
 /* ── Selection ───────────────────────────────────────── */
