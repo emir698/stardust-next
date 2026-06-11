@@ -6,11 +6,9 @@ import { db } from '@/lib/firebase';
 import { useAuth } from '@/hooks/useAuth';
 import { useSatisList, useBiletler } from '@/hooks/useFirebaseData';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { Modal, ModalActions } from '@/components/ui/Modal';
-import { KpiCard } from '@/components/ui/KpiCard';
 import { toast } from '@/components/ui/Toast';
-import { todayStr, dateToInput, inputToDate, fmtDate } from '@/lib/utils';
+import { todayStr, dateToInput, inputToDate } from '@/lib/utils';
 import type { Satis } from '@/types';
 
 export default function GatePage() {
@@ -20,11 +18,9 @@ export default function GatePage() {
 
   const [selectedTarih, setSelectedTarih] = useState(todayStr());
   const [aramaInput, setAramaInput] = useState('');
-
   const [girisModal, setGirisModal] = useState(false);
   const [girisTarget, setGirisTarget] = useState<Satis | null>(null);
   const [seciliBiletler, setSeciliBiletler] = useState<Set<string>>(new Set());
-
   const [isimSecimModal, setIsimSecimModal] = useState(false);
   const [isimSecimList, setIsimSecimList] = useState<Satis[]>([]);
 
@@ -44,27 +40,26 @@ export default function GatePage() {
   }, [gunSatislari, aramaInput]);
 
   const toplamBilet = gunSatislari.reduce(
-    (s, t) => s + (t.tam||0) + (t.cocuk||0) + (t.yabanci||0) + (t.davetli||0) + (t.kurumsal||0), 0
+    (s, t) => s + (t.tam||0)+(t.cocuk||0)+(t.yabanci||0)+(t.davetli||0)+(t.kurumsal||0), 0
   );
   const girisYapan = gunSatislari.reduce((s, t) => {
     if (!t.biletler?.length) return s;
-    const used = (t.biletler as Array<{ no: string } | string>).filter(b => {
+    return s + (t.biletler as Array<{ no: string }|string>).filter(b => {
       const no = typeof b === 'string' ? b : b.no;
       return biletler[no]?.kullanildi;
     }).length;
-    return s + used;
   }, 0);
 
   function isSatisKullanildi(t: Satis) {
     if (!t.biletler?.length) return false;
-    return (t.biletler as Array<{ no: string } | string>).every(b => {
+    return (t.biletler as Array<{ no: string }|string>).every(b => {
       const no = typeof b === 'string' ? b : b.no;
       return biletler[no]?.kullanildi;
     });
   }
   function getSatisKullanilan(t: Satis) {
     if (!t.biletler?.length) return 0;
-    return (t.biletler as Array<{ no: string } | string>).filter(b => {
+    return (t.biletler as Array<{ no: string }|string>).filter(b => {
       const no = typeof b === 'string' ? b : b.no;
       return biletler[no]?.kullanildi;
     }).length;
@@ -73,7 +68,7 @@ export default function GatePage() {
   function handleSorgula() {
     const val = aramaInput.trim();
     if (!val) return;
-    const isPNR = /^[A-Z0-9-]{6,}$/i.test(val.replace(/\s/g, '')) && !val.includes(' ');
+    const isPNR = /^[A-Z0-9-]{6,}$/i.test(val.replace(/\s/g,'')) && !val.includes(' ');
     if (isPNR) {
       const found = satisList.find(t => t.pnr?.toUpperCase() === val.toUpperCase());
       if (!found) { toast('PNR bulunamadı', 'err'); return; }
@@ -82,32 +77,26 @@ export default function GatePage() {
       const bulunanlar = satisList.filter(t => t.musteriAd?.toLowerCase().includes(val.toLowerCase()));
       if (!bulunanlar.length) { toast('Kayıt bulunamadı', 'err'); return; }
       if (bulunanlar.length === 1) { openGirisModal(bulunanlar[0]); return; }
-      setIsimSecimList(bulunanlar);
-      setIsimSecimModal(true);
+      setIsimSecimList(bulunanlar); setIsimSecimModal(true);
     }
   }
 
   function openGirisModal(satis: Satis) {
     setGirisTarget(satis);
-    const bekleyenler = (satis.biletler as Array<{ no: string } | string> || [])
+    const bekleyenler = (satis.biletler as Array<{ no: string }|string> || [])
       .map(b => typeof b === 'string' ? b : b.no)
       .filter(no => !biletler[no]?.kullanildi);
     setSeciliBiletler(new Set(bekleyenler));
-    setGirisModal(true);
-    setIsimSecimModal(false);
+    setGirisModal(true); setIsimSecimModal(false);
   }
 
   async function handleGirisVer() {
     if (!girisTarget || seciliBiletler.size === 0) return;
-    const now = new Date();
+    const now  = new Date();
     const saat = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const updates: Record<string, unknown> = {};
-    seciliBiletler.forEach(no => {
-      updates[`biletler/${no}/kullanildi`] = true;
-      updates[`biletler/${no}/kullanildiSaat`] = saat;
-    });
-    const tumBiletNolar = (girisTarget.biletler as Array<{ no: string } | string> || [])
-      .map(b => typeof b === 'string' ? b : b.no);
+    seciliBiletler.forEach(no => { updates[`biletler/${no}/kullanildi`] = true; updates[`biletler/${no}/kullanildiSaat`] = saat; });
+    const tumBiletNolar = (girisTarget.biletler as Array<{ no: string }|string> || []).map(b => typeof b === 'string' ? b : b.no);
     const bekleyenler = tumBiletNolar.filter(no => !biletler[no]?.kullanildi);
     if (seciliBiletler.size >= bekleyenler.length) {
       updates[`pnrler/${girisTarget.pnr}/kullanildi`] = true;
@@ -115,22 +104,18 @@ export default function GatePage() {
     }
     await update(ref(db), updates);
     toast(`${seciliBiletler.size} bilete giriş verildi!`, 'ok');
-    setGirisModal(false);
-    setGirisTarget(null);
+    setGirisModal(false); setGirisTarget(null);
   }
 
   async function hizliGiris(satis: Satis) {
-    const bekleyenler = (satis.biletler as Array<{ no: string } | string> || [])
+    const bekleyenler = (satis.biletler as Array<{ no: string }|string> || [])
       .map(b => typeof b === 'string' ? b : b.no)
       .filter(no => !biletler[no]?.kullanildi);
     if (!bekleyenler.length) { toast('Tüm biletler zaten kullanılmış', 'warn'); return; }
-    const now = new Date();
+    const now  = new Date();
     const saat = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const updates: Record<string, unknown> = {};
-    bekleyenler.forEach(no => {
-      updates[`biletler/${no}/kullanildi`] = true;
-      updates[`biletler/${no}/kullanildiSaat`] = saat;
-    });
+    bekleyenler.forEach(no => { updates[`biletler/${no}/kullanildi`] = true; updates[`biletler/${no}/kullanildiSaat`] = saat; });
     updates[`pnrler/${satis.pnr}/kullanildi`] = true;
     updates[`pnrler/${satis.pnr}/kullanildiSaat`] = saat;
     await update(ref(db), updates);
@@ -138,13 +123,13 @@ export default function GatePage() {
   }
 
   async function handleSil(pnr: string) {
-    if (!confirm(`${pnr} numaralı satışı ve tüm biletleri silmek istediğinize emin misiniz?`)) return;
+    if (!confirm(`${pnr} numaralı satışı silmek istiyor musunuz?`)) return;
     const satis = satisList.find(t => t.pnr === pnr);
     if (!satis) return;
     const updates: Record<string, null> = {};
     updates[`tickets/${satis.id}`] = null;
     updates[`pnrler/${pnr}`] = null;
-    (satis.biletler as Array<{ no: string } | string> || []).forEach(b => {
+    (satis.biletler as Array<{ no: string }|string> || []).forEach(b => {
       const no = typeof b === 'string' ? b : b.no;
       updates[`biletler/${no}`] = null;
     });
@@ -153,189 +138,143 @@ export default function GatePage() {
   }
 
   const targetBiletNolar = girisTarget
-    ? (girisTarget.biletler as Array<{ no: string } | string> || []).map(b => typeof b === 'string' ? b : b.no)
+    ? (girisTarget.biletler as Array<{ no: string }|string> || []).map(b => typeof b === 'string' ? b : b.no)
     : [];
   const bekleyenBiletler = targetBiletNolar.filter(no => !biletler[no]?.kullanildi);
 
   return (
-    <div className="space-y-6">
-
-      {/* ─── Sayfa Başlığı ─── */}
-      <div className="mb-10">
-        <h1 className="text-[26px] font-semibold tracking-tight">Kapı Kontrol</h1>
-        <p className="text-mu text-[13px] mt-1">Bilet okutma ve giriş yönetimi</p>
-      </div>
-
-      {/* ─── Filtrele ─── */}
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd">
-          <h2 className="text-[15px] font-semibold text-tx">Filtrele</h2>
-        </div>
-        <div className="p-6">
-          <div className="grid grid-cols-2 gap-8 items-start">
-
-            {/* Tarih */}
-            <div>
-              <div className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-3">Gün Seç</div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSelectedTarih(todayStr())}
-                  className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
-                    selectedTarih === todayStr() ? 'bg-btn text-white border-btn' : 'bg-sf2 text-tx border-bd hover:border-ac hover:text-ac'
-                  }`}
-                >Bugün</button>
-                <input
-                  type="date"
-                  value={dateToInput(selectedTarih)}
-                  onChange={e => setSelectedTarih(inputToDate(e.target.value))}
-                  className="bg-sf2 border border-bd rounded-xl px-4 py-2 text-tx font-mono text-sm outline-none focus:border-ac cursor-pointer"
-                />
-                {selectedTarih !== todayStr() && (
-                  <span className="text-sm text-ac font-medium">{fmtDate(selectedTarih)}</span>
-                )}
+    <div>
+      {/* Tarih + Sorgula */}
+      <div className="page-section">
+        <div style={{ display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'.4rem' }}>
+            <div className="section-title" style={{ margin:0 }}>Gün Seç</div>
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <button
+                className={`tarih-picker-buton${selectedTarih !== todayStr() ? ' pasif' : ''}`}
+                onClick={() => setSelectedTarih(todayStr())}
+              >Bugün</button>
+              <div className="tarih-picker-date">
+                <input type="date" value={dateToInput(selectedTarih)} onChange={e => setSelectedTarih(inputToDate(e.target.value))} />
               </div>
             </div>
-
-            {/* Arama */}
-            <div>
-              <div className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-3">PNR / Ad Sorgula</div>
-              <div className="flex items-center gap-3">
-                <input
-                  value={aramaInput}
-                  onChange={e => setAramaInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSorgula()}
-                  placeholder="PNR veya ad soyad..."
-                  className="flex-1 bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none focus:border-ac"
-                />
-                <Button variant="accent" size="sm" onClick={handleSorgula}>Sorgula</Button>
-              </div>
+          </div>
+          <div style={{ width:1, height:40, background:'var(--bd)', margin:'0 4px' }} />
+          <div style={{ display:'flex', flexDirection:'column', gap:'.4rem' }}>
+            <div className="section-title" style={{ margin:0 }}>Sorgula</div>
+            <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="PNR veya ad soyad..."
+                style={{ fontSize:13, width:220 }}
+                value={aramaInput}
+                onChange={e => setAramaInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSorgula()}
+              />
+              <Button variant="accent" size="sm" onClick={handleSorgula}>Sorgula</Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ─── KPI ─── */}
-      <div className="grid grid-cols-2 gap-6">
-        <KpiCard label="Seçili Gün Toplam Bilet" value={toplamBilet} color="ac" />
-        <KpiCard label="Giriş Yapıldı" value={girisYapan} color="gn" />
+      {/* KPI */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:'1.5rem' }}>
+        <div className="kpi"><div className="kpi-label">Seçili Gün Toplam Bilet</div><div className="kpi-val ac">{toplamBilet}</div></div>
+        <div className="kpi"><div className="kpi-label">Giriş Yapıldı</div><div className="kpi-val gn">{girisYapan}</div></div>
       </div>
 
-      {/* ─── Tablo ─── */}
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-tx">
-            Günün Satışları {fmtDate(selectedTarih)}
-          </h2>
-          <span className="text-[13px] text-mu font-mono">{filteredSatislar.length} kayıt</span>
-        </div>
-        <div className="p-0">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="border-b border-bd">
-                {['PNR','Ad Soyad','Telefon','Seans','Tam','Çocuk','Yab.','Kur.','Saat','Durum','İşlem'].map(h => (
-                  <th key={h} className="px-6 py-4 text-left text-[10px] font-semibold text-mu uppercase tracking-wide">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSatislar.length === 0 ? (
-                <tr>
-                  <td colSpan={11} className="text-center py-12 text-mu">Bu gün için satış yok</td>
+      {/* Tablo */}
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1rem' }}>
+        <div className="section-title" style={{ margin:0 }}>Seçili Günün Biletleri</div>
+      </div>
+      <div className="tw" style={{ marginBottom:'1.5rem' }}>
+        <table>
+          <thead>
+            <tr>
+              <th>PNR</th><th>Ad Soyad</th><th>Telefon</th><th>Seans</th>
+              <th>Tam</th><th>Çocuk</th><th>Yabancı</th><th>Kurumsal</th>
+              <th>Satış Saati</th><th>Durum</th><th>İşlem</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredSatislar.length === 0 ? (
+              <tr><td colSpan={11} style={{ textAlign:'center', padding:'2rem', color:'var(--mu)' }}>Bu gün için satış yok</td></tr>
+            ) : filteredSatislar.map(t => {
+              const kullanildi = isSatisKullanildi(t);
+              const kullanilan = getSatisKullanilan(t);
+              const total = (t.tam||0)+(t.cocuk||0)+(t.yabanci||0)+(t.davetli||0)+(t.kurumsal||0);
+              return (
+                <tr key={t.id}>
+                  <td className="cc">{t.pnr ?? '—'}</td>
+                  <td>{t.musteriAd ?? '—'}</td>
+                  <td className="dc">{t.musteriTel ?? '—'}</td>
+                  <td className="dc">{t.seans ?? '—'}</td>
+                  <td>{t.tam ?? 0}</td>
+                  <td>{t.cocuk ?? 0}</td>
+                  <td>{t.yabanci ?? 0}</td>
+                  <td style={{ color:'var(--vi)', fontWeight:600 }}>{t.kurumsal ?? 0}</td>
+                  <td className="dc">{t.satisZamani ?? '—'}</td>
+                  <td>
+                    {kullanildi
+                      ? <span className="badge bdd">Kullanıldı</span>
+                      : <span className="badge ba">{kullanilan}/{total} Giriş</span>
+                    }
+                  </td>
+                  <td>
+                    <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                      {!kullanildi && t.pnr && (
+                        <Button variant="accent" size="sm" onClick={() => hizliGiris(t)}>Giriş Ver</Button>
+                      )}
+                      {t.pnr && <Button size="sm" onClick={() => openGirisModal(t)}>Detay</Button>}
+                      {t.pnr && user?.role === 'admin' && (
+                        <Button variant="danger" size="sm" onClick={() => handleSil(t.pnr!)}>Sil</Button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
-              ) : filteredSatislar.map(t => {
-                const kullanildi = isSatisKullanildi(t);
-                const kullanilan = getSatisKullanilan(t);
-                const total = (t.tam||0)+(t.cocuk||0)+(t.yabanci||0)+(t.davetli||0)+(t.kurumsal||0);
-                return (
-                  <tr key={t.id} className="border-b border-bd last:border-0 hover:bg-sf2/60 transition-colors">
-                    <td className="px-6 py-4 font-mono text-[11px] text-ac tracking-wide">{t.pnr ?? '—'}</td>
-                    <td className="px-6 py-4 text-[13px] font-medium">{t.musteriAd ?? '—'}</td>
-                    <td className="px-6 py-4 text-xs text-mu font-mono">{t.musteriTel ?? '—'}</td>
-                    <td className="px-6 py-4 text-xs text-mu font-mono">{t.seans ?? '—'}</td>
-                    <td className="px-6 py-4 text-[13px]">{t.tam ?? 0}</td>
-                    <td className="px-6 py-4 text-[13px]">{t.cocuk ?? 0}</td>
-                    <td className="px-6 py-4 text-[13px]">{t.yabanci ?? 0}</td>
-                    <td className="px-6 py-4 text-[13px] text-vi font-semibold">{t.kurumsal ?? 0}</td>
-                    <td className="px-6 py-4 text-[11px] text-mu font-mono">{t.satisZamani ?? '—'}</td>
-                    <td className="px-6 py-4">
-                      {kullanildi
-                        ? <Badge variant="inactive">Kullanıldı</Badge>
-                        : <Badge variant="active">{kullanilan}/{total} Giriş</Badge>
-                      }
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-1.5 flex-wrap">
-                        {!kullanildi && t.pnr && (
-                          <Button variant="accent" size="sm" onClick={() => hizliGiris(t)}>Giriş Ver</Button>
-                        )}
-                        {t.pnr && (
-                          <Button size="sm" onClick={() => openGirisModal(t)}>Detay</Button>
-                        )}
-                        {t.pnr && user?.role === 'admin' && (
-                          <Button variant="danger" size="sm" onClick={() => handleSil(t.pnr!)}>Sil</Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
-      {/* ─── Giriş Ver Modal ─── */}
+      {/* Giriş Ver Modal */}
       <Modal open={girisModal} onClose={() => setGirisModal(false)} title="🚪 Giriş Ver" width="max-w-lg">
         {girisTarget && (
           <>
-            <div className="font-semibold text-base mb-1">{girisTarget.musteriAd}</div>
-            <div className="text-xs text-mu font-mono mb-5">
-              {girisTarget.tarih} · Seans {girisTarget.seans} · PNR {girisTarget.pnr}
+            <div style={{ fontSize:15, fontWeight:600, marginBottom:4 }}>{girisTarget.musteriAd}</div>
+            <div className="dc" style={{ marginBottom:'1rem' }}>
+              {girisTarget.tarih} · Seans {girisTarget.seans} · {girisTarget.pnr}
             </div>
-
             {bekleyenBiletler.length === 0 ? (
-              <div className="text-rd text-sm text-center py-8">Tüm biletler kullanılmış!</div>
+              <div style={{ color:'var(--rd)', fontSize:13, textAlign:'center', padding:'1.5rem' }}>Tüm biletler kullanılmış!</div>
             ) : (
               <>
-                <div className="text-xs text-mu mb-4">
+                <div style={{ fontSize:12, color:'var(--mu)', marginBottom:8 }}>
                   Giriş verilecek biletleri seçin ({bekleyenBiletler.length} bekliyor):
                 </div>
-                <div className="space-y-2 mb-5">
-                  {bekleyenBiletler.map(no => (
-                    <label
-                      key={no}
-                      className="flex items-center gap-3 bg-sf2 border border-bd rounded-xl px-4 py-3 cursor-pointer hover:border-bd2 transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={seciliBiletler.has(no)}
-                        onChange={e => {
-                          const next = new Set(seciliBiletler);
-                          e.target.checked ? next.add(no) : next.delete(no);
-                          setSeciliBiletler(next);
-                        }}
-                        className="w-4 h-4 accent-ac cursor-pointer"
-                      />
-                      <span className="font-mono text-xs text-ac flex-1">{no}</span>
-                      <span className="text-xs text-mu">{biletler[no]?.tur ?? ''}</span>
-                    </label>
-                  ))}
-                </div>
+                {bekleyenBiletler.map(no => (
+                  <label key={no} style={{ display:'flex', alignItems:'center', gap:10, background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 12px', cursor:'pointer', marginBottom:6 }}>
+                    <input
+                      type="checkbox"
+                      checked={seciliBiletler.has(no)}
+                      onChange={e => {
+                        const next = new Set(seciliBiletler);
+                        e.target.checked ? next.add(no) : next.delete(no);
+                        setSeciliBiletler(next);
+                      }}
+                    />
+                    <span style={{ fontFamily:'var(--mo)', fontSize:12, color:'var(--ac)', flex:1 }}>{no}</span>
+                    <span style={{ fontSize:11, color:'var(--mu)' }}>{biletler[no]?.tur ?? ''}</span>
+                  </label>
+                ))}
               </>
             )}
-
-            {targetBiletNolar.filter(no => biletler[no]?.kullanildi).length > 0 && (
-              <div className="text-xs text-mu mb-4">
-                {targetBiletNolar.filter(no => biletler[no]?.kullanildi).length} bilet daha önce kullanıldı.
-              </div>
-            )}
-
             <ModalActions>
-              <Button variant="ghost" onClick={() => setGirisModal(false)}>Kapat</Button>
+              <Button variant="default" onClick={() => setGirisModal(false)}>Kapat</Button>
               {bekleyenBiletler.length > 0 && (
-                <Button variant="accent" disabled={seciliBiletler.size === 0} onClick={handleGirisVer}>
+                <Button variant="accent" disabled={seciliBiletler.size === 0} onClick={handleGirisVer} style={{ fontSize:15, padding:'12px 32px' }}>
                   ✓ Seçili Biletlere Giriş Ver
                 </Button>
               )}
@@ -344,28 +283,24 @@ export default function GatePage() {
         )}
       </Modal>
 
-      {/* ─── İsim Seçim Modal ─── */}
+      {/* İsim Seçim Modal */}
       <Modal open={isimSecimModal} onClose={() => setIsimSecimModal(false)} title="🔍 Birden Fazla Kayıt Bulundu">
-        <p className="text-sm text-mu mb-5">Hangi müşteriyi görüntülemek istiyorsunuz?</p>
-        <div className="space-y-2">
-          {isimSecimList.map(t => (
-            <button
-              key={t.id}
-              onClick={() => openGirisModal(t)}
-              className="w-full flex justify-between items-center bg-sf2 border border-bd rounded-2xl px-5 py-4 hover:border-bd2 transition-all text-left"
-            >
-              <div>
-                <div className="text-sm font-medium">{t.musteriAd}</div>
-                <div className="text-xs text-mu font-mono mt-1">
-                  {t.tarih} · {t.seans} · {t.pnr}
-                </div>
-              </div>
-              <span className="text-ac font-mono text-sm">→</span>
-            </button>
-          ))}
-        </div>
+        <p>Hangi müşteriyi görüntülemek istiyorsunuz?</p>
+        {isimSecimList.map(t => (
+          <button
+            key={t.id}
+            onClick={() => openGirisModal(t)}
+            style={{ width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center', background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 14px', cursor:'pointer', marginBottom:6, color:'var(--tx)' }}
+          >
+            <div>
+              <div style={{ fontSize:13, fontWeight:500 }}>{t.musteriAd}</div>
+              <div className="dc" style={{ marginTop:2 }}>{t.tarih} · {t.seans} · {t.pnr}</div>
+            </div>
+            <span style={{ color:'var(--ac)', fontFamily:'var(--mo)' }}>→</span>
+          </button>
+        ))}
         <ModalActions>
-          <Button variant="ghost" onClick={() => setIsimSecimModal(false)}>Kapat</Button>
+          <Button variant="default" onClick={() => setIsimSecimModal(false)}>Kapat</Button>
         </ModalActions>
       </Modal>
     </div>

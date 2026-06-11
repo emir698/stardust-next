@@ -61,18 +61,157 @@ body {
 /* ── Dark form elements ──────────────────────────────── */
 select, input[type="date"] { color-scheme: dark; }
 
+/* ── CSS variable aliases (eski site kısa isimleri) ──── */
+:root {
+  --bg:  var(--color-bg);
+  --sf:  var(--color-sf);
+  --sf2: var(--color-sf2);
+  --sf3: var(--color-sf3);
+  --bd:  var(--color-bd);
+  --bd2: var(--color-bd2);
+  --tx:  var(--color-tx);
+  --mu:  var(--color-mu);
+  --ac:  var(--color-ac);
+  --gn:  var(--color-gn);
+  --gd:  var(--color-gd);
+  --rd:  var(--color-rd);
+  --rdd: var(--color-rdd);
+  --bl:  var(--color-bl);
+  --or:  var(--color-or);
+  --vi:  var(--color-vi);
+  --pk:  var(--color-pk);
+  --mo:  var(--font-mono);
+  --sa:  var(--font-sans);
+}
+
 /* ── Panel utilities ─────────────────────────────────── */
-.glass {
-  background: var(--color-sf);
-  border: 1px solid var(--color-bd);
-}
-.glass-strong {
-  background: var(--color-sf);
-  border: 1px solid var(--color-bd2);
-}
-.glass-card {
-  background: var(--color-sf);
-  border: 1px solid var(--color-bd);
+.glass { background: var(--sf); border: 1px solid var(--bd); }
+.glass-strong { background: var(--sf); border: 1px solid var(--bd2); }
+.glass-card { background: var(--sf); border: 1px solid var(--bd); }
+
+/* ── Layout ──────────────────────────────────────────── */
+.panel { background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:1rem;margin-bottom:1rem }
+.panel-title { font-size:13px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1.25rem }
+.panel-card { background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:1.25rem }
+.page-section { background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:1rem;margin-bottom:1rem }
+.section-title { font-size:12px;font-weight:600;margin-bottom:.6rem;color:var(--mu);text-transform:uppercase;letter-spacing:.5px }
+
+/* ── KPI ─────────────────────────────────────────────── */
+.kpi-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem }
+.kpi { background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:1rem;text-align:center }
+.kpi-label { font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px }
+.kpi-val { font-size:28px;font-weight:600;font-family:var(--mo);line-height:1 }
+.kpi-sub { font-size:12px;color:var(--mu);margin-top:6px }
+.kpi-val.ac { color:var(--ac) } .kpi-val.gn { color:var(--gn) } .kpi-val.rd { color:var(--rd) } .kpi-val.bl { color:var(--bl) }
+
+/* ── Dashboard ───────────────────────────────────────── */
+.dash-grid { display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:1.5rem }
+
+/* ── Table ───────────────────────────────────────────── */
+.tw { border:1px solid var(--bd);border-radius:12px;overflow:hidden }
+table { width:100%;border-collapse:collapse;font-size:13px }
+thead { background:var(--sf) }
+th { padding:11px 14px;text-align:left;font-size:11px;font-weight:500;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd) }
+tbody tr { border-bottom:1px solid var(--bd);transition:background .1s }
+tbody tr:last-child { border-bottom:none }
+tbody tr:hover { background:var(--sf) }
+td { padding:10px 14px }
+.cc { font-family:var(--mo);font-size:13px;color:var(--ac);letter-spacing:.5px }
+.dc { font-size:12px;color:var(--mu);font-family:var(--mo) }
+
+/* ── Badge ───────────────────────────────────────────── */
+.badge { display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;font-family:var(--mo) }
+.ba { background:rgba(74,222,128,.08);color:var(--gn);border:1px solid rgba(74,222,128,.2) }
+.bdd { background:rgba(248,113,113,.08);color:var(--rd);border:1px solid rgba(248,113,113,.2) }
+
+/* ── Toolbar / Search ────────────────────────────────── */
+.pag { display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;flex-wrap:wrap;gap:10px }
+.pi { font-size:12px;color:var(--mu);font-family:var(--mo) }
+.toolbar { display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center }
+.sw { position:relative;flex:1;min-width:200px }
+.sw input { width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:9px 12px 9px 34px;color:var(--tx);font-family:var(--mo);font-size:13px;outline:none;transition:border .15s }
+.sw input:focus { border-color:var(--ac) }
+.si { position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mu);pointer-events:none }
+
+/* ── Date Filter ─────────────────────────────────────── */
+.date-filter { display:flex;align-items:center;gap:10px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:.75rem 1rem;margin-bottom:1.5rem;flex-wrap:wrap }
+.date-filter label { font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px }
+.date-input { background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;color:var(--tx);font-family:var(--mo);font-size:13px;outline:none;cursor:pointer }
+.date-input:focus { border-color:var(--ac) }
+
+/* ── Tarih Picker ────────────────────────────────────── */
+.tarih-picker-buton { padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--ac);background:var(--ac);color:#000;transition:all .15s }
+.tarih-picker-buton.pasif { background:var(--sf2);color:var(--tx);border-color:var(--bd) }
+.tarih-picker-buton.pasif:hover { border-color:var(--ac);color:var(--ac) }
+.tarih-picker-date { position:relative;display:flex;align-items:center }
+.tarih-picker-date input[type=date] { padding:7px 36px 7px 12px;border-radius:8px;font-size:13px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);cursor:pointer;font-family:var(--mo);letter-spacing:.5px;appearance:none;-webkit-appearance:none;min-width:140px }
+.tarih-picker-date input[type=date]:focus { outline:none;border-color:var(--ac) }
+.tarih-picker-date::after { content:'📅';position:absolute;right:10px;pointer-events:none;font-size:14px }
+
+/* ── Seans ───────────────────────────────────────────── */
+.seans-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:8px }
+.seans-card { background:var(--sf2);border:2px solid var(--bd);border-radius:10px;padding:.6rem .5rem;cursor:pointer;transition:all .2s;text-align:center }
+.seans-card:hover { border-color:var(--ac) }
+.seans-card.selected { border-color:var(--ac);background:rgba(232,197,71,.08) }
+.seans-no { font-size:28px;font-weight:600;font-family:var(--mo);color:var(--ac) }
+.seans-label { font-size:11px;color:var(--mu);margin-top:2px }
+.seans-sold { font-size:13px;color:var(--tx);margin-top:6px;font-family:var(--mo) }
+
+/* ── Bilet / Müşteri ─────────────────────────────────── */
+.musteri-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem }
+.bilet-row { display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--bd) }
+.bilet-row:last-child { border-bottom:none }
+.bilet-type-name { font-size:14px;font-weight:500 }
+.bilet-type-sub { font-size:11px;color:var(--mu);margin-top:2px }
+.bilet-price { font-size:14px;font-family:var(--mo);color:var(--ac);white-space:nowrap }
+.bilet-qty { display:flex;align-items:center;gap:10px }
+.qty-btn { width:34px;height:34px;border-radius:8px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s }
+.qty-btn:hover { border-color:var(--ac);color:var(--ac) }
+.qty-num { font-size:16px;font-weight:600;font-family:var(--mo);min-width:28px;text-align:center }
+.ozet-box { background:var(--bg);border-radius:8px;padding:1rem;margin-top:1.25rem }
+.ozet-row { display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--bd) }
+.ozet-row:last-child { border-bottom:none;font-size:15px;font-weight:600;color:var(--ac);margin-top:4px;padding-top:8px }
+
+/* ── Cards (Admin) ───────────────────────────────────── */
+.card-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:2rem }
+.card { background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:1.25rem }
+.card-title { font-size:14px;font-weight:600;margin-bottom:4px }
+.card-sub { font-size:12px;color:var(--mu);margin-bottom:1rem }
+.card-stat { font-size:22px;font-weight:600;font-family:var(--mo);color:var(--ac) }
+.user-row { display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd) }
+.user-row:last-child { border-bottom:none }
+.user-name { font-size:13px;font-weight:500 }
+.user-role-txt { font-size:11px;color:var(--mu);margin-top:2px }
+.role-badge { font-size:10px;padding:2px 8px;border-radius:10px;font-family:var(--mo) }
+.role-admin { background:rgba(232,197,71,.12);color:var(--ac);border:1px solid rgba(232,197,71,.3) }
+.role-gise { background:rgba(74,222,128,.08);color:var(--gn);border:1px solid rgba(74,222,128,.2) }
+
+/* ── Form input ──────────────────────────────────────── */
+.form-label { font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block }
+.form-input { width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;color:var(--tx);font-family:var(--sa);font-size:13px;outline:none;transition:border .15s;box-sizing:border-box }
+.form-input:focus { border-color:var(--ac) }
+
+/* ── Overlay / Modal ─────────────────────────────────── */
+.modal p { font-size:13px;color:var(--mu);margin-bottom:1rem;line-height:1.6 }
+.modal label { font-size:12px;color:var(--mu);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px }
+.modal input,.modal textarea,.modal select { width:100%;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;color:var(--tx);font-family:var(--sa);font-size:13px;outline:none;margin-bottom:.75rem;resize:none;transition:border .15s;box-sizing:border-box }
+.modal input:focus,.modal select:focus { border-color:var(--ac) }
+.modal-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px }
+.mbtns { display:flex;justify-content:flex-end;gap:8px;margin-top:1rem }
+
+/* ── Toast ───────────────────────────────────────────── */
+.toast { position:fixed;bottom:1.5rem;right:1.5rem;background:var(--sf2);border:1px solid var(--bd2);border-radius:10px;padding:12px 18px;font-size:13px;z-index:300;transform:translateY(20px);opacity:0;transition:all .25s;pointer-events:none;max-width:320px }
+.toast.show { transform:translateY(0);opacity:1 }
+.toast.ok { border-color:rgba(74,222,128,.4);color:var(--gn) }
+.toast.err { border-color:rgba(248,113,113,.4);color:var(--rd) }
+.toast.warn { border-color:rgba(232,197,71,.4);color:var(--ac) }
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width:768px) {
+  .kpi-grid { grid-template-columns:repeat(2,1fr) }
+  .dash-grid { grid-template-columns:1fr }
+  .seans-grid { grid-template-columns:repeat(2,1fr) }
+  .musteri-grid { grid-template-columns:1fr }
 }
 
 /* ── Micro-animations ────────────────────────────────── */
@@ -100,6 +239,25 @@ select, input[type="date"] { color-scheme: dark; }
 /* ── Interactive hover lift ──────────────────────────── */
 .hover-lift { transition: transform 200ms ease, box-shadow 200ms ease; }
 .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.35); }
+
+/* ── Seans card internals ────────────────────────────── */
+.seans-time  { font-size:15px;font-weight:600;font-family:var(--mo);color:var(--ac) }
+.seans-count { font-size:11px;color:var(--mu);margin-top:4px }
+
+/* ── Bare btn classes (old site compat) ──────────────── */
+.btn { display:inline-flex;align-items:center;justify-content:center;padding:9px 18px;font-size:13px;font-weight:500;border-radius:8px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);cursor:pointer;transition:all .15s }
+.btn:hover { background:var(--sf2) }
+.btn:disabled { opacity:.45;cursor:not-allowed }
+.btn-ac { background:var(--ac);color:#000;border-color:var(--ac) }
+.btn-ac:hover { background:var(--ac-hover,var(--ac));filter:brightness(1.07) }
+.btn-r  { background:rgba(248,113,113,.1);color:var(--rd);border-color:rgba(248,113,113,.3) }
+
+/* ── Donut chart ─────────────────────────────────────── */
+.donut-wrap   { display:flex;gap:1.5rem;align-items:center;padding:.5rem 0 }
+.donut-legend { flex:1;display:flex;flex-direction:column;gap:8px }
+.donut-item   { display:flex;align-items:center;gap:8px;font-size:12px }
+.donut-dot    { width:10px;height:10px;border-radius:50%;flex-shrink:0 }
+.donut-pct    { font-size:11px;color:var(--mu);font-family:var(--mo);min-width:34px;text-align:right }
 
 /* ── Print ───────────────────────────────────────────── */
 @media print {

@@ -5,7 +5,6 @@ import { ref, update, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { useCodes, useBatches } from '@/hooks/useFirebaseData';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { Modal, ModalActions } from '@/components/ui/Modal';
 import { toast } from '@/components/ui/Toast';
 import { todayStr } from '@/lib/utils';
@@ -25,11 +24,11 @@ export default function DiscountCodesPage() {
   const [topluModal, setTopluModal] = useState(false);
   const [topluInput, setTopluInput] = useState('');
 
-  const [batchModal, setBatchModal] = useState(false);
-  const [batchName, setBatchName]   = useState('');
-  const [batchIndirim, setBatchIndirim] = useState('10');
-  const [batchCodes, setBatchCodes] = useState('');
-  const [batchSaving, setBatchSaving] = useState(false);
+  const [batchModal, setBatchModal]       = useState(false);
+  const [batchName, setBatchName]         = useState('');
+  const [batchIndirim, setBatchIndirim]   = useState('10');
+  const [batchCodes, setBatchCodes]       = useState('');
+  const [batchSaving, setBatchSaving]     = useState(false);
 
   const gruplar = useMemo(() => {
     const gs = new Set<string>();
@@ -51,11 +50,11 @@ export default function DiscountCodesPage() {
   }, [codes, search, durumFilter, grupFilter]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const paged      = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const aktif   = codes.filter(c => c?.status === 'aktif').length;
   const deaktif = codes.length - aktif;
-  const pct = codes.length > 0 ? Math.round(deaktif / codes.length * 100) : 0;
+  const pct     = codes.length > 0 ? Math.round(deaktif / codes.length * 100) : 0;
 
   async function handleDeaktif(key: string, code: string) {
     if (!confirm(`"${code}" deaktif edilsin mi?`)) return;
@@ -131,125 +130,78 @@ export default function DiscountCodesPage() {
   }
 
   return (
-    <div className="space-y-6">
-
-      {/* ─── Sayfa Başlığı ─── */}
-      <div className="mb-10">
-        <h1 className="text-[26px] font-semibold tracking-tight">İndirim Kodları</h1>
-        <p className="text-mu text-[13px] mt-1">Kod stok yönetimi</p>
-      </div>
-
-      {/* ─── KPI ─── */}
-      <div className="grid grid-cols-3 gap-6">
-        <div className="glass-card rounded-2xl overflow-hidden hover-lift">
-          <div className="px-7 py-5 border-b border-bd">
-            <h2 className="text-[15px] font-semibold text-tx">Toplam</h2>
-          </div>
-          <div className="p-7 text-center">
-            <div className="font-mono text-3xl font-semibold text-tx">{codes.length}</div>
-          </div>
+    <div>
+      {/* KPI */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:0, background:'var(--sf)', border:'1px solid var(--bd)', borderRadius:12, padding:'1rem', marginBottom:'1.25rem' }}>
+        <div className="kpi" style={{ border:'none', borderRight:'1px solid var(--bd)', borderRadius:0, background:'transparent' }}>
+          <div className="kpi-label">Toplam</div>
+          <div className="kpi-val">{codes.length}</div>
         </div>
-        <div className="glass-card rounded-2xl overflow-hidden hover-lift">
-          <div className="px-7 py-5 border-b border-bd">
-            <h2 className="text-[15px] font-semibold text-tx">Aktif</h2>
-          </div>
-          <div className="p-7 text-center">
-            <div className="font-mono text-3xl font-semibold text-gn">{aktif}</div>
-          </div>
+        <div className="kpi" style={{ border:'none', borderRight:'1px solid var(--bd)', borderRadius:0, background:'transparent' }}>
+          <div className="kpi-label">Aktif</div>
+          <div className="kpi-val gn">{aktif}</div>
         </div>
-        <div className="glass-card rounded-2xl overflow-hidden hover-lift">
-          <div className="px-7 py-5 border-b border-bd">
-            <h2 className="text-[15px] font-semibold text-tx">Kullanılan</h2>
-          </div>
-          <div className="p-7 text-center">
-            <div className="font-mono text-3xl font-semibold text-rd">
-              {deaktif}
-              <span className="text-mu text-base font-normal ml-2">(%{pct})</span>
-            </div>
-          </div>
+        <div className="kpi" style={{ border:'none', borderRadius:0, background:'transparent' }}>
+          <div className="kpi-label">Kullanılan</div>
+          <div className="kpi-val rd">{deaktif} <span style={{ fontSize:14, color:'var(--mu)', fontWeight:400 }}>(%{pct})</span></div>
         </div>
       </div>
 
-      {/* ─── Filtrele ─── */}
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd">
-          <h2 className="text-[15px] font-semibold text-tx">Filtrele</h2>
-        </div>
-        <div className="p-5">
-          <div className="flex gap-3 flex-wrap items-center">
-            <div className="relative flex-1 min-w-48">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mu text-sm">🔍</span>
-              <input
-                value={search}
-                onChange={e => { setSearch(e.target.value); setPage(0); }}
-                placeholder="Kod veya grup ara..."
-                className="w-full bg-sf2 border border-bd rounded-xl pl-10 pr-4 py-2.5 text-tx font-mono text-sm outline-none focus:border-ac"
-              />
-            </div>
-            <select
-              value={durumFilter}
-              onChange={e => { setDurum(e.target.value as typeof durumFilter); setPage(0); }}
-              className="bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none cursor-pointer"
-            >
-              <option value="hepsi">Tüm Kodlar</option>
-              <option value="aktif">Sadece Aktif</option>
-              <option value="deaktif">Sadece Deaktif</option>
-            </select>
-            <select
-              value={grupFilter}
-              onChange={e => { setGrup(e.target.value); setPage(0); }}
-              className="bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none cursor-pointer"
-            >
-              <option value="hepsi">Tüm Gruplar</option>
-              {gruplar.map(g => <option key={g} value={g}>{g}</option>)}
-            </select>
-            <Button variant="danger" size="sm" onClick={() => setTopluModal(true)}>Toplu Deaktif</Button>
-            <Button variant="accent" size="sm" onClick={() => setBatchModal(true)}>+ Yeni Grup</Button>
-          </div>
-        </div>
+      {/* Toolbar */}
+      <div className="toolbar">
+        <input
+          type="text"
+          className="form-input si"
+          placeholder="Kod veya grup ara..."
+          value={search}
+          onChange={e => { setSearch(e.target.value); setPage(0); }}
+        />
+        <select className="sw" value={durumFilter} onChange={e => { setDurum(e.target.value as typeof durumFilter); setPage(0); }}>
+          <option value="hepsi">Tüm Kodlar</option>
+          <option value="aktif">Sadece Aktif</option>
+          <option value="deaktif">Sadece Deaktif</option>
+        </select>
+        <select className="sw" value={grupFilter} onChange={e => { setGrup(e.target.value); setPage(0); }}>
+          <option value="hepsi">Tüm Gruplar</option>
+          {gruplar.map(g => <option key={g} value={g}>{g}</option>)}
+        </select>
+        <Button variant="danger" size="sm" onClick={() => setTopluModal(true)}>Toplu Deaktif</Button>
+        <Button variant="accent" size="sm" onClick={() => setBatchModal(true)}>+ Yeni Grup</Button>
       </div>
 
-      {/* ─── Tablo ─── */}
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd flex items-center justify-between flex-wrap gap-3">
-          <h2 className="text-[15px] font-semibold text-tx">Kod Listesi</h2>
-          <div className="flex items-center gap-3">
-            <span className="text-[13px] text-mu font-mono">{filtered.length} kod</span>
+      {/* Tablo */}
+      <div className="panel" style={{ marginBottom:'1.5rem' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1rem', flexWrap:'wrap', gap:8 }}>
+          <div className="panel-title" style={{ margin:0 }}>Kod Listesi</div>
+          <div className="pag">
+            <span style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)' }}>{filtered.length} kod</span>
             <Button size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>← Önceki</Button>
-            <span className="text-[12px] text-mu font-mono">
-              {page + 1}/{Math.max(1, totalPages)}
-            </span>
+            <span style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)' }}>{page + 1}/{Math.max(1, totalPages)}</span>
             <Button size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Sonraki →</Button>
           </div>
         </div>
-        <div className="p-0">
-          <table className="w-full text-sm border-collapse">
+        <div className="tw">
+          <table>
             <thead>
-              <tr className="border-b border-bd">
-                {['#','Kod','Grup','İndirim','Durum','Kullanan','Tarih','İşlem'].map(h => (
-                  <th key={h} className="px-6 py-4 text-left text-[10px] font-semibold text-mu uppercase tracking-wide">
-                    {h}
-                  </th>
-                ))}
-              </tr>
+              <tr><th>#</th><th>Kod</th><th>Grup</th><th>İndirim</th><th>Durum</th><th>Kullanan</th><th>Tarih</th><th>İşlem</th></tr>
             </thead>
             <tbody>
               {paged.length === 0 ? (
-                <tr><td colSpan={8} className="text-center py-12 text-mu">Kod bulunamadı</td></tr>
+                <tr><td colSpan={8} style={{ textAlign:'center', padding:'2rem', color:'var(--mu)' }}>Kod bulunamadı</td></tr>
               ) : paged.map((c, idx) => (
-                <tr key={c._key} className="border-b border-bd last:border-0 hover:bg-sf2/60 transition-colors">
-                  <td className="px-6 py-4 text-xs text-mu">{page * PAGE_SIZE + idx + 1}</td>
-                  <td className="px-6 py-4 font-mono text-[13px] text-ac tracking-wide">{c.code}</td>
-                  <td className="px-6 py-4 text-xs text-mu">{c.group ?? '—'}</td>
-                  <td className="px-6 py-4 text-xs font-mono font-semibold">%{c.indirim ?? '—'}</td>
-                  <td className="px-6 py-4">
-                    <Badge variant={c.status === 'aktif' ? 'active' : 'inactive'}>
+                <tr key={c._key}>
+                  <td className="dc">{page * PAGE_SIZE + idx + 1}</td>
+                  <td className="cc">{c.code}</td>
+                  <td className="dc">{c.group ?? '—'}</td>
+                  <td style={{ fontFamily:'var(--mo)', fontWeight:600 }}>%{c.indirim ?? '—'}</td>
+                  <td>
+                    <span className={`badge ${c.status === 'aktif' ? 'ba' : 'bdd'}`}>
                       {c.status === 'aktif' ? 'Aktif' : 'Kullanıldı'}
-                    </Badge>
+                    </span>
                   </td>
-                  <td className="px-6 py-4 text-xs">{c.kullanan ?? '—'}</td>
-                  <td className="px-6 py-4 text-xs text-mu font-mono">{c.date || '—'}</td>
-                  <td className="px-6 py-4">
+                  <td className="dc">{c.kullanan ?? '—'}</td>
+                  <td className="dc">{c.date || '—'}</td>
+                  <td>
                     {c.status === 'aktif'
                       ? <Button variant="danger" size="sm" onClick={() => handleDeaktif(c._key, c.code)}>Deaktif</Button>
                       : <Button size="sm" onClick={() => handleAktif(c._key)}>Aktif Et</Button>
@@ -262,94 +214,77 @@ export default function DiscountCodesPage() {
         </div>
       </div>
 
-      {/* ─── Kod Grupları ─── */}
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-tx">Kod Grupları</h2>
+      {/* Kod Grupları */}
+      <div className="panel">
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1rem' }}>
+          <div className="panel-title" style={{ margin:0 }}>Kod Grupları</div>
           <Button variant="accent" size="sm" onClick={() => setBatchModal(true)}>+ Yeni Grup</Button>
         </div>
-        <div className="p-0">
-          {batches.length === 0 ? (
-            <div className="text-mu text-sm text-center py-10">Henüz grup yok</div>
-          ) : (
-            <div className="divide-y divide-bd">
-              {batches.map(b => {
-                const tot = (b.codes || []).length;
-                const kul = codes.filter(c => c.batchKey === b._key || c.group === b.name).filter(c => c.status === 'deaktif').length;
-                const grpPct = tot > 0 ? Math.round(kul / tot * 100) : 0;
-                return (
-                  <div key={b._key} className="flex items-center justify-between px-6 py-5 hover:bg-sf2/40 transition-colors">
-                    <div>
-                      <div className="font-semibold text-[14px]">{b.name}</div>
-                      <div className="text-xs text-mu mt-1 font-mono">
-                        %{b.indirim} indirim · {kul}/{tot} kullanıldı
-                        {grpPct >= 80 && <span className="text-rd ml-2">(Stok azalıyor)</span>}
-                      </div>
-                    </div>
-                    <Button variant="danger" size="sm" onClick={() => handleBatchDelete(b._key, b.name)}>Sil</Button>
-                  </div>
-                );
-              })}
+        {batches.length === 0 ? (
+          <div style={{ color:'var(--mu)', fontSize:13, textAlign:'center', padding:'2rem' }}>Henüz grup yok</div>
+        ) : batches.map(b => {
+          const tot = (b.codes || []).length;
+          const kul = codes.filter(c => c.batchKey === b._key || c.group === b.name).filter(c => c.status === 'deaktif').length;
+          const grpPct = tot > 0 ? Math.round(kul / tot * 100) : 0;
+          return (
+            <div key={b._key} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:8, padding:'12px 14px', marginBottom:8 }}>
+              <div>
+                <div style={{ fontWeight:600, fontSize:14 }}>{b.name}</div>
+                <div style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)', marginTop:2 }}>
+                  %{b.indirim} · {kul}/{tot} kullanıldı
+                  {grpPct >= 80 && <span style={{ color:'var(--rd)', marginLeft:8 }}>(Stok azalıyor)</span>}
+                </div>
+              </div>
+              <Button variant="danger" size="sm" onClick={() => handleBatchDelete(b._key, b.name)}>Sil</Button>
             </div>
-          )}
-        </div>
+          );
+        })}
       </div>
 
-      {/* ─── Toplu Deaktif Modal ─── */}
+      {/* Toplu Deaktif Modal */}
       <Modal open={topluModal} onClose={() => setTopluModal(false)} title="Toplu Deaktif">
-        <p className="text-sm text-mu mb-4">Virgülle ayırarak kodları girin.</p>
+        <p style={{ fontSize:13, color:'var(--mu)', marginBottom:12 }}>Virgülle ayırarak kodları girin.</p>
         <textarea
           value={topluInput}
           onChange={e => setTopluInput(e.target.value)}
           rows={4}
           placeholder="FFE5B8C7207, ABC1234DEF5, ..."
-          className="w-full bg-bg border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac resize-none font-mono"
+          style={{ width:'100%', background:'var(--bg)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 12px', color:'var(--tx)', fontSize:13, fontFamily:'var(--mo)', resize:'none', outline:'none', boxSizing:'border-box' }}
         />
         <ModalActions>
-          <Button variant="ghost" onClick={() => setTopluModal(false)}>İptal</Button>
+          <Button variant="default" onClick={() => setTopluModal(false)}>İptal</Button>
           <Button variant="danger" onClick={handleToplu}>Deaktif Et</Button>
         </ModalActions>
       </Modal>
 
-      {/* ─── Yeni Grup Modal ─── */}
-      <Modal open={batchModal} onClose={() => setBatchModal(false)} title="Yeni Kod Grubu Ekle" width="max-w-2xl">
-        <p className="text-sm text-mu mb-5">Kodları virgül veya satır ile ayırarak girin.</p>
-        <div className="space-y-4 mb-5">
-          <div>
-            <label className="text-[11px] font-semibold text-mu uppercase tracking-wide block mb-2">Grup Adı</label>
-            <input
-              value={batchName}
-              onChange={e => setBatchName(e.target.value)}
-              placeholder="Örn: Firma A, VIP Davetiyeler..."
-              className="w-full bg-bg border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
-            />
-          </div>
-          <div>
-            <label className="text-[11px] font-semibold text-mu uppercase tracking-wide block mb-2">İndirim Oranı</label>
-            <select
-              value={batchIndirim}
-              onChange={e => setBatchIndirim(e.target.value)}
-              className="w-full bg-bg border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none"
-            >
-              {[5,10,15,20,25,30,50,100].map(v => (
-                <option key={v} value={String(v)}>{v === 100 ? '%100 (Ücretsiz)' : `%${v}`}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="text-[11px] font-semibold text-mu uppercase tracking-wide block mb-2">Kodlar</label>
-            <textarea
-              value={batchCodes}
-              onChange={e => setBatchCodes(e.target.value)}
-              rows={6}
-              placeholder="ALISTZ9IK6M, ALISTJXFO2O&#10;veya her satıra bir kod..."
-              className="w-full bg-bg border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac resize-none font-mono"
-            />
-            <div className="text-xs text-mu mt-2">{parseBatchCodes(batchCodes).length} kod</div>
-          </div>
+      {/* Yeni Grup Modal */}
+      <Modal open={batchModal} onClose={() => setBatchModal(false)} title="Yeni Kod Grubu Ekle">
+        <p style={{ fontSize:13, color:'var(--mu)', marginBottom:12 }}>Kodları virgül veya satır ile ayırarak girin.</p>
+        <div style={{ marginBottom:12 }}>
+          <label className="form-label">Grup Adı</label>
+          <input className="form-input" value={batchName} onChange={e => setBatchName(e.target.value)} placeholder="Örn: Firma A, VIP Davetiyeler..." />
+        </div>
+        <div style={{ marginBottom:12 }}>
+          <label className="form-label">İndirim Oranı</label>
+          <select className="form-input" value={batchIndirim} onChange={e => setBatchIndirim(e.target.value)}>
+            {[5,10,15,20,25,30,50,100].map(v => (
+              <option key={v} value={String(v)}>{v === 100 ? '%100 (Ücretsiz)' : `%${v}`}</option>
+            ))}
+          </select>
+        </div>
+        <div style={{ marginBottom:4 }}>
+          <label className="form-label">Kodlar</label>
+          <textarea
+            value={batchCodes}
+            onChange={e => setBatchCodes(e.target.value)}
+            rows={6}
+            placeholder="ALISTZ9IK6M, ALISTJXFO2O&#10;veya her satıra bir kod..."
+            style={{ width:'100%', background:'var(--bg)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 12px', color:'var(--tx)', fontSize:13, fontFamily:'var(--mo)', resize:'none', outline:'none', boxSizing:'border-box' }}
+          />
+          <div style={{ fontSize:11, color:'var(--mu)', marginTop:4 }}>{parseBatchCodes(batchCodes).length} kod</div>
         </div>
         <ModalActions>
-          <Button variant="ghost" onClick={() => setBatchModal(false)}>İptal</Button>
+          <Button variant="default" onClick={() => setBatchModal(false)}>İptal</Button>
           <Button variant="accent" onClick={handleBatchSave} disabled={batchSaving}>
             {batchSaving ? 'Kaydediliyor...' : 'Grubu Kaydet'}
           </Button>

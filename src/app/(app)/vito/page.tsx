@@ -30,8 +30,6 @@ async function buildQRUrl(text: string): Promise<string> {
   return QRCode.toDataURL(text, { width: 160, margin: 1 });
 }
 
-// ─── Sekme: Bilet Sat ────────────────────────────────────────────────────────
-
 function VitoBiletSat({ drivers, satisList, user }: {
   drivers: VitoDriver[];
   satisList: Satis[];
@@ -40,23 +38,23 @@ function VitoBiletSat({ drivers, satisList, user }: {
   const codes   = useCodes();
   const batches = useBatches();
 
-  const [selectedTarih, setSelectedTarih] = useState(todayStr());
-  const [selectedSeans, setSelectedSeans] = useState<string | null>(null);
+  const [selectedTarih, setSelectedTarih]   = useState(todayStr());
+  const [selectedSeans, setSelectedSeans]   = useState<string | null>(null);
   const [selectedDriver, setSelectedDriver] = useState('');
-  const [ad, setAd]     = useState('');
+  const [ad, setAd]       = useState('');
   const [soyad, setSoyad] = useState('');
-  const [tel, setTel]   = useState('');
-  const [mail, setMail] = useState('');
-  const [qty, setQty]   = useState<TicketQty>({ ...EMPTY_QTY });
-  const [indirimInput, setIndirimInput] = useState('');
-  const [aktifKod, setAktifKod]         = useState<IndirimKodu | null>(null);
-  const [indirimOrani, setIndirimOrani] = useState(0);
-  const [indirimMsg, setIndirimMsg]     = useState('');
-  const [confirmOpen, setConfirmOpen]   = useState(false);
-  const [biletModal, setBiletModal]     = useState(false);
-  const [biletler, setBiletler]         = useState<Array<{ no: string; tur: string; qrUrl: string }>>([]);
-  const [lastPNR, setLastPNR]           = useState('');
-  const [lastAdSoyad, setLastAdSoyad]   = useState('');
+  const [tel, setTel]     = useState('');
+  const [mail, setMail]   = useState('');
+  const [qty, setQty]     = useState<TicketQty>({ ...EMPTY_QTY });
+  const [indirimInput, setIndirimInput]   = useState('');
+  const [aktifKod, setAktifKod]           = useState<IndirimKodu | null>(null);
+  const [indirimOrani, setIndirimOrani]   = useState(0);
+  const [indirimMsg, setIndirimMsg]       = useState('');
+  const [confirmOpen, setConfirmOpen]     = useState(false);
+  const [biletModal, setBiletModal]       = useState(false);
+  const [biletler, setBiletler]           = useState<Array<{ no: string; tur: string; qrUrl: string }>>([]);
+  const [lastPNR, setLastPNR]             = useState('');
+  const [lastAdSoyad, setLastAdSoyad]     = useState('');
 
   const saatler    = getSaatler(selectedTarih);
   const isEtkinlik = isEtkinlikGunu(selectedTarih);
@@ -67,13 +65,13 @@ function VitoBiletSat({ drivers, satisList, user }: {
     }, {} as Record<string, number>)
   , [satisList, selectedTarih]);
 
-  const driver    = drivers.find(d => d._key === selectedDriver);
-  const toplam    = qty.tam + qty.cocuk + qty.yabanci + qty.davetli + qty.kurumsal;
-  const p         = hesaplaFiyat(qty.tam, qty.cocuk, qty.yabanci);
-  const gelirBase = p.gelir;
+  const driver     = drivers.find(d => d._key === selectedDriver);
+  const toplam     = qty.tam + qty.cocuk + qty.yabanci + qty.davetli + qty.kurumsal;
+  const p          = hesaplaFiyat(qty.tam, qty.cocuk, qty.yabanci);
+  const gelirBase  = p.gelir;
   const indirimTutar = indirimOrani > 0 ? Math.round(gelirBase * indirimOrani) : 0;
-  const sonToplam = gelirBase - indirimTutar;
-  const vitoKom   = driver ? Math.round(gelirBase * (driver.komisyonOran / 100)) : 0;
+  const sonToplam  = gelirBase - indirimTutar;
+  const vitoKom    = driver ? Math.round(gelirBase * (driver.komisyonOran / 100)) : 0;
 
   const handleIndirimUygula = () => {
     const kod = indirimInput.trim().toUpperCase();
@@ -89,11 +87,11 @@ function VitoBiletSat({ drivers, satisList, user }: {
   const handleTamamla = async () => {
     if (!selectedSeans || !user) return;
     setConfirmOpen(false);
-    const adSoyad  = `${ad.trim()} ${soyad.trim()}`.trim();
-    const pnr      = 'PNR-' + genPNR();
-    const now      = new Date();
-    const saat     = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-    const satisId  = genID();
+    const adSoyad = `${ad.trim()} ${soyad.trim()}`.trim();
+    const pnr     = 'PNR-' + genPNR();
+    const now     = new Date();
+    const saat    = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+    const satisId = genID();
 
     const biletNolar: string[] = [];
     const biletlerFirebase: Record<string, unknown> = {};
@@ -138,200 +136,155 @@ function VitoBiletSat({ drivers, satisList, user }: {
   const activeDrivers = drivers.filter(d => d.aktif);
 
   return (
-    <div className="space-y-6">
-
-      {/* Sürücü seçimi */}
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd">
-          <h2 className="text-[15px] font-semibold text-tx">Vito Sürücüsü</h2>
-        </div>
-        <div className="p-7">
-          <select
-            value={selectedDriver}
-            onChange={e => setSelectedDriver(e.target.value)}
-            className="w-full bg-sf2 border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
-          >
-            <option value="">— Sürücü seçin —</option>
-            {activeDrivers.map(d => <option key={d._key} value={d._key}>{d.ad} · {d.plaka}</option>)}
-          </select>
+    <div>
+      {/* Sürücü + Tarih */}
+      <div className="page-section">
+        <div className="musteri-grid">
+          <div>
+            <label className="form-label">Vito Sürücüsü</label>
+            <select id="vito-surucu-sel2" className="form-input" value={selectedDriver} onChange={e => setSelectedDriver(e.target.value)}>
+              <option value="">— Sürücü seçin —</option>
+              {activeDrivers.map(d => <option key={d._key} value={d._key}>{d.ad} · {d.plaka}</option>)}
+            </select>
+          </div>
           {driver && (
-            <div className="mt-4 bg-bl/8 border border-bl/20 rounded-xl px-4 py-3 text-xs">
-              <div className="text-[10px] text-bl uppercase tracking-widest mb-2 font-semibold">Seçili Sürücü</div>
-              <div className="flex gap-6 text-mu">
-                <span className="text-tx font-medium">{driver.ad}</span>
-                <span className="font-mono text-ac">{driver.plaka}</span>
-                <span>%{driver.komisyonOran} komisyon</span>
-              </div>
+            <div id="vito-surucu-bilgi" style={{ background:'#1e1a00', border:'1px solid #3a2e00', borderRadius:8, padding:'8px 12px', fontSize:12, display:'flex', alignItems:'center', gap:16 }}>
+              <span style={{ fontWeight:600 }}>{driver.ad}</span>
+              <span style={{ fontFamily:'var(--mo)', color:'var(--ac)' }}>{driver.plaka}</span>
+              <span style={{ color:'var(--mu)' }}>%{driver.komisyonOran} komisyon</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Tarih */}
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd">
-          <h2 className="text-[15px] font-semibold text-tx">Tarih Seç</h2>
+      {/* Tarih Seç */}
+      <div style={{ background:'var(--sf)', border:'1px solid var(--bd)', borderRadius:10, padding:'.75rem 1rem', marginBottom:'1rem' }}>
+        <div style={{ fontSize:11, color:'var(--mu)', textTransform:'uppercase', letterSpacing:'.5px', marginBottom:'.5rem' }}>
+          Tarih Seç — <span style={{ color:'var(--ac)', textTransform:'none' }}>{fmtDate(selectedTarih)}</span>
         </div>
-        <div className="px-7 py-5">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => { setSelectedTarih(todayStr()); setSelectedSeans(null); }}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
-                selectedTarih === todayStr() ? 'bg-btn text-white border-btn' : 'bg-sf2 text-tx border-bd hover:border-bd2'
-              }`}
-            >
-              Bugün
-            </button>
-            <input
-              type="date"
-              value={dateToInput(selectedTarih)}
-              onChange={e => { setSelectedTarih(inputToDate(e.target.value)); setSelectedSeans(null); }}
-              className="bg-sf2 border border-bd rounded-xl px-4 py-2 text-tx font-mono text-sm outline-none focus:border-ac cursor-pointer"
-            />
-            {selectedTarih !== todayStr() && (
-              <span className="text-sm text-ac font-medium">{fmtDate(selectedTarih)}</span>
-            )}
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <button
+            id="vito-bugun-btn"
+            className={`tarih-picker-buton${selectedTarih !== todayStr() ? ' pasif' : ''}`}
+            onClick={() => { setSelectedTarih(todayStr()); setSelectedSeans(null); }}
+          >Bugün</button>
+          <div className="tarih-picker-date">
+            <input type="date" value={dateToInput(selectedTarih)} onChange={e => { setSelectedTarih(inputToDate(e.target.value)); setSelectedSeans(null); }} />
           </div>
         </div>
       </div>
 
       {/* Seans */}
       {isEtkinlik && saatler && (
-        <div className="glass-card rounded-2xl overflow-hidden">
-          <div className="px-7 py-5 border-b border-bd">
-            <h2 className="text-[15px] font-semibold text-tx">Seans Seç</h2>
+        <div style={{ background:'var(--sf)', border:'1px solid var(--bd)', borderRadius:10, padding:'.75rem 1rem', marginBottom:'1rem' }}>
+          <div style={{ fontSize:11, color:'var(--mu)', textTransform:'uppercase', letterSpacing:'.5px', marginBottom:'.5rem' }}>
+            Seans Seç — <span id="vito-secilenTarihLabel" style={{ color:'var(--ac)', textTransform:'none' }}>{selectedTarih}</span>
           </div>
-          <div className="p-6">
-            <div className="grid grid-cols-5 gap-3">
-              {saatler.map((saat, idx) => (
-                <button
-                  key={saat}
-                  onClick={() => setSelectedSeans(saat)}
-                  className={`border-2 rounded-2xl py-4 px-2 text-center cursor-pointer transition-all hover-lift ${
-                    selectedSeans === saat ? 'border-bl bg-bl/10' : 'border-bd bg-sf2/60 hover:border-bd2'
-                  }`}
-                >
-                  <div className="text-[28px] font-semibold font-mono text-bl leading-none">{idx + 1}</div>
-                  <div className="text-[11px] text-mu mt-2">{saat}</div>
-                  <div className="text-sm text-tx font-mono font-semibold mt-1">{seansCounts[saat] ?? 0}</div>
-                </button>
-              ))}
-            </div>
+          <div className="seans-grid">
+            {saatler.map(saat => (
+              <div
+                key={saat}
+                className={`seans-card${selectedSeans === saat ? ' selected' : ''}`}
+                onClick={() => setSelectedSeans(saat)}
+              >
+                <div className="seans-time">{saat}</div>
+                <div className="seans-count">{seansCounts[saat] ?? 0} kişi</div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Müşteri + Biletler */}
+      {/* Bilet Formu */}
       {selectedSeans && (
-        <div className="glass-card rounded-2xl overflow-hidden">
-          <div className="px-7 py-5 border-b border-bd">
-            <h2 className="text-[15px] font-semibold text-tx">
-              Satış — Seans <span className="text-ac font-normal">{selectedSeans}</span>
-            </h2>
+        <div className="page-section" id="vito-biletSection">
+          <div className="section-title">Müşteri Bilgileri — Seans <span style={{ color:'var(--ac)', textTransform:'none', fontWeight:400 }}>{selectedSeans}</span></div>
+          <div className="musteri-grid">
+            <div><label className="form-label">Ad</label><input className="form-input" type="text" value={ad} onChange={e => setAd(e.target.value)} placeholder="Ad" /></div>
+            <div><label className="form-label">Soyad</label><input className="form-input" type="text" value={soyad} onChange={e => setSoyad(e.target.value)} placeholder="Soyad" /></div>
+            <div><label className="form-label">Telefon</label><input className="form-input" type="tel" value={tel} onChange={e => setTel(e.target.value)} placeholder="+90 555 000 00 00" /></div>
+            <div><label className="form-label">E-posta</label><input className="form-input" type="email" value={mail} onChange={e => setMail(e.target.value)} placeholder="musteri@mail.com" /></div>
           </div>
-          <div className="p-7">
-            <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">Müşteri Bilgileri</p>
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <Input label="Ad"      value={ad}    onChange={e => setAd(e.target.value)}    placeholder="Ad" />
-              <Input label="Soyad"   value={soyad} onChange={e => setSoyad(e.target.value)} placeholder="Soyad" />
-              <Input label="Telefon" value={tel}   onChange={e => setTel(e.target.value)}   type="tel" />
-              <Input label="E-posta" value={mail}  onChange={e => setMail(e.target.value)}  type="email" />
-            </div>
 
-            <div className="h-px bg-bd mb-8" />
-            <p className="text-[11px] font-semibold text-mu uppercase tracking-widest mb-4">Bilet Türleri</p>
+          <div className="section-title" style={{ marginTop:'1rem' }}>
+            Bilet Türü — Seans <span id="vito-secilenSeansLabel" style={{ color:'var(--ac)', textTransform:'none' }}>{selectedSeans}</span>
+          </div>
 
-            <div className="space-y-1 mb-6">
-              {TICKET_TYPES.map(tp => (
-                <div key={tp.key} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-4 rounded-xl hover:bg-sf2/50 transition-colors">
-                  <div className="text-[14px] font-medium">{tp.label}</div>
-                  <div className="text-sm font-mono text-ac font-semibold whitespace-nowrap">
-                    {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : '0 ₺'}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => setQty(q => ({ ...q, [tp.key]: Math.max(0, q[tp.key] - 1) }))}
-                      className="w-9 h-9 rounded-xl border border-bd bg-sf text-tx text-lg flex items-center justify-center hover:border-ac hover:text-ac transition-all"
-                    >−</button>
-                    <span className="w-8 text-center font-semibold font-mono text-[16px]">{qty[tp.key]}</span>
-                    <button
-                      onClick={() => setQty(q => ({ ...q, [tp.key]: q[tp.key] + 1 }))}
-                      className="w-9 h-9 rounded-xl border border-bd bg-sf text-tx text-lg flex items-center justify-center hover:border-ac hover:text-ac transition-all"
-                    >+</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {toplam > 0 && driver && (
-              <div className="bg-bl/8 border border-bl/20 rounded-xl px-5 py-4 mb-4">
-                <div className="text-[10px] text-bl uppercase tracking-widest mb-2 font-semibold">Vito Komisyon</div>
-                <div className="flex justify-between text-gn font-semibold text-sm">
-                  <span>{driver.ad} · {driver.plaka}</span>
-                  <span>{fmtMoney(vitoKom)} (%{driver.komisyonOran})</span>
-                </div>
+          {TICKET_TYPES.map(tp => (
+            <div key={tp.key} className="bilet-row">
+              <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
+                <span style={{ fontWeight:600, fontSize:14 }}>{tp.label}</span>
+                <span style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)' }}>
+                  {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : 'Ücretsiz'}
+                </span>
               </div>
-            )}
-
-            {toplam > 0 && (
-              <div className="flex justify-between items-center bg-sf2/60 border border-bd rounded-xl px-5 py-4 mb-6">
-                <span className="text-sm text-mu">TOPLAM ({toplam} kişi)</span>
-                <span className="font-mono font-semibold text-[16px] text-ac">{fmtMoney(sonToplam)}</span>
+              <div className="bilet-qty">
+                <button className="qty-btn" onClick={() => setQty(q => ({ ...q, [tp.key]: Math.max(0, q[tp.key] - 1) }))}>−</button>
+                <span className="qty-num">{qty[tp.key]}</span>
+                <button className="qty-btn" onClick={() => setQty(q => ({ ...q, [tp.key]: q[tp.key] + 1 }))}>+</button>
               </div>
-            )}
-
-            <div className="flex gap-3 pt-4 border-t border-bd">
-              <Button variant="ghost" onClick={() => { setSelectedSeans(null); setQty({ ...EMPTY_QTY }); }}>İptal</Button>
-              <Button variant="accent" disabled={toplam === 0 || !ad.trim()} onClick={() => setConfirmOpen(true)}>
-                Satışı Tamamla
-              </Button>
             </div>
+          ))}
+
+          {toplam > 0 && driver && (
+            <div id="vito-kom-preview2" style={{ background:'#1a1500', border:'1px solid #3a2e00', borderRadius:8, padding:'10px 14px', marginTop:10, fontSize:12 }}>
+              <span style={{ color:'var(--mu)' }}>Vito Komisyon: </span>
+              <span style={{ color:'var(--ac)', fontWeight:600 }}>{driver.ad} · {fmtMoney(vitoKom)} (%{driver.komisyonOran})</span>
+            </div>
+          )}
+
+          {toplam > 0 && (
+            <div className="ozet-box" id="vito-ozetBox">
+              <div className="ozet-row"><span>Kişi</span><span style={{ fontFamily:'var(--mo)' }}>{toplam}</span></div>
+              <div className="ozet-row"><span>Toplam</span><span style={{ fontFamily:'var(--mo)', color:'var(--ac)', fontWeight:700, fontSize:16 }}>{fmtMoney(sonToplam)}</span></div>
+            </div>
+          )}
+
+          <div className="mbtns" style={{ marginTop:'1rem' }}>
+            <button className="btn btn-ac" style={{ flex:1 }} disabled={toplam === 0 || !ad.trim()} onClick={() => setConfirmOpen(true)}>Satışı Tamamla</button>
+            <button className="btn" onClick={() => { setSelectedSeans(null); setQty({ ...EMPTY_QTY }); setAd(''); setSoyad(''); setTel(''); setMail(''); }}>Temizle</button>
           </div>
         </div>
       )}
 
       <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Satışı Onayla">
-        <div className="text-sm space-y-2 bg-sf2 border border-bd rounded-xl p-4 mb-4">
-          <div className="flex justify-between"><span className="text-mu">Müşteri</span><span className="font-medium">{ad} {soyad}</span></div>
-          <div className="flex justify-between"><span className="text-mu">Tarih / Seans</span><span>{selectedTarih} / {selectedSeans}</span></div>
-          {driver && <div className="flex justify-between"><span className="text-mu">Sürücü</span><span>{driver.ad}</span></div>}
-          <div className="flex justify-between text-ac font-semibold pt-2 border-t border-bd">
-            <span>Toplam</span><span>{fmtMoney(sonToplam)}</span>
-          </div>
+        <div style={{ background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:10, padding:'12px 16px', marginBottom:16 }}>
+          <div className="ozet-row"><span style={{ color:'var(--mu)' }}>Müşteri</span><span style={{ fontWeight:500 }}>{ad} {soyad}</span></div>
+          <div className="ozet-row"><span style={{ color:'var(--mu)' }}>Tarih / Seans</span><span>{selectedTarih} / {selectedSeans}</span></div>
+          {driver && <div className="ozet-row"><span style={{ color:'var(--mu)' }}>Sürücü</span><span>{driver.ad}</span></div>}
+          <div className="ozet-row" style={{ borderTop:'1px solid var(--bd)', paddingTop:8, marginTop:4 }}><span>Toplam</span><span style={{ color:'var(--ac)', fontWeight:700 }}>{fmtMoney(sonToplam)}</span></div>
         </div>
         <ModalActions>
-          <Button variant="ghost" onClick={() => setConfirmOpen(false)}>İptal</Button>
+          <Button variant="default" onClick={() => setConfirmOpen(false)}>İptal</Button>
           <Button variant="accent" onClick={handleTamamla}>✓ Onayla</Button>
         </ModalActions>
       </Modal>
 
-      <Modal open={biletModal} onClose={() => setBiletModal(false)} title="🎟️ Biletler Hazır" width="max-w-xl">
-        <p className="text-sm text-mu mb-5">PNR: <span className="font-mono text-ac">{lastPNR}</span> · {lastAdSoyad}</p>
-        <div className="space-y-3">
+      <Modal open={biletModal} onClose={() => setBiletModal(false)} title="🎟️ Biletler Hazır">
+        <p style={{ fontSize:13, color:'var(--mu)', marginBottom:16 }}>PNR: <span style={{ fontFamily:'var(--mo)', color:'var(--ac)' }}>{lastPNR}</span> · {lastAdSoyad}</p>
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           {biletler.map(b => (
-            <div key={b.no} className="bg-white text-black rounded-2xl p-5 border border-gray-200 text-center">
-              <div className="text-[10px] tracking-[3px] text-gray-400 mb-1">✦ STARDUST ✦</div>
-              <div className="font-bold text-base mb-1">Astra Lumina İstanbul</div>
-              <div className="text-xs text-gray-500 mb-3">{selectedTarih} — Seans {selectedSeans}</div>
-              <div className="flex justify-center mb-3">
+            <div key={b.no} style={{ background:'white', color:'black', borderRadius:16, padding:20, border:'1px solid #eee', textAlign:'center' }}>
+              <div style={{ fontSize:10, letterSpacing:3, color:'#999', marginBottom:4 }}>✦ STARDUST ✦</div>
+              <div style={{ fontWeight:700, fontSize:15, marginBottom:4 }}>Astra Lumina İstanbul</div>
+              <div style={{ fontSize:12, color:'#666', marginBottom:12 }}>{selectedTarih} — Seans {selectedSeans}</div>
+              <div style={{ display:'flex', justifyContent:'center', marginBottom:12 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={b.qrUrl} alt="QR" width={120} height={120} className="rounded-xl" />
+                <img src={b.qrUrl} alt="QR" width={120} height={120} style={{ borderRadius:10 }} />
               </div>
-              <div className="font-semibold text-sm">{lastAdSoyad}</div>
-              <div className="text-[9px] text-gray-400 font-mono mt-1">{b.no}</div>
+              <div style={{ fontWeight:600, fontSize:14 }}>{lastAdSoyad}</div>
+              <div style={{ fontSize:9, color:'#aaa', fontFamily:'monospace', marginTop:4 }}>{b.no}</div>
             </div>
           ))}
         </div>
         <ModalActions>
-          <Button variant="ghost" onClick={() => setBiletModal(false)}>Kapat</Button>
+          <Button variant="default" onClick={() => setBiletModal(false)}>Kapat</Button>
           <Button variant="accent" onClick={() => window.print()}>🖨️ Yazdır</Button>
         </ModalActions>
       </Modal>
     </div>
   );
 }
-
-// ─── Sekme: Sürücüler ────────────────────────────────────────────────────────
 
 function VitoSurucular({ drivers }: { drivers: VitoDriver[] }) {
   const [ad, setAd]       = useState('');
@@ -348,68 +301,54 @@ function VitoSurucular({ drivers }: { drivers: VitoDriver[] }) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd">
-          <h2 className="text-[15px] font-semibold text-tx">Yeni Sürücü Ekle</h2>
-        </div>
-        <div className="p-7">
-          <div className="grid grid-cols-2 gap-4 mb-5">
-            <Input label="Ad Soyad" value={ad}    onChange={e => setAd(e.target.value)}    placeholder="Ahmet Yılmaz" />
-            <Input label="Plaka"    value={plaka} onChange={e => setPlaka(e.target.value)} placeholder="34 ABC 123" />
-            <Input label="Telefon"  value={tel}   onChange={e => setTel(e.target.value)}   type="tel" />
-            <div>
-              <label className="text-[11px] font-semibold text-mu uppercase tracking-widest block mb-2">Komisyon Oranı</label>
-              <select
-                value={oran}
-                onChange={e => setOran(e.target.value)}
-                className="w-full bg-sf2 border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
-              >
-                {[10,15,20,25,30].map(v => <option key={v} value={String(v)}>%{v}</option>)}
-              </select>
-            </div>
+    <div>
+      <div className="page-section">
+        <div className="section-title">Yeni Sürücü Ekle</div>
+        <div className="musteri-grid" style={{ marginBottom:12 }}>
+          <div><label className="form-label">Ad Soyad</label><input className="form-input" value={ad}    onChange={e => setAd(e.target.value)}    placeholder="Ahmet Yılmaz" /></div>
+          <div><label className="form-label">Plaka</label><input className="form-input" value={plaka} onChange={e => setPlaka(e.target.value)} placeholder="34 ABC 123" /></div>
+          <div><label className="form-label">Telefon</label><input className="form-input" type="tel" value={tel} onChange={e => setTel(e.target.value)} /></div>
+          <div>
+            <label className="form-label">Komisyon Oranı</label>
+            <select className="form-input" value={oran} onChange={e => setOran(e.target.value)}>
+              {[10,15,20,25,30].map(v => <option key={v} value={String(v)}>%{v}</option>)}
+            </select>
           </div>
-          <Button variant="accent" onClick={handleEkle}>+ Sürücü Ekle</Button>
         </div>
+        <Button variant="accent" size="sm" onClick={handleEkle}>+ Sürücü Ekle</Button>
       </div>
 
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-tx">Sürücü Listesi</h2>
-          <span className="text-[11px] text-mu">{drivers.length} sürücü</span>
+      <div className="panel">
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1rem' }}>
+          <div className="panel-title" style={{ margin:0 }}>Sürücü Listesi</div>
+          <span style={{ fontSize:12, color:'var(--mu)' }}>{drivers.length} sürücü</span>
         </div>
         {drivers.length === 0 ? (
-          <div className="text-mu text-sm text-center py-10">Henüz sürücü yok</div>
-        ) : (
-          <div className="divide-y divide-bd">
-            {drivers.map(d => (
-              <div key={d._key} className="flex items-center justify-between px-7 py-5 hover:bg-sf2/40 transition-colors">
-                <div>
-                  <div className="font-semibold text-[14px]">{d.ad}</div>
-                  <div className="text-xs text-mu font-mono mt-1">{d.plaka} · %{d.komisyonOran} komisyon</div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant={d.aktif ? 'active' : 'inactive'}>{d.aktif ? 'Aktif' : 'Pasif'}</Badge>
-                  <Button size="sm" onClick={() => update(ref(db, `vitoDrivers/${d._key}`), { aktif: !d.aktif })}>
-                    {d.aktif ? 'Pasife Al' : 'Aktif Et'}
-                  </Button>
-                  <Button variant="danger" size="sm" onClick={() => {
-                    if (confirm('Sürücüyü silmek istediğinizden emin misiniz?')) {
-                      remove(ref(db, `vitoDrivers/${d._key}`));
-                      toast('Sürücü silindi', 'ok');
-                    }
-                  }}>Sil</Button>
-                </div>
-              </div>
-            ))}
+          <div style={{ color:'var(--mu)', fontSize:13, textAlign:'center', padding:'2rem' }}>Henüz sürücü yok</div>
+        ) : drivers.map(d => (
+          <div key={d._key} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 14px', marginBottom:8 }}>
+            <div>
+              <div style={{ fontWeight:600, fontSize:14 }}>{d.ad}</div>
+              <div style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)', marginTop:2 }}>{d.plaka} · %{d.komisyonOran} komisyon</div>
+            </div>
+            <div style={{ display:'flex', gap:8 }}>
+              <Badge variant={d.aktif ? 'active' : 'inactive'}>{d.aktif ? 'Aktif' : 'Pasif'}</Badge>
+              <Button size="sm" onClick={() => update(ref(db, `vitoDrivers/${d._key}`), { aktif: !d.aktif })}>
+                {d.aktif ? 'Pasife Al' : 'Aktif Et'}
+              </Button>
+              <Button variant="danger" size="sm" onClick={() => {
+                if (confirm('Sürücüyü silmek istediğinizden emin misiniz?')) {
+                  remove(ref(db, `vitoDrivers/${d._key}`));
+                  toast('Sürücü silindi', 'ok');
+                }
+              }}>Sil</Button>
+            </div>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
 }
-
-// ─── Sekme: Komisyon ─────────────────────────────────────────────────────────
 
 function VitoKomisyon({ drivers, satisList }: { drivers: VitoDriver[]; satisList: Satis[] }) {
   const [filtreSurucu, setFiltreSurucu] = useState('');
@@ -428,81 +367,55 @@ function VitoKomisyon({ drivers, satisList }: { drivers: VitoDriver[]; satisList
   };
 
   return (
-    <div className="space-y-6">
+    <div>
+      <div className="toolbar" style={{ marginBottom:'1rem' }}>
+        <label className="form-label" style={{ margin:0, alignSelf:'center' }}>Sürücü:</label>
+        <select className="sw" value={filtreSurucu} onChange={e => setFiltreSurucu(e.target.value)}>
+          <option value="">Tüm Sürücüler</option>
+          {drivers.filter(d => d.aktif).map(d => <option key={d._key} value={d._key}>{d.ad}</option>)}
+        </select>
+      </div>
 
-      {/* Filtre + KPI yan yana */}
-      <div className="grid grid-cols-[260px_1fr] gap-6 items-start">
-        <div className="glass-card rounded-2xl overflow-hidden">
-          <div className="px-7 py-5 border-b border-bd">
-            <h2 className="text-[15px] font-semibold text-tx">Sürücü Filtresi</h2>
-          </div>
-          <div className="px-7 py-5">
-            <select
-              value={filtreSurucu}
-              onChange={e => setFiltreSurucu(e.target.value)}
-              className="w-full bg-sf2 border border-bd rounded-xl px-4 py-2.5 text-tx text-sm outline-none focus:border-ac"
-            >
-              <option value="">Tüm Sürücüler</option>
-              {drivers.filter(d => d.aktif).map(d => <option key={d._key} value={d._key}>{d.ad}</option>)}
-            </select>
-          </div>
+      <div style={{ display:'flex', marginBottom:'.75rem', background:'var(--sf)', border:'1px solid var(--bd)', borderRadius:10, overflow:'hidden' }}>
+        <div style={{ flex:1, padding:14, textAlign:'center', borderRight:'1px solid var(--bd)' }}>
+          <div style={{ fontSize:10, color:'var(--mu)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>Toplam Tur</div>
+          <div style={{ fontSize:26, fontWeight:700, fontFamily:'var(--mo)' }}>{toplamTur}</div>
         </div>
-
-        <div className="grid grid-cols-3 gap-6">
-          <div className="glass-card rounded-2xl p-6 text-center hover-lift">
-            <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Tur</div>
-            <div className="font-mono text-3xl font-semibold">{toplamTur}</div>
-          </div>
-          <div className="glass-card rounded-2xl p-6 text-center hover-lift">
-            <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Kişi</div>
-            <div className="font-mono text-3xl font-semibold">{toplamKisi}</div>
-          </div>
-          <div className="glass-card rounded-2xl p-6 text-center hover-lift">
-            <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Hakediş</div>
-            <div className="font-mono text-2xl font-semibold text-bl">{fmtMoney(toplamHakedis)}</div>
-          </div>
+        <div style={{ flex:1, padding:14, textAlign:'center', borderRight:'1px solid var(--bd)' }}>
+          <div style={{ fontSize:10, color:'var(--mu)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>Toplam Kişi</div>
+          <div style={{ fontSize:26, fontWeight:700, fontFamily:'var(--mo)' }}>{toplamKisi}</div>
+        </div>
+        <div style={{ flex:1, padding:14, textAlign:'center' }}>
+          <div style={{ fontSize:10, color:'var(--mu)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>Toplam Hakediş</div>
+          <div style={{ fontSize:22, fontWeight:700, color:'var(--ac)', fontFamily:'var(--mo)' }}>{fmtMoney(toplamHakedis)}</div>
         </div>
       </div>
 
-      {/* Tablo */}
-      <div className="glass-card rounded-2xl overflow-hidden">
-        <div className="px-7 py-5 border-b border-bd flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-tx">Vito Turları</h2>
-          <span className="text-[11px] text-mu">{filtered.length} kayıt</span>
-        </div>
-        <table className="w-full text-sm border-collapse">
+      <div className="tw">
+        <table>
           <thead>
-            <tr className="border-b border-bd">
-              {['Sürücü','Müşteri','Tarih','Seans','Kişi','Hakediş','Ödeme'].map(h => (
-                <th key={h} className="px-5 py-4 text-left text-[10px] font-semibold text-mu uppercase tracking-wide">
-                  {h}
-                </th>
-              ))}
-            </tr>
+            <tr><th>Sürücü</th><th>Müşteri</th><th>Tarih</th><th>Seans</th><th>Kişi</th><th>Hakediş</th><th>Ödeme</th></tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan={7} className="text-center py-12 text-mu">Vito satışı bulunamadı</td></tr>
+              <tr><td colSpan={7} style={{ textAlign:'center', padding:'2rem', color:'var(--mu)' }}>Vito satışı bulunamadı</td></tr>
             ) : filtered.map(t => {
               const drv = drivers.find(d => d._key === t.vitoSurucu);
               return (
-                <tr key={t.id} className="border-b border-bd last:border-0 hover:bg-sf2/60 transition-colors">
-                  <td className="px-5 py-4 text-[13px] font-medium">{drv?.ad ?? '—'}</td>
-                  <td className="px-5 py-4 text-[13px]">{t.musteriAd}</td>
-                  <td className="px-5 py-4 font-mono text-xs text-mu">{t.tarih}</td>
-                  <td className="px-5 py-4 font-mono text-xs">{t.seans}</td>
-                  <td className="px-5 py-4 font-mono text-[13px]">{(t.tam||0)+(t.cocuk||0)+(t.yabanci||0)}</td>
-                  <td className="px-5 py-4 text-bl font-mono font-semibold text-[13px]">{fmtMoney(t.vitoKomisyon||0)}</td>
-                  <td className="px-5 py-4">
+                <tr key={t.id}>
+                  <td style={{ fontWeight:600 }}>{drv?.ad ?? '—'}</td>
+                  <td>{t.musteriAd}</td>
+                  <td className="dc">{t.tarih}</td>
+                  <td style={{ fontFamily:'var(--mo)' }}>{t.seans}</td>
+                  <td style={{ fontFamily:'var(--mo)' }}>{(t.tam||0)+(t.cocuk||0)+(t.yabanci||0)}</td>
+                  <td style={{ color:'var(--bl)', fontFamily:'var(--mo)', fontWeight:700 }}>{fmtMoney(t.vitoKomisyon||0)}</td>
+                  <td>
                     <button
                       onClick={() => handleToggleOdeme(t.id, !!t.vitoOdendi)}
-                      className={`text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer ${
-                        t.vitoOdendi
-                          ? 'bg-gd text-gn hover:bg-rdd hover:text-rd'
-                          : 'bg-rdd text-rd hover:bg-gd hover:text-gn'
-                      }`}
+                      className={`badge ${t.vitoOdendi ? 'ba' : 'bdd'}`}
+                      style={{ cursor:'pointer', border:'none' }}
                     >
-                      {t.vitoOdendi ? 'Ödendi ✓' : 'Bekliyor'}
+                      {t.vitoOdendi ? 'Ödendi' : 'Bekliyor'}
                     </button>
                   </td>
                 </tr>
@@ -515,38 +428,31 @@ function VitoKomisyon({ drivers, satisList }: { drivers: VitoDriver[]; satisList
   );
 }
 
-// ─── Ana Sayfa ────────────────────────────────────────────────────────────────
-
 export default function VitoPage() {
-  const { user }   = useAuth();
-  const drivers    = useVitoDrivers();
-  const satisList  = useSatisList();
+  const { user }  = useAuth();
+  const drivers   = useVitoDrivers();
+  const satisList = useSatisList();
   const [activeTab, setActiveTab] = useState<'satis'|'surucular'|'komisyon'>('satis');
 
   const tabs = [
-    { key: 'satis'     as const, label: 'Bilet Sat' },
-    { key: 'surucular' as const, label: 'Sürücüler' },
-    { key: 'komisyon'  as const, label: 'Komisyon'  },
+    { key: 'satis'     as const, label: 'Bilet Sat'  },
+    { key: 'surucular' as const, label: 'Sürücüler'  },
+    { key: 'komisyon'  as const, label: 'Komisyon'   },
   ];
 
   return (
     <div>
-      <div className="mb-10">
-        <h1 className="text-[26px] font-semibold tracking-tight">Vito Yönetimi</h1>
-        <p className="text-mu text-[13px] mt-1">Vito satışları ve komisyon takibi</p>
-      </div>
-
-      {/* Alt sekmeler */}
-      <div className="flex gap-1.5 mb-8 p-1.5 bg-sf2/60 border border-bd rounded-2xl w-fit">
+      {/* Alt Sekmeler */}
+      <div style={{ display:'flex', gap:6, marginBottom:'1.5rem', padding:4, background:'var(--sf)', border:'1px solid var(--bd)', borderRadius:10, width:'fit-content' }}>
         {tabs.map(t => (
           <button
             key={t.key}
             onClick={() => setActiveTab(t.key)}
-            className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === t.key
-                ? 'bg-btn text-white shadow-[0_2px_12px_rgba(30,64,175,0.3)]'
-                : 'text-mu hover:text-tx hover:bg-sf2'
-            }`}
+            style={{
+              padding:'6px 18px', borderRadius:8, fontSize:13, fontWeight:500, border:'none', cursor:'pointer', transition:'all .15s',
+              background: activeTab === t.key ? 'var(--ac)' : 'transparent',
+              color: activeTab === t.key ? '#000' : 'var(--mu)',
+            }}
           >
             {t.label}
           </button>

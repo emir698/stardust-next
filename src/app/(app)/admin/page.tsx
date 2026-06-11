@@ -33,18 +33,16 @@ const ROLE_LABELS: Record<string, string> = {
   management1: 'Management',
 };
 
-// ─── Kullanıcı Yönetimi ───────────────────────────────────────────────────────
-
 function KullaniciYonetimi() {
   const { user: currentUser } = useAuth();
   const users = useUsers();
 
-  const [addModal, setAddModal]   = useState(false);
-  const [nuEmail, setNuEmail]     = useState('');
-  const [nuPass, setNuPass]       = useState('');
-  const [nuName, setNuName]       = useState('');
-  const [nuRole, setNuRole]       = useState<UserRole>('bilet satis');
-  const [saving, setSaving]       = useState(false);
+  const [addModal, setAddModal] = useState(false);
+  const [nuEmail, setNuEmail]   = useState('');
+  const [nuPass, setNuPass]     = useState('');
+  const [nuName, setNuName]     = useState('');
+  const [nuRole, setNuRole]     = useState<UserRole>('bilet satis');
+  const [saving, setSaving]     = useState(false);
 
   const handleAddUser = async () => {
     if (!nuEmail.trim() || !nuPass || !nuName.trim()) {
@@ -78,70 +76,59 @@ function KullaniciYonetimi() {
   };
 
   return (
-    <div className="glass-card rounded-2xl overflow-hidden">
-      <div className="flex justify-between items-center px-7 py-5 border-b border-bd">
-        <h2 className="text-[15px] font-semibold text-tx">Kullanıcılar</h2>
+    <div className="panel">
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1rem' }}>
+        <div className="panel-title" style={{ margin:0 }}>Kullanıcılar</div>
         <Button variant="accent" size="sm" onClick={() => setAddModal(true)}>+ Kullanıcı Ekle</Button>
       </div>
-      <div className="divide-y divide-bd">
-        {users.length === 0 ? (
-          <div className="text-mu text-sm text-center py-10">Kullanıcı yok</div>
-        ) : users.map(u => (
-          <div key={u.uid} className="flex items-center justify-between px-7 py-5 hover:bg-sf2/40 transition-colors">
-            <div>
-              <div className="font-semibold text-[14px]">{u.name}</div>
-              <div className="text-xs text-mu mt-1">{u.email ?? u.uid}</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge variant={u.role === 'admin' ? 'admin' : 'gise'}>{ROLE_LABELS[u.role] ?? u.role}</Badge>
-              {u.uid !== currentUser?.uid && (
-                <Button variant="danger" size="sm" onClick={() => handleSilUser(u.uid, u.name)}>Sil</Button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <Modal open={addModal} onClose={() => setAddModal(false)} title="Yeni Kullanıcı Ekle">
-        <div className="space-y-4 mb-5">
+      {users.length === 0 ? (
+        <div style={{ color:'var(--mu)', fontSize:13, textAlign:'center', padding:'2rem' }}>Kullanıcı yok</div>
+      ) : users.map(u => (
+        <div key={u.uid} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 14px', marginBottom:8 }}>
           <div>
-            <label className="text-[11px] font-semibold text-mu uppercase tracking-wide block mb-2">Kullanıcı Adı (e-posta öneki)</label>
-            <div className="flex items-center gap-3">
-              <input
-                value={nuEmail}
-                onChange={e => setNuEmail(e.target.value)}
-                placeholder="ahmet.yilmaz"
-                className="flex-1 bg-bg border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
-              />
-              <span className="text-mu text-sm">@stardust.app</span>
-            </div>
+            <div style={{ fontWeight:600, fontSize:14 }}>{u.name}</div>
+            <div style={{ fontSize:12, color:'var(--mu)', marginTop:2 }}>{u.email ?? u.uid}</div>
           </div>
-          <Input label="Şifre" value={nuPass} onChange={e => setNuPass(e.target.value)} type="password" placeholder="En az 6 karakter" />
-          <Input label="Ad Soyad" value={nuName} onChange={e => setNuName(e.target.value)} placeholder="Ahmet Yılmaz" />
-          <div>
-            <label className="text-[11px] font-semibold text-mu uppercase tracking-wide block mb-2">Rol</label>
-            <select
-              value={nuRole}
-              onChange={e => setNuRole(e.target.value as UserRole)}
-              className="w-full bg-bg border border-bd rounded-xl px-4 py-3 text-tx text-sm outline-none focus:border-ac"
-            >
-              <option value="bilet satis">Bilet Satış</option>
-              <option value="okutma">Okutma</option>
-              <option value="management1">Management</option>
-              <option value="admin">Admin</option>
-            </select>
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <Badge variant={u.role === 'admin' ? 'admin' : 'gise'}>{ROLE_LABELS[u.role] ?? u.role}</Badge>
+            {u.uid !== currentUser?.uid && (
+              <Button variant="danger" size="sm" onClick={() => handleSilUser(u.uid, u.name)}>Sil</Button>
+            )}
           </div>
         </div>
+      ))}
+
+      <Modal open={addModal} onClose={() => setAddModal(false)} title="Yeni Kullanıcı Ekle">
+        <div style={{ marginBottom:12 }}>
+          <label className="form-label">Kullanıcı Adı (e-posta öneki)</label>
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <input className="form-input" style={{ flex:1 }} value={nuEmail} onChange={e => setNuEmail(e.target.value)} placeholder="ahmet.yilmaz" />
+            <span style={{ fontSize:13, color:'var(--mu)' }}>@stardust.app</span>
+          </div>
+        </div>
+        <div style={{ marginBottom:12 }}>
+          <Input label="Şifre" value={nuPass} onChange={e => setNuPass(e.target.value)} type="password" placeholder="En az 6 karakter" />
+        </div>
+        <div style={{ marginBottom:12 }}>
+          <Input label="Ad Soyad" value={nuName} onChange={e => setNuName(e.target.value)} placeholder="Ahmet Yılmaz" />
+        </div>
+        <div style={{ marginBottom:12 }}>
+          <label className="form-label">Rol</label>
+          <select id="nu-role" className="form-input" value={nuRole} onChange={e => setNuRole(e.target.value as UserRole)}>
+            <option value="bilet satis">Bilet Satış</option>
+            <option value="okutma">Okutma</option>
+            <option value="management1">Management</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
         <ModalActions>
-          <Button variant="ghost" onClick={() => setAddModal(false)}>İptal</Button>
+          <Button variant="default" onClick={() => setAddModal(false)}>İptal</Button>
           <Button variant="accent" onClick={handleAddUser} disabled={saving}>{saving ? 'Ekleniyor...' : 'Ekle'}</Button>
         </ModalActions>
       </Modal>
     </div>
   );
 }
-
-// ─── Kurumsal Paket Yönetimi ──────────────────────────────────────────────────
 
 function KurumsalYonetimi() {
   const paketler = useKurumsalPaketler();
@@ -154,7 +141,7 @@ function KurumsalYonetimi() {
   const [adet, setAdet]           = useState('');
   const [prefix, setPrefix]       = useState('');
 
-  const openAdd = () => { setEditKey(null); setFirma(''); setBaslangic(''); setBitis(''); setAdet(''); setPrefix(''); setModal(true); };
+  const openAdd  = () => { setEditKey(null); setFirma(''); setBaslangic(''); setBitis(''); setAdet(''); setPrefix(''); setModal(true); };
   const openEdit = (p: KurumsalPaket) => {
     setEditKey(p._key); setFirma(p.firma); setBaslangic(p.baslangic); setBitis(p.bitis);
     setAdet(String(p.adet)); setPrefix(p.prefix); setModal(true);
@@ -189,50 +176,44 @@ function KurumsalYonetimi() {
   };
 
   return (
-    <div className="glass-card rounded-2xl overflow-hidden">
-      <div className="flex justify-between items-center px-7 py-5 border-b border-bd">
-        <h2 className="text-[15px] font-semibold text-tx">Kurumsal Paketler</h2>
+    <div className="panel">
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1rem' }}>
+        <div className="panel-title" style={{ margin:0 }}>Kurumsal Paketler</div>
         <Button variant="accent" size="sm" onClick={openAdd}>+ Paket Ekle</Button>
       </div>
       {paketler.length === 0 ? (
-        <div className="text-mu text-sm text-center py-10">Henüz kurumsal paket yok</div>
-      ) : (
-        <div className="divide-y divide-bd">
-          {paketler.map(p => (
-            <div key={p._key} className="flex items-center justify-between px-7 py-5 hover:bg-sf2/40 transition-colors">
-              <div>
-                <div className="font-semibold text-[14px]">{p.firma}</div>
-                <div className="text-xs text-mu font-mono mt-1">{p.prefix} · {p.kullanilanAdet}/{p.adet} kullanıldı · {p.baslangic}–{p.bitis}</div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Button size="sm" onClick={() => openEdit(p)}>Düzenle</Button>
-                <Button variant="danger" size="sm" onClick={() => handleSil(p._key, p.firma)}>Sil</Button>
-              </div>
+        <div style={{ color:'var(--mu)', fontSize:13, textAlign:'center', padding:'2rem' }}>Henüz kurumsal paket yok</div>
+      ) : paketler.map(p => (
+        <div key={p._key} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 14px', marginBottom:8 }}>
+          <div>
+            <div style={{ fontWeight:600, fontSize:14 }}>{p.firma}</div>
+            <div style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)', marginTop:2 }}>
+              {p.prefix} · {p.kullanilanAdet}/{p.adet} kullanıldı · {p.baslangic}–{p.bitis}
             </div>
-          ))}
-        </div>
-      )}
-
-      <Modal open={modal} onClose={() => setModal(false)} title={editKey ? 'Paketi Düzenle' : 'Yeni Kurumsal Paket'}>
-        <div className="space-y-4 mb-5">
-          <Input label="Firma Adı"   value={firma}     onChange={e => setFirma(e.target.value)}     placeholder="Örn: Acme A.Ş." />
-          <Input label="Prefix"      value={prefix}    onChange={e => setPrefix(e.target.value)}    placeholder="ACME" />
-          <Input label="Bilet Adedi" value={adet}      onChange={e => setAdet(e.target.value)}      type="number" placeholder="100" />
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Başlangıç (GG.AA.YYYY)" value={baslangic} onChange={e => setBaslangic(e.target.value)} placeholder="01.01.2026" />
-            <Input label="Bitiş (GG.AA.YYYY)"     value={bitis}     onChange={e => setBitis(e.target.value)}     placeholder="31.12.2026" />
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            <Button size="sm" onClick={() => openEdit(p)}>Düzenle</Button>
+            <Button variant="danger" size="sm" onClick={() => handleSil(p._key, p.firma)}>Sil</Button>
           </div>
         </div>
+      ))}
+
+      <Modal open={modal} onClose={() => setModal(false)} title={editKey ? 'Paketi Düzenle' : 'Yeni Kurumsal Paket'}>
+        <div style={{ marginBottom:12 }}><Input label="Firma Adı"   value={firma}     onChange={e => setFirma(e.target.value)}     placeholder="Örn: Acme A.Ş." /></div>
+        <div style={{ marginBottom:12 }}><Input label="Prefix"      value={prefix}    onChange={e => setPrefix(e.target.value)}    placeholder="ACME" /></div>
+        <div style={{ marginBottom:12 }}><Input label="Bilet Adedi" value={adet}      onChange={e => setAdet(e.target.value)}      type="number" placeholder="100" /></div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12 }}>
+          <Input label="Başlangıç (GG.AA.YYYY)" value={baslangic} onChange={e => setBaslangic(e.target.value)} placeholder="01.01.2026" />
+          <Input label="Bitiş (GG.AA.YYYY)"     value={bitis}     onChange={e => setBitis(e.target.value)}     placeholder="31.12.2026" />
+        </div>
         <ModalActions>
-          <Button variant="ghost" onClick={() => setModal(false)}>İptal</Button>
+          <Button variant="default" onClick={() => setModal(false)}>İptal</Button>
           <Button variant="accent" onClick={handleSave}>Kaydet</Button>
         </ModalActions>
       </Modal>
     </div>
   );
 }
-
-// ─── Tehlikeli İşlemler ───────────────────────────────────────────────────────
 
 function TehlikeliIslemler() {
   const satisList = useSatisList();
@@ -253,7 +234,6 @@ function TehlikeliIslemler() {
     setResetModal(false);
     const updates: Record<string, null> = { tickets: null, biletler: null, pnrler: null };
     await update(ref(db), updates as Record<string, unknown>);
-
     const codeUpdates: Record<string, unknown> = {};
     codes.forEach(c => {
       if (c) {
@@ -267,24 +247,24 @@ function TehlikeliIslemler() {
   };
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-rd/20" style={{ background: 'rgba(248,113,113,0.04)' }}>
-      <div className="px-7 py-5 border-b border-rd/15">
-        <h2 className="text-[15px] font-semibold text-rd">Tehlikeli İşlemler</h2>
+    <div style={{ border:'1px solid rgba(248,113,113,0.2)', borderRadius:12, background:'rgba(248,113,113,0.04)', overflow:'hidden' }}>
+      <div style={{ padding:'1rem 1.25rem', borderBottom:'1px solid rgba(248,113,113,0.15)' }}>
+        <div style={{ fontSize:13, fontWeight:600, color:'var(--rd)', textTransform:'uppercase', letterSpacing:'.5px' }}>Tehlikeli İşlemler</div>
       </div>
-      <div className="px-7 py-6">
-        <div className="flex gap-3">
+      <div style={{ padding:'1rem 1.25rem' }}>
+        <div style={{ display:'flex', gap:8 }}>
           <Button onClick={handleExport}>📤 Veri Yedeği Al</Button>
           <Button variant="danger" onClick={() => setResetModal(true)}>⚠️ Verileri Sıfırla</Button>
         </div>
       </div>
 
       <Modal open={resetModal} onClose={() => setResetModal(false)} title="⚠️ Verileri Sıfırla">
-        <div className="bg-rdd border border-rd/30 rounded-xl px-5 py-4 mb-5">
-          <p className="text-rd text-sm font-semibold mb-1.5">Bu işlem geri alınamaz!</p>
-          <p className="text-sm text-tx/80">Tüm bilet, satış ve giriş verileri silinecek. İndirim kodları aktif hale döndürülecek.</p>
+        <div style={{ background:'var(--rdd)', border:'1px solid rgba(248,113,113,.3)', borderRadius:10, padding:'12px 16px', marginBottom:16 }}>
+          <p style={{ color:'var(--rd)', fontSize:13, fontWeight:600, marginBottom:6 }}>Bu işlem geri alınamaz!</p>
+          <p style={{ fontSize:13 }}>Tüm bilet, satış ve giriş verileri silinecek. İndirim kodları aktif hale döndürülecek.</p>
         </div>
         <ModalActions>
-          <Button variant="ghost" onClick={() => setResetModal(false)}>İptal</Button>
+          <Button variant="default" onClick={() => setResetModal(false)}>İptal</Button>
           <Button variant="danger" onClick={handleReset}>Sıfırla</Button>
         </ModalActions>
       </Modal>
@@ -292,42 +272,28 @@ function TehlikeliIslemler() {
   );
 }
 
-// ─── Ana Sayfa ────────────────────────────────────────────────────────────────
-
 export default function AdminPage() {
   const satisList = useSatisList();
   const codes     = useCodes();
 
-  const toplamBilet = satisList.reduce((s, t) => s + (t.tam||0)+(t.cocuk||0)+(t.yabanci||0)+(t.davetli||0)+(t.kurumsal||0), 0);
-  const toplamGelir = satisList.reduce((s, t) => s + (t.toplam||0), 0);
+  const toplamBilet = satisList.reduce((s, t) => s+(t.tam||0)+(t.cocuk||0)+(t.yabanci||0)+(t.davetli||0)+(t.kurumsal||0), 0);
+  const toplamGelir = satisList.reduce((s, t) => s+(t.toplam||0), 0);
   const aktifKod    = codes.filter(c => c?.status === 'aktif').length;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-[26px] font-semibold tracking-tight">Yönetim Paneli</h1>
-        <p className="text-mu text-[13px] mt-1">Sistem ve kullanıcı ayarları</p>
+    <div>
+      {/* KPI */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:'1.5rem' }}>
+        <div className="kpi"><div className="kpi-label">Toplam Bilet</div><div className="kpi-val">{toplamBilet.toLocaleString('tr-TR')}</div></div>
+        <div className="kpi"><div className="kpi-label">Toplam Gelir</div><div className="kpi-val gn">{fmtMoney(toplamGelir)}</div></div>
+        <div className="kpi"><div className="kpi-label">Aktif Kod</div><div className="kpi-val ac">{aktifKod.toLocaleString('tr-TR')}</div></div>
       </div>
 
-      {/* ─── KPI ─── */}
-      <div className="grid grid-cols-3 gap-6">
-        <div className="glass-card rounded-2xl p-7 text-center hover-lift">
-          <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Bilet</div>
-          <div className="font-mono text-3xl font-semibold">{toplamBilet.toLocaleString('tr-TR')}</div>
-        </div>
-        <div className="glass-card rounded-2xl p-7 text-center hover-lift">
-          <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Toplam Gelir</div>
-          <div className="font-mono text-2xl font-semibold text-gn">{fmtMoney(toplamGelir)}</div>
-        </div>
-        <div className="glass-card rounded-2xl p-7 text-center hover-lift">
-          <div className="text-[11px] text-mu uppercase tracking-widest mb-3">Aktif Kod</div>
-          <div className="font-mono text-3xl font-semibold text-ac">{aktifKod.toLocaleString('tr-TR')}</div>
-        </div>
+      <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
+        <KullaniciYonetimi />
+        <KurumsalYonetimi />
+        <TehlikeliIslemler />
       </div>
-
-      <KullaniciYonetimi />
-      <KurumsalYonetimi />
-      <TehlikeliIslemler />
     </div>
   );
 }
