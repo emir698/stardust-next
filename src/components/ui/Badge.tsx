@@ -3,11 +3,11 @@ import { cn } from '@/lib/utils';
 type BadgeVariant = 'active' | 'inactive' | 'admin' | 'gise' | 'info';
 
 const variants: Record<BadgeVariant, string> = {
-  active:   'bg-gd   text-gn  border border-gn/15',
-  inactive: 'bg-rdd  text-rd  border border-rd/15',
-  admin:    'bg-ac/8 text-ac  border border-ac/20',
-  gise:     'bg-sf3  text-mu  border border-bd',
-  info:     'bg-bl/8 text-bl  border border-bl/15',
+  active:   'bg-[rgba(74,222,128,0.08)]   text-[var(--color-gn)] border border-[rgba(74,222,128,0.2)]',
+  inactive: 'bg-[rgba(248,113,113,0.08)]  text-[var(--color-rd)] border border-[rgba(248,113,113,0.2)]',
+  admin:    'bg-[rgba(232,197,71,0.12)]   text-[var(--color-ac)] border border-[rgba(232,197,71,0.3)]',
+  gise:     'bg-[rgba(74,222,128,0.08)]   text-[var(--color-gn)] border border-[rgba(74,222,128,0.2)]',
+  info:     'bg-[rgba(96,165,250,0.08)]   text-[var(--color-bl)] border border-[rgba(96,165,250,0.2)]',
 };
 
 interface BadgeProps {
@@ -20,10 +20,11 @@ export function Badge({ variant = 'info', children, className }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center text-[11px] font-medium px-2.5 py-0.5 rounded-full tracking-wide',
+        'inline-block text-[11px] font-medium px-[10px] py-[3px] rounded-[20px]',
         variants[variant],
         className
       )}
+      style={{ fontFamily: 'var(--font-mono)' }}
     >
       {children}
     </span>

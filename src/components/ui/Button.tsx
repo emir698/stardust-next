@@ -12,23 +12,20 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 }
 
+const base = 'inline-flex items-center justify-center font-medium whitespace-nowrap cursor-pointer transition-all duration-150 disabled:opacity-35 disabled:cursor-not-allowed';
+
 const variantClasses: Record<Variant, string> = {
-  /* Navy primary — lacivert */
-  accent:  'bg-btn text-white hover:bg-btn-hov border border-blue-700/40 shadow-[0_0_20px_rgba(30,64,175,0.25)] hover:shadow-[0_0_28px_rgba(37,99,235,0.35)]',
-  /* Default — subtle glass */
-  default: 'bg-sf2 text-tx hover:bg-sf3 border border-bd hover:border-bd2',
-  /* Danger — red tonal */
-  danger:  'bg-rdd text-rd hover:bg-rd/20 border border-rd/20',
-  /* Success — emerald tonal */
-  success: 'bg-gd text-gn hover:bg-gn/20 border border-gn/20',
-  /* Ghost */
-  ghost:   'bg-transparent text-mu hover:text-tx hover:bg-sf2 border border-transparent',
+  accent:  'bg-[var(--color-ac)] text-black border border-[var(--color-ac)] hover:bg-[var(--color-ac-hover)]',
+  default: 'bg-[var(--color-sf)] text-[var(--color-tx)] border border-[var(--color-bd)] hover:border-[var(--color-bd2)] hover:bg-[var(--color-sf2)]',
+  danger:  'text-[var(--color-rd)] border border-[rgba(248,113,113,0.25)] hover:bg-[var(--color-rdd)] hover:border-[var(--color-rd)]',
+  success: 'text-[var(--color-gn)] border border-[rgba(74,222,128,0.25)] hover:bg-[var(--color-gd)] hover:border-[var(--color-gn)]',
+  ghost:   'bg-transparent text-[var(--color-mu)] border border-transparent hover:text-[var(--color-tx)] hover:bg-[var(--color-sf2)]',
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: 'px-3 py-1.5 text-[12px] rounded-lg  gap-1',
-  md: 'px-4 py-2   text-[13px] rounded-xl  gap-1.5',
-  lg: 'px-5 py-2.5 text-[13px] rounded-xl  gap-2',
+  sm: 'px-3 py-[5px] text-[12px] rounded-md gap-1',
+  md: 'px-4 py-[9px] text-[13px] rounded-lg gap-1.5',
+  lg: 'px-5 py-[10px] text-[13px] rounded-lg gap-2',
 };
 
 export function Button({
@@ -43,14 +40,7 @@ export function Button({
     <button
       {...props}
       disabled={disabled}
-      className={cn(
-        'inline-flex items-center justify-center font-medium whitespace-nowrap',
-        'transition-all duration-150 cursor-pointer',
-        'disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none',
-        variantClasses[variant],
-        sizeClasses[size],
-        className
-      )}
+      className={cn(base, variantClasses[variant], sizeClasses[size], className)}
     >
       {children}
     </button>

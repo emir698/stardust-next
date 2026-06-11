@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { cn } from '@/lib/utils';
 
 const TABS = [
   { href: '/tickets',        label: 'Bilet Sat',       roles: ['admin', 'bilet satis'] },
@@ -20,31 +19,33 @@ export function Tabs() {
   const visible = TABS.filter(t => !t.roles || (user && t.roles.includes(user.role)));
 
   return (
-    <nav className="flex items-center gap-0.5 mb-8 flex-wrap">
+    <div style={{ display: 'flex', gap: 2, marginBottom: '2rem', background: 'var(--color-sf)', border: '1px solid var(--color-bd)', borderRadius: 10, padding: 4, width: 'fit-content', flexWrap: 'wrap' }}>
       {visible.map((tab) => {
         const active = pathname.startsWith(tab.href);
         return (
           <Link
             key={tab.href}
             href={tab.href}
-            className={cn(
-              'relative px-3.5 py-2 rounded-lg text-[13px] font-medium',
-              'transition-all duration-200 whitespace-nowrap',
-              active
-                ? 'text-tx bg-sf2 border border-bd2'
-                : 'text-mu hover:text-tx hover:bg-sf2/70 border border-transparent'
-            )}
+            style={{
+              padding: '7px 18px',
+              borderRadius: 7,
+              fontSize: 13,
+              fontWeight: active ? 600 : 500,
+              cursor: 'pointer',
+              color: active ? '#000' : 'var(--color-mu)',
+              background: active ? 'var(--color-ac)' : 'transparent',
+              border: 'none',
+              transition: 'all .15s',
+              textDecoration: 'none',
+              whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={e => { if (!active) { e.currentTarget.style.color = 'var(--color-tx)'; e.currentTarget.style.background = 'var(--color-sf2)'; } }}
+            onMouseLeave={e => { if (!active) { e.currentTarget.style.color = 'var(--color-mu)'; e.currentTarget.style.background = 'transparent'; } }}
           >
             {tab.label}
-            {active && (
-              <span
-                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full"
-                style={{ background: 'linear-gradient(90deg,#60a5fa,#a78bfa)' }}
-              />
-            )}
           </Link>
         );
       })}
-    </nav>
+    </div>
   );
 }

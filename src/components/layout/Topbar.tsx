@@ -15,35 +15,25 @@ export function Topbar() {
   };
 
   return (
-    <header
-      className="sticky top-0 z-40 h-12 flex items-center justify-between px-8 border-b border-bd"
-      style={{
-        background: 'rgba(10,15,30,0.85)',
-        backdropFilter: 'blur(24px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-      }}
+    <header className="sticky top-0 z-40 border-b border-[var(--color-bd)] bg-[var(--color-bg)]"
+      style={{ height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem' }}
     >
-      {/* Logo */}
-      <div className="flex items-center gap-2.5">
-        <div
-          className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-bg"
-          style={{ background: 'linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%)' }}
-        >
-          ✦
-        </div>
-        <span className="text-[13px] font-semibold tracking-wider text-tx">
-          STARDUST
-        </span>
-      </div>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 17, color: 'var(--color-ac)', letterSpacing: 3, fontWeight: 600 }}>
+        STARDUST
+      </span>
 
-      {/* Right */}
-      <div className="flex items-center gap-4">
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         {user && (
-          <span className="text-[12px] text-mu font-medium">{user.name}</span>
+          <span style={{ fontSize: 12, color: 'var(--color-mu)', fontFamily: 'var(--font-mono)', padding: '4px 10px', border: '1px solid var(--color-bd)', borderRadius: 20 }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--color-gn)', display: 'inline-block', marginRight: 6 }} />
+            {user.name}
+          </span>
         )}
         <button
           onClick={handleLogout}
-          className="text-[12px] text-mu hover:text-rd transition-colors duration-150 font-medium"
+          style={{ fontSize: 12, color: 'var(--color-mu)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-rd)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-mu)')}
         >
           Çıkış
         </button>

@@ -56,30 +56,23 @@ body {
 ::-webkit-scrollbar        { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track  { background: transparent; }
 ::-webkit-scrollbar-thumb  { background: var(--color-bd2); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-mu2); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-mu); }
 
 /* ── Dark form elements ──────────────────────────────── */
 select, input[type="date"] { color-scheme: dark; }
 
-/* ── Glassmorphism utilities ─────────────────────────── */
+/* ── Panel utilities ─────────────────────────────────── */
 .glass {
-  background: rgba(15, 23, 41, 0.60);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(148,163,184,0.10);
+  background: var(--color-sf);
+  border: 1px solid var(--color-bd);
 }
 .glass-strong {
-  background: rgba(10, 15, 30, 0.82);
-  backdrop-filter: blur(36px) saturate(200%);
-  -webkit-backdrop-filter: blur(36px) saturate(200%);
-  border: 1px solid rgba(148,163,184,0.13);
+  background: var(--color-sf);
+  border: 1px solid var(--color-bd2);
 }
 .glass-card {
-  background: rgba(15, 23, 41, 0.55);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(148,163,184,0.09);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+  background: var(--color-sf);
+  border: 1px solid var(--color-bd);
 }
 
 /* ── Micro-animations ────────────────────────────────── */
