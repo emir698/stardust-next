@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 const TABS = [
   { href: '/tickets',        label: 'Bilet Sat',       roles: ['admin', 'bilet satis'] },
   { href: '/vito',           label: 'Vito',             roles: ['admin', 'bilet satis'] },
-  { href: '/gate',           label: 'Kapı',             roles: ['admin', 'bilet satis', 'management1', 'okutma'] },
+  { href: '/gate',           label: 'Bilet Sorgulama',  roles: ['admin', 'bilet satis', 'management1', 'okutma'] },
   { href: '/dashboard',      label: 'Dashboard',        roles: ['admin', 'management1'] },
   { href: '/discount-codes', label: 'İndirim Kodları',  roles: ['admin', 'management1'] },
   { href: '/admin',          label: 'Admin',            roles: ['admin'] },

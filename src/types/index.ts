@@ -140,7 +140,7 @@ export interface VitoDriver {
   ad: string;
   plaka: string;
   tel?: string;
-  komisyonOran: number; // yüzde: 20 vb.
+  komisyonOran?: number;
   aktif: boolean;
 }
 
@@ -173,9 +173,10 @@ export const OZEL_SAATLER: Record<string, string[]> = {
   '28.05.2026': ['20:45', '21:00', '21:30', '22:00', '22:30'],
 };
 
-// 5=Cuma, 6=Cumartesi, 0=Pazar
+// 3=Çarşamba, 5=Cuma, 6=Cumartesi, 0=Pazar
 export const HAFTALIK_SAATLER: Record<number, string[]> = {
-  5: ['20:45', '21:00', '21:30', '22:00', '22:30'],
-  6: ['20:45', '21:00', '21:30', '22:00', '22:30'],
-  0: ['20:45', '21:00', '21:30', '22:00'],
+  3: ['21:00', '21:30', '22:00', '22:30'],
+  5: ['21:00', '21:30', '22:00', '22:30', '23:00'],
+  6: ['21:00', '21:30', '22:00', '22:30', '23:00'],
+  0: ['21:00', '21:30', '22:00', '22:30'],
 };

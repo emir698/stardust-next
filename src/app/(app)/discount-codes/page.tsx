@@ -135,15 +135,15 @@ export default function DiscountCodesPage() {
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:0, background:'var(--sf)', border:'1px solid var(--bd)', borderRadius:12, padding:'1rem', marginBottom:'1.25rem' }}>
         <div className="kpi" style={{ border:'none', borderRight:'1px solid var(--bd)', borderRadius:0, background:'transparent' }}>
           <div className="kpi-label">Toplam</div>
-          <div className="kpi-val">{codes.length}</div>
+          <div className="kpi-val" style={{ fontSize:32, fontFamily:'var(--mo)' }}>{codes.length}</div>
         </div>
         <div className="kpi" style={{ border:'none', borderRight:'1px solid var(--bd)', borderRadius:0, background:'transparent' }}>
           <div className="kpi-label">Aktif</div>
-          <div className="kpi-val gn">{aktif}</div>
+          <div className="kpi-val gn" style={{ fontSize:32, fontFamily:'var(--mo)' }}>{aktif}</div>
         </div>
         <div className="kpi" style={{ border:'none', borderRadius:0, background:'transparent' }}>
           <div className="kpi-label">Kullanılan</div>
-          <div className="kpi-val rd">{deaktif} <span style={{ fontSize:14, color:'var(--mu)', fontWeight:400 }}>(%{pct})</span></div>
+          <div className="kpi-val rd" style={{ fontSize:32, fontFamily:'var(--mo)' }}>{deaktif} <span style={{ fontSize:14, color:'var(--mu)', fontWeight:400 }}>(%{pct})</span></div>
         </div>
       </div>
 
@@ -152,7 +152,7 @@ export default function DiscountCodesPage() {
         <input
           type="text"
           className="form-input"
-          style={{ flex: 1, minWidth: 160 }}
+          style={{ flex: 10, minWidth: 200 }}
           placeholder="Kod veya grup ara..."
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(0); }}
@@ -167,13 +167,12 @@ export default function DiscountCodesPage() {
           {gruplar.map(g => <option key={g} value={g}>{g}</option>)}
         </select>
         <Button variant="danger" size="sm" onClick={() => setTopluModal(true)}>Toplu Deaktif</Button>
-        <Button variant="accent" size="sm" onClick={() => setBatchModal(true)}>+ Yeni Grup</Button>
       </div>
 
       {/* Tablo */}
       <div className="panel" style={{ marginBottom:'1.5rem' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1rem', flexWrap:'wrap', gap:8 }}>
-          <div className="panel-title" style={{ margin:0 }}>Kod Listesi</div>
+          <div className="panel-title" style={{ margin:0, textTransform:'uppercase', letterSpacing:1 }}>KOD LİSTESİ</div>
           <div className="pag">
             <span style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)' }}>{filtered.length} kod</span>
             <Button size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>← Önceki</Button>
@@ -197,7 +196,7 @@ export default function DiscountCodesPage() {
                   <td style={{ fontFamily:'var(--mo)', fontWeight:600 }}>%{c.indirim ?? '—'}</td>
                   <td>
                     <span className={`badge ${c.status === 'aktif' ? 'ba' : 'bdd'}`}>
-                      {c.status === 'aktif' ? 'Aktif' : 'Kullanıldı'}
+                      {c.status === 'aktif' ? 'AKTİF' : 'KULLANILDI'}
                     </span>
                   </td>
                   <td className="dc">{c.kullanan ?? '—'}</td>

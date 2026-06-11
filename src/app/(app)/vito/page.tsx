@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ref, push, set, update, remove } from 'firebase/database';
+import { ref, update, remove } from 'firebase/database';
+import { addVitoDriver } from '@/lib/db/vito';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/hooks/useAuth';
 import { useSatisList, useVitoDrivers, useCodes, useBatches } from '@/hooks/useFirebaseData';
@@ -71,7 +72,7 @@ function VitoBiletSat({ drivers, satisList, user }: {
   const gelirBase  = p.gelir;
   const indirimTutar = indirimOrani > 0 ? Math.round(gelirBase * indirimOrani) : 0;
   const sonToplam  = gelirBase - indirimTutar;
-  const vitoKom    = driver ? Math.round(gelirBase * (driver.komisyonOran / 100)) : 0;
+  const vitoKom    = driver ? 500 : 0;
 
   const handleIndirimUygula = () => {
     const kod = indirimInput.trim().toUpperCase();
@@ -151,7 +152,7 @@ function VitoBiletSat({ drivers, satisList, user }: {
             <div id="vito-surucu-bilgi" style={{ background:'#1e1a00', border:'1px solid #3a2e00', borderRadius:8, padding:'8px 12px', fontSize:12, display:'flex', alignItems:'center', gap:16 }}>
               <span style={{ fontWeight:600 }}>{driver.ad}</span>
               <span style={{ fontFamily:'var(--mo)', color:'var(--ac)' }}>{driver.plaka}</span>
-              <span style={{ color:'var(--mu)' }}>%{driver.komisyonOran} komisyon</span>
+              <span style={{ color:'var(--mu)' }}>500 ₺ sabit hakediş</span>
             </div>
           )}
         </div>
@@ -229,7 +230,7 @@ function VitoBiletSat({ drivers, satisList, user }: {
           {toplam > 0 && driver && (
             <div id="vito-kom-preview2" style={{ background:'#1a1500', border:'1px solid #3a2e00', borderRadius:8, padding:'10px 14px', marginTop:10, fontSize:12 }}>
               <span style={{ color:'var(--mu)' }}>Vito Komisyon: </span>
-              <span style={{ color:'var(--ac)', fontWeight:600 }}>{driver.ad} · {fmtMoney(vitoKom)} (%{driver.komisyonOran})</span>
+              <span style={{ color:'var(--ac)', fontWeight:600 }}>{driver.ad} · {fmtMoney(vitoKom)}</span>
             </div>
           )}
 
@@ -290,14 +291,20 @@ function VitoSurucular({ drivers }: { drivers: VitoDriver[] }) {
   const [ad, setAd]       = useState('');
   const [plaka, setPlaka] = useState('');
   const [tel, setTel]     = useState('');
-  const [oran, setOran]   = useState('20');
+  const [saving, setSaving] = useState(false);
 
   const handleEkle = async () => {
     if (!ad.trim() || !plaka.trim()) { toast('Ad ve plaka zorunlu', 'err'); return; }
-    const newRef = push(ref(db, 'vitoDrivers'));
-    await set(newRef, { ad: ad.trim(), plaka: plaka.trim().toUpperCase(), tel: tel.trim(), komisyonOran: parseInt(oran, 10), aktif: true });
-    setAd(''); setPlaka(''); setTel(''); setOran('20');
-    toast('Sürücü eklendi', 'ok');
+    setSaving(true);
+    try {
+      await addVitoDriver({ ad: ad.trim(), plaka: plaka.trim().toUpperCase(), tel: tel.trim(), aktif: true });
+      setAd(''); setPlaka(''); setTel('');
+      toast('Sürücü eklendi', 'ok');
+    } catch {
+      toast('Sürücü eklenemedi', 'err');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -308,14 +315,8 @@ function VitoSurucular({ drivers }: { drivers: VitoDriver[] }) {
           <div><label className="form-label">Ad Soyad</label><input className="form-input" value={ad}    onChange={e => setAd(e.target.value)}    placeholder="Ahmet Yılmaz" /></div>
           <div><label className="form-label">Plaka</label><input className="form-input" value={plaka} onChange={e => setPlaka(e.target.value)} placeholder="34 ABC 123" /></div>
           <div><label className="form-label">Telefon</label><input className="form-input" type="tel" value={tel} onChange={e => setTel(e.target.value)} /></div>
-          <div>
-            <label className="form-label">Komisyon Oranı</label>
-            <select className="form-input" value={oran} onChange={e => setOran(e.target.value)}>
-              {[10,15,20,25,30].map(v => <option key={v} value={String(v)}>%{v}</option>)}
-            </select>
-          </div>
         </div>
-        <Button variant="accent" size="sm" onClick={handleEkle}>+ Sürücü Ekle</Button>
+        <Button variant="accent" size="sm" onClick={handleEkle} disabled={saving}>{saving ? 'Ekleniyor...' : '+ Sürücü Ekle'}</Button>
       </div>
 
       <div className="panel">
@@ -324,12 +325,16 @@ function VitoSurucular({ drivers }: { drivers: VitoDriver[] }) {
           <span style={{ fontSize:12, color:'var(--mu)' }}>{drivers.length} sürücü</span>
         </div>
         {drivers.length === 0 ? (
-          <div style={{ color:'var(--mu)', fontSize:13, textAlign:'center', padding:'2rem' }}>Henüz sürücü yok</div>
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'2.5rem 1rem', gap:8 }}>
+            <div style={{ fontSize:28 }}>🚐</div>
+            <div style={{ fontSize:14, fontWeight:600, color:'var(--tx)' }}>Henüz sürücü eklenmedi</div>
+            <div style={{ fontSize:12, color:'var(--mu)', textAlign:'center' }}>Yukarıdaki formu kullanarak ilk sürücüyü ekleyin.</div>
+          </div>
         ) : drivers.map(d => (
           <div key={d._key} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 14px', marginBottom:8 }}>
             <div>
               <div style={{ fontWeight:600, fontSize:14 }}>{d.ad}</div>
-              <div style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)', marginTop:2 }}>{d.plaka} · %{d.komisyonOran} komisyon</div>
+              <div style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)', marginTop:2 }}>{d.plaka} · 500 ₺ sabit hakediş</div>
             </div>
             <div style={{ display:'flex', gap:8 }}>
               <Badge variant={d.aktif ? 'active' : 'inactive'}>{d.aktif ? 'Aktif' : 'Pasif'}</Badge>

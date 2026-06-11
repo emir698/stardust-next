@@ -10,6 +10,113 @@ import { Modal, ModalActions } from '@/components/ui/Modal';
 import { toast } from '@/components/ui/Toast';
 import { todayStr, dateToInput, inputToDate } from '@/lib/utils';
 import type { Satis } from '@/types';
+import { sendBiletMail } from '@/lib/email';
+import QRCode from 'qrcode';
+import { jsPDF } from 'jspdf';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+
+// ─── PDF helpers ──────────────────────────────────────────────────────────────
+
+async function buildTicketPage(doc: jsPDF, pageIdx: number, biletNo: string, satis: Satis) {
+  if (pageIdx > 0) doc.addPage();
+  const qrDataUrl = await QRCode.toDataURL(biletNo, { width: 200, margin: 1, color: { dark: '#000', light: '#fff' } });
+
+  const w = doc.internal.pageSize.getWidth();
+  const h = doc.internal.pageSize.getHeight();
+
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, w, h, 'F');
+
+  // Header
+  doc.setFontSize(8);
+  doc.setTextColor(160, 160, 160);
+  doc.text('✦ STARDUST ✦', w / 2, 18, { align: 'center' });
+
+  doc.setFontSize(16);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Astra Lumina Istanbul', w / 2, 28, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100, 100, 100);
+  doc.text(`${satis.tarih}  —  Seans ${satis.seans}`, w / 2, 36, { align: 'center' });
+
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'bold');
+  doc.text(satis.musteriAd ?? '', w / 2, 44, { align: 'center' });
+
+  // QR
+  const qrSize = 60;
+  doc.addImage(qrDataUrl, 'PNG', (w - qrSize) / 2, 52, qrSize, qrSize);
+
+  // Bilet no
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(160, 160, 160);
+  doc.text(biletNo, w / 2, 120, { align: 'center' });
+
+  // PNR
+  doc.setFontSize(9);
+  doc.setTextColor(80, 80, 80);
+  doc.text(`PNR: ${satis.pnr}`, w / 2, 128, { align: 'center' });
+}
+
+async function buildPNRPdf(satis: Satis): Promise<jsPDF> {
+  const biletNolar = getBiletNolar(satis);
+  const doc = new jsPDF({ unit: 'mm', format: [90, 140] });
+  for (let i = 0; i < biletNolar.length; i++) {
+    await buildTicketPage(doc, i, biletNolar[i], satis);
+  }
+  return doc;
+}
+
+function getBiletNolar(satis: Satis): string[] {
+  return (satis.biletler as Array<{ no: string } | string> || []).map(b =>
+    typeof b === 'string' ? b : b.no
+  );
+}
+
+function safeName(satis: Satis): string {
+  return (satis.musteriAd ?? 'musteri').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_À-ɏ]/g, '');
+}
+
+async function downloadPNRPdf(satis: Satis) {
+  const doc = await buildPNRPdf(satis);
+  doc.save(`${satis.pnr}_${safeName(satis)}.pdf`);
+}
+
+async function downloadPNRZip(satis: Satis) {
+  const zip = new JSZip();
+  const biletNolar = getBiletNolar(satis);
+  for (const no of biletNolar) {
+    const doc = new jsPDF({ unit: 'mm', format: [90, 140] });
+    await buildTicketPage(doc, 0, no, satis);
+    zip.file(`${no}.pdf`, doc.output('arraybuffer'));
+  }
+  const blob = await zip.generateAsync({ type: 'blob' });
+  saveAs(blob, `${satis.pnr}_${safeName(satis)}.zip`);
+}
+
+async function downloadAllZip(satisList: Satis[], tarih: string) {
+  const gunSatislari = satisList.filter(t => t.tarih === tarih);
+  if (!gunSatislari.length) { toast('Bu gün için satış yok', 'warn'); return; }
+  const zip = new JSZip();
+  for (const satis of gunSatislari) {
+    const biletNolar = getBiletNolar(satis);
+    for (const no of biletNolar) {
+      const doc = new jsPDF({ unit: 'mm', format: [90, 140] });
+      await buildTicketPage(doc, 0, no, satis);
+      zip.file(`${satis.pnr}/${no}.pdf`, doc.output('arraybuffer'));
+    }
+  }
+  const blob = await zip.generateAsync({ type: 'blob' });
+  saveAs(blob, `biletler_${tarih}.zip`);
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function GatePage() {
   const { user } = useAuth();
@@ -23,6 +130,13 @@ export default function GatePage() {
   const [seciliBiletler, setSeciliBiletler] = useState<Set<string>>(new Set());
   const [isimSecimModal, setIsimSecimModal] = useState(false);
   const [isimSecimList, setIsimSecimList] = useState<Satis[]>([]);
+  const [zipLoading, setZipLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState<string | null>(null);
+  const [zipRowLoading, setZipRowLoading] = useState<string | null>(null);
+  const [mailModal, setMailModal] = useState(false);
+  const [mailTarget, setMailTarget] = useState<Satis | null>(null);
+  const [mailAddress, setMailAddress] = useState('');
+  const [mailSending, setMailSending] = useState(false);
 
   const gunSatislari = useMemo(
     () => satisList.filter(t => t.tarih === selectedTarih),
@@ -137,6 +251,68 @@ export default function GatePage() {
     toast('Satış silindi', 'ok');
   }
 
+  async function handleBiletiGetir(satis: Satis) {
+    setPdfLoading(satis.id);
+    try {
+      await downloadPNRPdf(satis);
+    } catch {
+      toast('PDF oluşturulamadı', 'err');
+    } finally {
+      setPdfLoading(null);
+    }
+  }
+
+  async function handleZipIndir(satis: Satis) {
+    setZipRowLoading(satis.id);
+    try {
+      await downloadPNRZip(satis);
+    } catch {
+      toast('ZIP oluşturulamadı', 'err');
+    } finally {
+      setZipRowLoading(null);
+    }
+  }
+
+  function openMailModal(satis: Satis) {
+    setMailTarget(satis);
+    setMailAddress(satis.musteriMail ?? '');
+    setMailModal(true);
+  }
+
+  async function handleMailGonder() {
+    if (!mailTarget || !mailAddress.trim()) { toast('Mail adresi girin', 'err'); return; }
+    setMailSending(true);
+    try {
+      const toplamBilet = (mailTarget.tam||0)+(mailTarget.cocuk||0)+(mailTarget.yabanci||0)+(mailTarget.davetli||0)+(mailTarget.kurumsal||0);
+      await sendBiletMail(
+        mailAddress.trim(),
+        mailTarget.pnr ?? '',
+        mailTarget.musteriAd ?? '',
+        mailTarget.tarih,
+        mailTarget.seans ?? '',
+        toplamBilet,
+        mailTarget.toplam ?? 0
+      );
+      toast('Mail gönderildi!', 'ok');
+      setMailModal(false);
+    } catch {
+      toast('Mail gönderilemedi', 'err');
+    } finally {
+      setMailSending(false);
+    }
+  }
+
+  async function handleTumunuZip() {
+    setZipLoading(true);
+    try {
+      await downloadAllZip(satisList, selectedTarih);
+    } catch {
+      toast('ZIP oluşturulamadı', 'err');
+    } finally {
+      setZipLoading(false);
+    }
+  }
+
   const targetBiletNolar = girisTarget
     ? (girisTarget.biletler as Array<{ no: string }|string> || []).map(b => typeof b === 'string' ? b : b.no)
     : [];
@@ -184,9 +360,16 @@ export default function GatePage() {
         <div className="kpi"><div className="kpi-label">Giriş Yapıldı</div><div className="kpi-val gn">{girisYapan}</div></div>
       </div>
 
-      {/* Tablo */}
+      {/* Tablo başlığı + Tümünü ZIP */}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1rem' }}>
         <div className="section-title" style={{ margin:0 }}>Seçili Günün Biletleri</div>
+        <Button
+          size="sm"
+          onClick={handleTumunuZip}
+          disabled={zipLoading || gunSatislari.length === 0}
+        >
+          {zipLoading ? 'Hazırlanıyor...' : '⬇ Tümünü ZIP İndir'}
+        </Button>
       </div>
       <div className="tw" style={{ marginBottom:'1.5rem' }}>
         <table>
@@ -227,6 +410,19 @@ export default function GatePage() {
                         <Button variant="accent" size="sm" onClick={() => hizliGiris(t)}>Giriş Ver</Button>
                       )}
                       {t.pnr && <Button size="sm" onClick={() => openGirisModal(t)}>Detay</Button>}
+                      {t.pnr && (
+                        <Button size="sm" disabled={pdfLoading === t.id} onClick={() => handleBiletiGetir(t)}>
+                          {pdfLoading === t.id ? '...' : 'Bileti Getir'}
+                        </Button>
+                      )}
+                      {t.pnr && (
+                        <Button size="sm" disabled={zipRowLoading === t.id} onClick={() => handleZipIndir(t)}>
+                          {zipRowLoading === t.id ? '...' : 'ZIP İndir'}
+                        </Button>
+                      )}
+                      {t.pnr && (
+                        <Button size="sm" onClick={() => openMailModal(t)}>📧 Mail Gönder</Button>
+                      )}
                       {t.pnr && user?.role === 'admin' && (
                         <Button variant="danger" size="sm" onClick={() => handleSil(t.pnr!)}>Sil</Button>
                       )}
@@ -278,6 +474,36 @@ export default function GatePage() {
                   ✓ Seçili Biletlere Giriş Ver
                 </Button>
               )}
+            </ModalActions>
+          </>
+        )}
+      </Modal>
+
+      {/* Mail Gönder Modal */}
+      <Modal open={mailModal} onClose={() => setMailModal(false)} title="📧 Mail Gönder">
+        {mailTarget && (
+          <>
+            <div style={{ marginBottom:12 }}>
+              <div style={{ fontSize:14, fontWeight:600 }}>{mailTarget.musteriAd}</div>
+              <div style={{ fontSize:12, color:'var(--mu)', marginTop:2 }}>{mailTarget.pnr} · {mailTarget.tarih} · Seans {mailTarget.seans}</div>
+            </div>
+            <div style={{ marginBottom:16 }}>
+              <label className="form-label">Mail Adresi</label>
+              <input
+                type="email"
+                className="form-input"
+                placeholder="musteri@mail.com"
+                value={mailAddress}
+                onChange={e => setMailAddress(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleMailGonder()}
+                autoFocus
+              />
+            </div>
+            <ModalActions>
+              <Button variant="default" onClick={() => setMailModal(false)}>İptal</Button>
+              <Button variant="accent" onClick={handleMailGonder} disabled={mailSending || !mailAddress.trim()}>
+                {mailSending ? 'Gönderiliyor...' : 'Gönder'}
+              </Button>
             </ModalActions>
           </>
         )}

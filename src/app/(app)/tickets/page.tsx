@@ -15,6 +15,7 @@ import {
   todayStr, dateToInput, inputToDate, getSaatler,
   isEtkinlikGunu, fmtMoney, genID, genPNR, getDayName,
 } from '@/lib/utils';
+import { sendBiletMail } from '@/lib/email';
 import { hesaplaFiyat } from '@/lib/pricing';
 import { type TicketQty, type Satis, type PNRKayit, type Bilet, type IndirimKodu } from '@/types';
 
@@ -73,9 +74,7 @@ export default function TicketsPage() {
   const seansCounts = buildSeansCounts(satisList, selectedTarih);
   const toplam = qty.tam + qty.cocuk + qty.yabanci + qty.davetli + qty.kurumsal;
   const vitoSurucu = vitoDrivers.find(d => d._key === vitoSurucuKey) ?? null;
-  const vitoKomisyon = vitoSurucu
-    ? Math.round(hesaplaFiyat(qty.tam, qty.cocuk, qty.yabanci).gelir * (vitoSurucu.komisyonOran / 100))
-    : 0;
+  const vitoKomisyon = vitoSurucu ? 500 : 0;
   const activeDrivers = vitoDrivers.filter(d => d.aktif);
 
   const p = hesaplaFiyat(qty.tam, qty.cocuk, qty.yabanci);
@@ -160,6 +159,10 @@ export default function TicketsPage() {
     setLastPNR(pnr); setLastAdSoyad(adSoyad); setBiletlerData(biletlerPreview); setBiletModalOpen(true);
     resetForm();
     toast(`Satış tamamlandı! ${biletNolar.length} bilet oluşturuldu.`, 'ok');
+    if (mail.trim()) {
+      sendBiletMail(mail.trim(), pnr, adSoyad, selectedTarih, selectedSeans, biletNolar.length, sonToplam)
+        .catch(() => { /* mail hatası satışı etkilemesin */ });
+    }
   }, [selectedSeans, selectedTarih, ad, soyad, tel, mail, qty, indirimOrani, indirimTutar, aktifIndirimKodu, vitoSurucu, vitoKomisyon, p, user]);
 
   function resetForm() {
