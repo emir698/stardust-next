@@ -183,13 +183,13 @@ export default function DashboardPage() {
           <div className="panel-title">🏢 Kurumsal Paketler</div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
             {kurumsalPaketler.map(p => {
-              const kul = p.kullanilanAdet ?? 0;
-              const pct = p.adet > 0 ? Math.round(kul / p.adet * 100) : 0;
+              const kullanilanAdet = p.kullanilanAdet ?? 0;
+              const pct = p.adet > 0 ? Math.round(kullanilanAdet / p.adet * 100) : 0;
               return (
                 <div key={p._key} style={{ background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:10, padding:'1rem' }}>
                   <div style={{ fontSize:14, fontWeight:600, marginBottom:2 }}>{p.firma}</div>
                   <div style={{ fontSize:11, color:'var(--mu)', marginBottom:10 }}>{p.baslangic} — {p.bitis}</div>
-                  <div style={{ fontSize:28, fontWeight:700, color:'var(--ac)', fontFamily:'var(--mo)' }}>{kul}<span style={{ fontSize:16, color:'var(--mu)', fontWeight:400 }}>/{p.adet ?? 0}</span></div>
+                  <div style={{ fontSize:28, fontWeight:700, color:'var(--ac)', fontFamily:'var(--mo)' }}>{kullanilanAdet}<span style={{ fontSize:16, color:'var(--mu)', fontWeight:400 }}>/{p.adet ?? 0}</span></div>
                   <div style={{ height:4, background:'var(--bd)', borderRadius:99, overflow:'hidden', marginTop:8 }}>
                     <div style={{ height:'100%', borderRadius:99, width:`${pct}%`, background: pct >= 80 ? 'var(--rd)' : 'var(--gn)' }} />
                   </div>
