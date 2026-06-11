@@ -19,7 +19,8 @@ export function Tabs() {
   const visible = TABS.filter(t => !t.roles || (user && t.roles.includes(user.role)));
 
   return (
-    <div style={{ display: 'flex', gap: 2, marginBottom: '2rem', background: 'var(--color-sf)', border: '1px solid var(--color-bd)', borderRadius: 10, padding: 4, width: 'fit-content', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+    <div style={{ display: 'flex', gap: 2, background: 'var(--color-sf)', border: '1px solid var(--color-bd)', borderRadius: 10, padding: 4, width: '100%', flexWrap: 'wrap' }}>
       {visible.map((tab) => {
         const active = pathname.startsWith(tab.href);
         return (
@@ -46,6 +47,7 @@ export function Tabs() {
           </Link>
         );
       })}
+    </div>
     </div>
   );
 }

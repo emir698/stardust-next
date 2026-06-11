@@ -148,10 +148,11 @@ export default function DiscountCodesPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="toolbar">
+      <div className="toolbar" style={{ flexWrap: 'wrap', gap: 8 }}>
         <input
           type="text"
-          className="form-input si"
+          className="form-input"
+          style={{ flex: 1, minWidth: 160 }}
           placeholder="Kod veya grup ara..."
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(0); }}

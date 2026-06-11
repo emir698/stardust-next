@@ -106,9 +106,7 @@ export default function DashboardPage() {
       {/* Tarih Filtre */}
       <div className="date-filter" style={{ marginBottom:'1rem', padding:'.6rem 1rem' }}>
         <label style={{ fontSize:12 }}>Tarih Aralığı:</label>
-        {[{l:'Bugün',d:1},{l:'7 Gün',d:7},{l:'30 Gün',d:30}].map(({l,d}) => (
-          <button key={l} className="tarih-picker-buton pasif" style={{ padding:'5px 14px', fontSize:12 }} onClick={() => setHizli(d)}>{l}</button>
-        ))}
+        <button className="tarih-picker-buton pasif" style={{ padding:'5px 14px', fontSize:12 }} onClick={() => setHizli(1)}>Bugün</button>
         <input type="date" className="date-input" value={dateToInput(startDate)} onChange={e => setStartDate(inputToDate(e.target.value))} style={{ padding:'5px 8px', fontSize:12 }} />
         <span style={{ color:'var(--mu)' }}>—</span>
         <input type="date" className="date-input" value={dateToInput(endDate)} onChange={e => setEndDate(inputToDate(e.target.value))} style={{ padding:'5px 8px', fontSize:12 }} />

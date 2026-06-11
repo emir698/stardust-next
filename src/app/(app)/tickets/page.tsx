@@ -196,14 +196,13 @@ export default function TicketsPage() {
             Seans Seç — <span style={{ color:'var(--ac)', textTransform:'none' }}>{selectedTarih}</span>
           </div>
           <div className="seans-grid">
-            {(saatler ?? []).map((saat, idx) => (
+            {(saatler ?? []).map((saat) => (
               <div
                 key={saat}
                 className={`seans-card${selectedSeans === saat ? ' selected' : ''}`}
                 onClick={() => setSelectedSeans(saat)}
               >
-                <div className="seans-no">{idx + 1}</div>
-                <div className="seans-label">{saat}</div>
+                <div className="seans-label" style={{ fontSize: 22, fontWeight: 700 }}>{saat}</div>
                 <div className="seans-sold">{seansCounts[saat] ?? 0}</div>
               </div>
             ))}
