@@ -16,12 +16,11 @@ export function Topbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--color-bd)] bg-[var(--color-bg)]"
-      style={{ height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem' }}
+      style={{ height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 3rem' }}
     >
       <span style={{ fontFamily: 'var(--font-mono)', fontSize: 17, color: 'var(--color-ac)', letterSpacing: 3, fontWeight: 600 }}>
         STARDUST
       </span>
-
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         {user && (
           <span style={{ fontSize: 12, color: 'var(--color-mu)', fontFamily: 'var(--font-mono)', padding: '4px 10px', border: '1px solid var(--color-bd)', borderRadius: 20 }}>
