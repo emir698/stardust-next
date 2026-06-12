@@ -33,7 +33,9 @@ async function buildTicketPage(doc: jsPDF, pageIdx: number, biletNo: string, sat
   doc.setFontSize(11); doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold');
   doc.text(satis.musteriAd ?? '', w / 2, 44, { align: 'center' });
   const qrSize = 60;
-  doc.addImage(qrDataUrl, 'PNG', (w - qrSize) / 2, 52, qrSize, qrSize);
+  // jsPDF addImage — data URL'den PNG
+const qrBase64 = qrDataUrl.split(',')[1];
+doc.addImage(qrBase64, 'PNG', (w - qrSize) / 2, 52, qrSize, qrSize);
   doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(160, 160, 160);
   doc.text(biletNo, w / 2, 120, { align: 'center' });
   doc.setFontSize(9); doc.setTextColor(80, 80, 80);
