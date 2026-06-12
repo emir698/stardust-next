@@ -7,7 +7,8 @@ function pad(x: number): string {
 }
 
 export function todayStr(): string {
-  const n = new Date();
+  // Türkiye saati (UTC+3) — sunucu UTC'de olsa bile doğru tarihi verir
+  const n = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
   return pad(n.getDate()) + '.' + pad(n.getMonth() + 1) + '.' + n.getFullYear();
 }
 
