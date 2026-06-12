@@ -167,8 +167,8 @@ export default function TicketsPage() {
       davetli: qty.davetli, kurumsal: qty.kurumsal,
       toplam: sonToplam,
       biletler: biletNolar.map(no => ({ no, pnr, tur: 'tam', kullanildi: false })),
-      indirimKodu: aktifIndirimKodu?.code,
-      indirimOran: indirimOrani > 0 ? Math.round(indirimOrani * 100) : undefined,
+      ...(aktifIndirimKodu?.code ? { indirimKodu: aktifIndirimKodu.code } : {}),
+      ...(indirimOrani > 0 ? { indirimOran: Math.round(indirimOrani * 100) } : {}),
       ...(vitoSurucu
         ? { vitoSurucu: vitoSurucu._key, vitoPlaka: vitoSurucu.plaka, vitoKomisyon, vitoOdendi: false }
         : {}),
