@@ -247,15 +247,16 @@ export default function GatePage() {
   }
 
   async function handleMailGonder() {
-    if (!detayTarget || !mailAddress.trim()) { toast('Mail adresi girin', 'err'); return; }
-    setMailSending(true);
-    try {
-      const toplamBlt = (detayTarget.tam||0)+(detayTarget.cocuk||0)+(detayTarget.yabanci||0)+(detayTarget.davetli||0)+(detayTarget.kurumsal||0);
-      await sendBiletMail(mailAddress.trim(), detayTarget.pnr ?? '', detayTarget.musteriAd ?? '', detayTarget.tarih, detayTarget.seans ?? '', toplamBlt, detayTarget.toplam ?? 0);
-      toast('Mail gönderildi!', 'ok');
-    } catch { toast('Mail gönderilemedi', 'err'); }
-    finally { setMailSending(false); }
-  }
+if (!detayTarget || !mailAddress.trim()) { toast('Mail adresi girin', 'err'); return; }
+setMailSending(true);
+try {
+const toplamBlt = (detayTarget.tam||0)+(detayTarget.cocuk||0)+(detayTarget.yabanci||0)+(detayTarget.davetli||0)+(detayTarget.kurumsal||0);
+const biletlerIcinMail = detayQRler.map(q => ({ no: q.no, tur: q.tur, qrDataUrl: q.qrUrl }));
+await sendBiletMail(mailAddress.trim(), detayTarget.pnr ?? '', detayTarget.musteriAd ?? '', detayTarget.tarih, detayTarget.seans ?? '', toplamBlt, detayTarget.toplam ?? 0, biletlerIcinMail);
+toast('Mail gönderildi!', 'ok');
+} catch { toast('Mail gönderilemedi', 'err'); }
+finally { setMailSending(false); }
+}
 
   async function handleTumunuZip() {
     setZipLoading(true);
