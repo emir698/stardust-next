@@ -234,6 +234,7 @@ export default function ScanPage() {
   function selectSeans(saat: string) {
     setSelectedSeans(saat);
     setScreen('scan');
+    setTimeout(() => { barcodeRef.current?.focus(); }, 400);
   }
 
   function goBack() {
