@@ -35,22 +35,26 @@ jobs:
           unzip -q /tmp/gradle.zip -d /opt
           echo "/opt/gradle-8.2/bin" >> $GITHUB_PATH
 
+      - name: Show project files
+        run: |
+          echo "=== settings.gradle ==="
+          cat android/settings.gradle
+          echo "=== build.gradle (root) ==="
+          cat android/build.gradle
+          echo "=== app/build.gradle ==="
+          cat android/app/build.gradle
+          echo "=== AndroidManifest.xml ==="
+          cat android/app/src/main/AndroidManifest.xml
+          echo "=== local.properties ==="
+          cat android/local.properties
+          echo "=== gradle version ==="
+          gradle --version
+
       - name: Build Debug APK
         working-directory: android
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
-        run: gradle assembleDebug --stacktrace 2>&1 | tee /tmp/build.log; BUILD_EXIT=${PIPESTATUS[0]}; exit $BUILD_EXIT
-
-      - name: Post log to gist
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          LOG=$(cat /tmp/build.log | tail -200)
-          curl -s -X POST https://api.github.com/gists \
-            -H "Authorization: token $GH_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "{\"public\":true,\"description\":\"Stardust Build Error\",\"files\":{\"build.log\":{\"content\":\"$(echo "$LOG" | head -c 50000 | sed 's/\\/\\\\/g; s/\"/\\\"/g; s/$/\\n/g' | tr -d '\n')\"}}}"
+        run: gradle assembleDebug --stacktrace --info 2>&1 | tail -100
 
       - name: Upload APK
         if: success()
