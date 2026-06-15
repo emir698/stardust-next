@@ -11,7 +11,7 @@ jobs:
 
     defaults:
       run:
-        shell: bash   # tüm adımlarda bash zorla
+        shell: bash
 
     steps:
       - uses: actions/checkout@v4
@@ -38,22 +38,19 @@ jobs:
 
       - name: Build Debug APK
         working-directory: android
-        env:
-          GRADLE_OPTS: ""
-          _JAVA_OPTIONS: ""
-          JAVA_TOOL_OPTIONS: ""
         run: |
+          # setup-android action bozuk JVM options bırakıyor — temizle
+          unset _JAVA_OPTIONS
+          unset JAVA_TOOL_OPTIONS
+          unset GRADLE_OPTS
+
           set -o pipefail
-          ./gradlew assembleDebug \
-            -Dorg.gradle.jvmargs="-Xmx2048m -XX:MaxMetaspaceSize=512m" \
-            --stacktrace --no-daemon \
+          ./gradlew assembleDebug --stacktrace --no-daemon \
             2>&1 | tee /tmp/gradle.log
 
       - name: Show log tail on failure
         if: failure()
-        run: |
-          echo "=== LAST 150 LINES ==="
-          tail -150 /tmp/gradle.log
+        run: tail -150 /tmp/gradle.log
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
