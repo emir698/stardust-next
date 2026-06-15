@@ -39,9 +39,21 @@ jobs:
         working-directory: android
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
-        run: gradle assembleDebug --stacktrace
+        run: gradle assembleDebug --stacktrace 2>&1 | tee /tmp/build.log; BUILD_EXIT=${PIPESTATUS[0]}; exit $BUILD_EXIT
+
+      - name: Post log to gist
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LOG=$(cat /tmp/build.log | tail -200)
+          curl -s -X POST https://api.github.com/gists \
+            -H "Authorization: token $GH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"public\":true,\"description\":\"Stardust Build Error\",\"files\":{\"build.log\":{\"content\":\"$(echo "$LOG" | head -c 50000 | sed 's/\\/\\\\/g; s/\"/\\\"/g; s/$/\\n/g' | tr -d '\n')\"}}}"
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: stardust-scan-apk
