@@ -234,7 +234,6 @@ export default function ScanPage() {
   function selectSeans(saat: string) {
     setSelectedSeans(saat);
     setScreen('scan');
-    setTimeout(() => { barcodeRef.current?.focus(); }, 300);
   }
 
   function goBack() {
@@ -439,13 +438,20 @@ export default function ScanPage() {
       openResultSheet({ icon: '✗', title: 'Kullanılmış', titleCls: 'red', name: b.musteriAd ?? '', info: `${b.kullanildiSaat} saatinde giriş yapıldı.`, showGiris: false });
       return;
     }
-    setCurrentPNR({ pnr: '', bekleyenler: [{ no: val, tur: b.tur, kullanildi: false, checked: true }] });
+    const biletNo = val;
+    const biletTur = b.tur;
+    const biletSaat = nowSaat();
+    const upd2: Record<string, unknown> = {};
+    upd2[`biletler/${biletNo}/kullanildi`] = true;
+    upd2[`biletler/${biletNo}/kullanildiSaat`] = biletSaat;
+    await update(ref(db), upd2);
     openResultSheet({
       icon: '✓', title: 'Bilet Geçerli', titleCls: 'green',
       name: b.musteriAd ?? '',
-      info: `Seans: ${b.seans} · ${b.tur}\n${b.tarih}`,
-      showGiris: true,
+      info: `Seans: ${b.seans} · ${biletTur}\n${b.tarih}`,
+      showGiris: false,
     });
+    setTimeout(() => closeSheet(), 3000);
   }
 
   async function girisVer() {
@@ -592,7 +598,7 @@ export default function ScanPage() {
 
         /* QR card */
         .qr-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 20px; overflow: hidden; margin-bottom: 16px; }
-        .qr-start-btn { width: 100%; padding: 0 20px; height: calc(100vh - 380px); min-height: 240px; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+        .qr-start-btn { width: 100%; padding: 20px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .qr-icon { font-size: 72px; line-height: 1; }
         .qr-label { font-size: 22px; font-weight: 700; color: #f0f0f0; }
         .qr-sub { font-size: 14px; color: #666; }
@@ -721,8 +727,6 @@ export default function ScanPage() {
                 {!qrActive ? (
                   <button className="qr-start-btn" onClick={startQr}>
                     <div className="qr-icon">📷</div>
-                    <div className="qr-label">QR Kod Tara</div>
-                    <div className="qr-sub">Kamerayı başlatmak için dokun</div>
                   </button>
                 ) : (
                   <button className="qr-stop-btn" onClick={stopQr}>⏹ Kamerayı Durdur</button>
