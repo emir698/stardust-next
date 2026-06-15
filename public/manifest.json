@@ -1,22 +1,14 @@
 {
   "name": "Stardust Ticket Scan",
   "short_name": "StarScan",
-  "description": "Stardust Box Office bilet kontrol uygulaması",
+  "description": "Stardust Box Office bilet kontrol",
   "start_url": "/scan",
   "scope": "/",
   "display": "standalone",
-  "display_override": [
-    "window-controls-overlay",
-    "standalone"
-  ],
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
   "orientation": "portrait",
   "lang": "tr",
-  "categories": [
-    "utilities",
-    "productivity"
-  ],
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -38,9 +30,7 @@
   ],
   "shortcuts": [
     {
-      "name": "Bilet Tara",
-      "short_name": "Tara",
-      "description": "Doğrudan tarama ekranına git",
+      "name": "Scan",
       "url": "/scan",
       "icons": [
         {
@@ -49,7 +39,5 @@
         }
       ]
     }
-  ],
-  "screenshots": [],
-  "prefer_related_applications": false
+  ]
 }
