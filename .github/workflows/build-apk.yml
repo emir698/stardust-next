@@ -9,6 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
     steps:
@@ -20,10 +21,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Android SDK components
+      - name: Install Android SDK
         run: |
-          sudo apt-get install -y wget unzip
-          export ANDROID_HOME=$ANDROID_SDK_ROOT
           mkdir -p $ANDROID_HOME/cmdline-tools
           wget -q "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip" -O /tmp/cmdtools.zip
           unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools
@@ -31,21 +30,19 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-      - name: Download Gradle
+      - name: Download Gradle 8.2
         run: |
           wget -q "https://services.gradle.org/distributions/gradle-8.2-bin.zip" -O /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /opt
           echo "/opt/gradle-8.2/bin" >> $GITHUB_PATH
 
-      - name: Build Release APK
+      - name: Build Debug APK
         working-directory: android
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
-        run: gradle assembleRelease
+        run: gradle assembleDebug --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: stardust-scan-apk
-          path: android/app/build/outputs/apk/release/app-release*.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
