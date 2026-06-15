@@ -38,25 +38,19 @@ jobs:
 
       - name: Build Debug APK
         working-directory: android
-        run: gradle assembleDebug --stacktrace 2>&1 | tee /tmp/build.log; echo "EXIT:${PIPESTATUS[0]}" >> /tmp/build.log; exit ${PIPESTATUS[0]}
+        run: gradle assembleDebug --stacktrace 2>&1 | tee /tmp/build.log; exit ${PIPESTATUS[0]}
 
-      - name: Post error log as issue
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Find and show APK path
         run: |
-          LOG=$(tail -60 /tmp/build.log | head -c 60000)
-          curl -s -X POST \
-            -H "Authorization: token $GH_TOKEN" \
-            -H "Content-Type: application/json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues" \
-            -d "$(jq -n --arg body "$LOG" '{title:"Build Error Log",body:$body}')"
+          echo "=== All APK files ==="
+          find . -name "*.apk" 2>/dev/null
+          echo "=== Build outputs ==="
+          find android/app/build/outputs -type f 2>/dev/null || echo "No build outputs dir"
 
       - name: Upload APK artifact
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: stardust-scan-apk
-          path: android/**/*.apk
-          if-no-files-found: warn
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
           retention-days: 30
