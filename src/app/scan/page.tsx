@@ -598,8 +598,8 @@ export default function ScanPage() {
 
         /* QR card */
         .qr-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 20px; overflow: hidden; margin-bottom: 16px; }
-        .qr-start-btn { width: 100%; padding: 20px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .qr-icon { font-size: 72px; line-height: 1; }
+        .qr-start-btn { width: 100%; padding: 10px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .qr-icon { font-size: 36px; line-height: 1; }
         .qr-label { font-size: 22px; font-weight: 700; color: #f0f0f0; }
         .qr-sub { font-size: 14px; color: #666; }
         .qr-stop-btn { width: 100%; padding: 18px; background: #f87171; color: #fff; border: none; cursor: pointer; font-size: 16px; font-weight: 700; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
