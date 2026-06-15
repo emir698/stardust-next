@@ -19,9 +19,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        debug {
-            applicationIdSuffix ".debug"
-        }
     }
 
     compileOptions {
@@ -31,6 +28,7 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.browser:browser:1.8.0'
     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
 }
