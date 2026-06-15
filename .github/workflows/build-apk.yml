@@ -22,16 +22,26 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install SDK packages
+      - name: Install Android SDK manually
         run: |
-          yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
+            -O /tmp/cmdtools.zip
+          unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools_extract
+          mv /tmp/cmdtools_extract/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
-      - name: Create local.properties
-        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+      - name: Download Gradle 8.2
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.2-bin.zip \
+            -O /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /opt
+          echo "/opt/gradle-8.2/bin" >> $GITHUB_PATH
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
@@ -39,16 +49,14 @@ jobs:
       - name: Build Debug APK
         working-directory: android
         run: |
-          # setup-android action bozuk JVM options bırakıyor — temizle
           unset _JAVA_OPTIONS
           unset JAVA_TOOL_OPTIONS
           unset GRADLE_OPTS
-
           set -o pipefail
           ./gradlew assembleDebug --stacktrace --no-daemon \
             2>&1 | tee /tmp/gradle.log
 
-      - name: Show log tail on failure
+      - name: Show log on failure
         if: failure()
         run: tail -150 /tmp/gradle.log
 
