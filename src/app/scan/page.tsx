@@ -718,6 +718,7 @@ export default function ScanPage() {
                 autoCorrect="off"
                 autoCapitalize="characters"
                 spellCheck={false}
+                inputMode="none"
                 onChange={e => handleBarcodeInput(e.target.value)}
                 onKeyDown={handleBarcodeKeyDown}
               />
