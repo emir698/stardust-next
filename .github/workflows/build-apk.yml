@@ -38,16 +38,25 @@ jobs:
 
       - name: Build Debug APK
         working-directory: android
-        run: gradle assembleDebug --stacktrace
+        run: gradle assembleDebug --stacktrace 2>&1 | tee /tmp/build.log; BUILD_EXIT=${PIPESTATUS[0]}; tail -80 /tmp/build.log > android/build-error.log; exit $BUILD_EXIT
+
+      - name: Save error log
+        if: failure()
+        run: |
+          git config user.email "ci@stardust.app"
+          git config user.name "CI Bot"
+          git add android/build-error.log
+          git diff --staged --quiet || git commit -m "ci: build log [skip ci]"
+          git push https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git HEAD:main || true
 
       - name: Find APK
         run: find android -name "*.apk" 2>/dev/null || echo "No APK found"
 
       - name: Upload APK artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: stardust-scan-apk
-          path: |
-            android/**/*.apk
+          path: android/**/*.apk
           if-no-files-found: warn
           retention-days: 30
