@@ -32,20 +32,24 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Gradle dependencies (cache warmup)
-        working-directory: android
-        run: ./gradlew dependencies --configuration releaseRuntimeClasspath 2>&1 | tail -50 || true
-
       - name: Build Debug APK
         working-directory: android
-        run: |
-          ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee /tmp/gradle.log
-          EXIT=${PIPESTATUS[0]}
-          echo "=== LAST 100 LINES OF GRADLE LOG ==="
-          tail -100 /tmp/gradle.log
-          exit $EXIT
         env:
-          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx2048m"
+          GRADLE_OPTS: ""
+          _JAVA_OPTIONS: ""
+          JAVA_TOOL_OPTIONS: ""
+        run: |
+          ./gradlew assembleDebug \
+            -Dorg.gradle.jvmargs="-Xmx2048m -XX:MaxMetaspaceSize=512m" \
+            --stacktrace \
+            --no-daemon \
+            2>&1 | tee /tmp/gradle.log
+          EXIT=${PIPESTATUS[0]}
+          if [ $EXIT -ne 0 ]; then
+            echo "=== BUILD FAILED - LAST 150 LINES ==="
+            tail -150 /tmp/gradle.log
+          fi
+          exit $EXIT
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
