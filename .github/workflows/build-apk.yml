@@ -9,6 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: bash   # tüm adımlarda bash zorla
+
     steps:
       - uses: actions/checkout@v4
 
@@ -39,17 +43,17 @@ jobs:
           _JAVA_OPTIONS: ""
           JAVA_TOOL_OPTIONS: ""
         run: |
+          set -o pipefail
           ./gradlew assembleDebug \
             -Dorg.gradle.jvmargs="-Xmx2048m -XX:MaxMetaspaceSize=512m" \
-            --stacktrace \
-            --no-daemon \
+            --stacktrace --no-daemon \
             2>&1 | tee /tmp/gradle.log
-          EXIT=${PIPESTATUS[0]}
-          if [ $EXIT -ne 0 ]; then
-            echo "=== BUILD FAILED - LAST 150 LINES ==="
-            tail -150 /tmp/gradle.log
-          fi
-          exit $EXIT
+
+      - name: Show log tail on failure
+        if: failure()
+        run: |
+          echo "=== LAST 150 LINES ==="
+          tail -150 /tmp/gradle.log
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
