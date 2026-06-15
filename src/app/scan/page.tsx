@@ -234,7 +234,6 @@ export default function ScanPage() {
   function selectSeans(saat: string) {
     setSelectedSeans(saat);
     setScreen('scan');
-    setTimeout(() => { barcodeRef.current?.focus(); }, 300);
   }
 
   function goBack() {
@@ -274,42 +273,20 @@ export default function ScanPage() {
     }
   }
 
-  const submitBarcode = useCallback(async (val: string) => {
+  async function submitBarcode(val: string) {
     if (!barcodeRef.current) return;
+    barcodeRef.current.value = '';
+    barcodeRef.current.focus();
     await islemYap(val);
-  }, [islemYap]);
+  }
 
-  // ── Global keydown - Honeywell USB-HID klavyeye ihtiyaç duymaz ──────────
+  // ── Keep barcode input focused ─────────────────────────────────────────
 
-  const barcodeBuffer = useRef('');
-  const barcodeFlushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (screen !== 'scan') return;
-      if (sheetType !== 'none') return;
-      if (e.key === 'Enter') {
-        if (barcodeFlushTimer.current) clearTimeout(barcodeFlushTimer.current);
-        const val = barcodeBuffer.current.trim().toUpperCase();
-        barcodeBuffer.current = '';
-        if (val.length >= 4) submitBarcode(val);
-        return;
-      }
-      if (e.key.length === 1) {
-        barcodeBuffer.current += e.key;
-        if (barcodeFlushTimer.current) clearTimeout(barcodeFlushTimer.current);
-        barcodeFlushTimer.current = setTimeout(() => {
-          const val = barcodeBuffer.current.trim().toUpperCase();
-          barcodeBuffer.current = '';
-          if (val.length >= 4) submitBarcode(val);
-        }, 100);
-      }
-    }
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [screen, sheetType, submitBarcode]);
-
-  function refocusBarcode() {}
+  function refocusBarcode() {
+    if (screen !== 'scan') return;
+    if (sheetType !== 'none') return;
+    barcodeRef.current?.focus();
+  }
 
   // ── QR Camera ─────────────────────────────────────────────────────────────
 
@@ -730,7 +707,19 @@ export default function ScanPage() {
 
             <div className="scan-body">
 
-
+              {/* Honeywell / HID barcode input */}
+              <input
+                ref={barcodeRef}
+                type="text"
+                className="barcode-input"
+                placeholder="👆 Barkod okut veya buraya yaz"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="characters"
+                spellCheck={false}
+                onChange={e => handleBarcodeInput(e.target.value)}
+                onKeyDown={handleBarcodeKeyDown}
+              />
 
               {/* QR Camera */}
               <div className="qr-card">
