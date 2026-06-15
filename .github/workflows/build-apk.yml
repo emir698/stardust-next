@@ -8,9 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      ANDROID_HOME: /usr/local/lib/android/sdk
-      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
     steps:
       - uses: actions/checkout@v4
@@ -23,46 +20,28 @@ jobs:
 
       - name: Install Android SDK
         run: |
+          export ANDROID_HOME=/usr/local/lib/android/sdk
           mkdir -p $ANDROID_HOME/cmdline-tools
-          wget -q "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip" -O /tmp/cmdtools.zip
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdtools.zip
           unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools
           mv /tmp/cmdtools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
           echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
-      - name: Download Gradle 8.2
+      - name: Download Gradle
         run: |
-          wget -q "https://services.gradle.org/distributions/gradle-8.2-bin.zip" -O /tmp/gradle.zip
+          wget -q https://services.gradle.org/distributions/gradle-8.2-bin.zip -O /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /opt
           echo "/opt/gradle-8.2/bin" >> $GITHUB_PATH
 
       - name: Build Debug APK
         working-directory: android
-        run: gradle assembleDebug --stacktrace 2>&1 | tee /tmp/build.log; exit ${PIPESTATUS[0]}
-
-      - name: Post error as issue
-        if: failure()
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          LOG=$(tail -100 /tmp/build.log)
-          python3 -c "
-import json, urllib.request, os
-log = open('/tmp/build.log').read()[-8000:]
-body = json.dumps({'title': 'Build Error', 'body': log})
-req = urllib.request.Request(
-    'https://api.github.com/repos/${{ github.repository }}/issues',
-    data=body.encode(),
-    headers={'Authorization': 'token ' + os.environ['GH_TOKEN'], 'Content-Type': 'application/json'},
-    method='POST'
-)
-urllib.request.urlopen(req)
-print('Issue created')
-"
+          ANDROID_HOME: /usr/local/lib/android/sdk
+        run: gradle assembleDebug --stacktrace
 
       - name: Upload APK
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: stardust-scan-apk
