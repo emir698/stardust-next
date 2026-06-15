@@ -707,16 +707,17 @@ export default function ScanPage() {
 
             <div className="scan-body">
 
-              {/* Honeywell / HID barcode input */}
+              {/* Honeywell / HID barcode input - gizli, klavye açmaz */}
               <input
                 ref={barcodeRef}
                 type="text"
                 className="barcode-input"
-                placeholder="👆 Barkod okut veya buraya yaz"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="characters"
                 spellCheck={false}
+                readOnly
+                style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0 }}
                 onChange={e => handleBarcodeInput(e.target.value)}
                 onKeyDown={handleBarcodeKeyDown}
               />
