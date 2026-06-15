@@ -13,6 +13,11 @@ jobs:
       run:
         shell: bash
 
+    env:
+      _JAVA_OPTIONS: ""
+      JAVA_TOOL_OPTIONS: ""
+      GRADLE_OPTS: ""
+
     steps:
       - uses: actions/checkout@v4
 
@@ -38,23 +43,23 @@ jobs:
 
       - name: Download Gradle 8.2
         run: |
-          wget -q https://services.gradle.org/distributions/gradle-8.2-bin.zip \
-            -O /tmp/gradle.zip
+          wget -q https://services.gradle.org/distributions/gradle-8.2-bin.zip -O /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /opt
           echo "/opt/gradle-8.2/bin" >> $GITHUB_PATH
 
-      - name: Make gradlew executable
-        run: chmod +x android/gradlew
+      - name: Write gradle.properties
+        run: |
+          cat > android/gradle.properties << 'EOF'
+          org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m
+          org.gradle.daemon=false
+          android.useAndroidX=true
+          EOF
 
       - name: Build Debug APK
         working-directory: android
         run: |
-          unset _JAVA_OPTIONS
-          unset JAVA_TOOL_OPTIONS
-          unset GRADLE_OPTS
           set -o pipefail
-          ./gradlew assembleDebug --stacktrace --no-daemon \
-            2>&1 | tee /tmp/gradle.log
+          gradle assembleDebug --stacktrace 2>&1 | tee /tmp/gradle.log
 
       - name: Show log on failure
         if: failure()
