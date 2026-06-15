@@ -31,40 +31,21 @@ jobs:
 
       - name: Build Debug APK
         working-directory: android
-        run: ./gradlew assembleDebug --stacktrace 2>&1 | tee /tmp/gradle-build.log; echo "EXIT:${PIPESTATUS[0]}" >> /tmp/gradle-build.log
+        run: ./gradlew assembleDebug --stacktrace 2>&1 | tee /tmp/gradle-build.log; PIPESTATUS_VAL=${PIPESTATUS[0]}; echo "BUILD_EXIT_CODE=${PIPESTATUS_VAL}" >> $GITHUB_ENV
         env:
           GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx2048m"
         continue-on-error: true
 
-      - name: Check build result and show log
+      - name: PRINT FULL BUILD LOG
+        if: always()
         run: |
-          LAST=$(tail -1 /tmp/gradle-build.log)
-          echo "Last line: $LAST"
-          if echo "$LAST" | grep -q "EXIT:0"; then
-            echo "BUILD_SUCCESS=true" >> $GITHUB_ENV
-            echo "✅ Build succeeded"
-          else
-            echo "BUILD_SUCCESS=false" >> $GITHUB_ENV
-            echo "❌ Build failed - showing last 150 lines:"
-            echo "---"
-            tail -150 /tmp/gradle-build.log
-            echo "---"
-            # Also write to summary
-            echo "## Build Failed - Gradle Log" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -200 /tmp/gradle-build.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "============ GRADLE BUILD LOG START ============"
+          cat /tmp/gradle-build.log 2>/dev/null || echo "No log file found"
+          echo "============ GRADLE BUILD LOG END ============"
+          echo "Build exit code was: ${BUILD_EXIT_CODE}"
 
-      - name: Upload build log
-        uses: actions/upload-artifact@v4
-        with:
-          name: gradle-build-log
-          path: /tmp/gradle-build.log
-          retention-days: 7
-
-      - name: Upload APK (if build succeeded)
-        if: env.BUILD_SUCCESS == 'true'
+      - name: Upload APK (if success)
+        if: env.BUILD_EXIT_CODE == '0'
         uses: actions/upload-artifact@v4
         with:
           name: stardust-scan-debug
@@ -72,6 +53,8 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Fail job if build failed
-        if: env.BUILD_SUCCESS == 'false'
-        run: exit 1
+      - name: Fail if build failed
+        if: env.BUILD_EXIT_CODE != '0'
+        run: |
+          echo "Build failed with exit code ${BUILD_EXIT_CODE}"
+          exit 1
