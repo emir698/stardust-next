@@ -38,19 +38,19 @@ jobs:
 
       - name: Build Debug APK
         working-directory: android
-        run: gradle assembleDebug --stacktrace 2>&1 | tee /tmp/build.log; BUILD_EXIT=${PIPESTATUS[0]}; tail -80 /tmp/build.log > android/build-error.log; exit $BUILD_EXIT
+        run: gradle assembleDebug --stacktrace 2>&1 | tee /tmp/build.log; echo "EXIT:${PIPESTATUS[0]}" >> /tmp/build.log; exit ${PIPESTATUS[0]}
 
-      - name: Save error log
+      - name: Post error log as issue
         if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.email "ci@stardust.app"
-          git config user.name "CI Bot"
-          git add android/build-error.log
-          git diff --staged --quiet || git commit -m "ci: build log [skip ci]"
-          git push https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git HEAD:main || true
-
-      - name: Find APK
-        run: find android -name "*.apk" 2>/dev/null || echo "No APK found"
+          LOG=$(tail -60 /tmp/build.log | head -c 60000)
+          curl -s -X POST \
+            -H "Authorization: token $GH_TOKEN" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues" \
+            -d "$(jq -n --arg body "$LOG" '{title:"Build Error Log",body:$body}')"
 
       - name: Upload APK artifact
         if: success()
