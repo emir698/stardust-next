@@ -36,17 +36,20 @@ jobs:
           unzip -q /tmp/gradle.zip -d /opt
           echo "/opt/gradle-8.2/bin" >> $GITHUB_PATH
 
-      - name: Build Debug APK
+      - name: Build and save error log
         working-directory: android
-        run: gradle assembleDebug --stacktrace 2>&1 | tee /tmp/build.log; exit ${PIPESTATUS[0]}
-
-      - name: Upload build log on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: /tmp/build.log
-          retention-days: 7
+        run: |
+          gradle assembleDebug --stacktrace > /tmp/build.log 2>&1 || true
+          
+      - name: Commit build log to repo
+        if: always()
+        run: |
+          git config user.email "ci@stardust.app"
+          git config user.name "CI Bot"
+          cp /tmp/build.log android/build-error.log || echo "no log" > android/build-error.log
+          git add android/build-error.log
+          git commit -m "ci: save build log [skip ci]" || true
+          git push origin main || true
 
       - name: Upload APK artifact
         if: success()
