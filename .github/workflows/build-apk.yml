@@ -36,25 +36,18 @@ jobs:
           unzip -q /tmp/gradle.zip -d /opt
           echo "/opt/gradle-8.2/bin" >> $GITHUB_PATH
 
-      - name: Build and save error log
+      - name: Build Debug APK
         working-directory: android
-        run: |
-          gradle assembleDebug --stacktrace > /tmp/build.log 2>&1 || true
-          
-      - name: Commit build log to repo
-        if: always()
-        run: |
-          git config user.email "ci@stardust.app"
-          git config user.name "CI Bot"
-          cp /tmp/build.log android/build-error.log || echo "no log" > android/build-error.log
-          git add android/build-error.log
-          git commit -m "ci: save build log [skip ci]" || true
-          git push origin main || true
+        run: gradle assembleDebug --stacktrace
+
+      - name: Find APK
+        run: find android -name "*.apk" 2>/dev/null || echo "No APK found"
 
       - name: Upload APK artifact
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: stardust-scan-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            android/**/*.apk
+          if-no-files-found: warn
           retention-days: 30
