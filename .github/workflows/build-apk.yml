@@ -29,6 +29,7 @@ jobs:
           mv /tmp/cmdtools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
       - name: Download Gradle 8.2
         run: |
@@ -40,17 +41,20 @@ jobs:
         working-directory: android
         run: gradle assembleDebug --stacktrace 2>&1 | tee /tmp/build.log; exit ${PIPESTATUS[0]}
 
-      - name: Find and show APK path
+      - name: Post error as issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "=== All APK files ==="
-          find . -name "*.apk" 2>/dev/null
-          echo "=== Build outputs ==="
-          find android/app/build/outputs -type f 2>/dev/null || echo "No build outputs dir"
+          LOG=$(grep -A2 -B2 "error\|Error\|FAILURE\|Exception\|Could not" /tmp/build.log | head -c 10000)
+          curl -s -X POST -H "Authorization: token $GH_TOKEN" -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues" \
+            -d "$(jq -n --arg body "$LOG" --arg t "Build Error #${{ github.run_number }}" '{title:$t,body:$body}')"
 
-      - name: Upload APK artifact
+      - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: stardust-scan-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
           retention-days: 30
