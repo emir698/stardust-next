@@ -55,20 +55,42 @@ jobs:
           android.useAndroidX=true
           EOF
 
-      - name: Build Debug APK
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/stardust.keystore
+
+      - name: Build Release APK
         working-directory: android
         run: |
+          unset _JAVA_OPTIONS
+          unset JAVA_TOOL_OPTIONS
+          unset GRADLE_OPTS
           set -o pipefail
-          gradle assembleDebug --stacktrace 2>&1 | tee /tmp/gradle.log
+          gradle assembleRelease --stacktrace --no-daemon \
+            2>&1 | tee /tmp/gradle.log
+          EXIT=${PIPESTATUS[0]}
+          if [ $EXIT -ne 0 ]; then
+            tail -100 /tmp/gradle.log
+          fi
+          exit $EXIT
 
-      - name: Show log on failure
-        if: failure()
-        run: tail -150 /tmp/gradle.log
+      - name: Sign APK
+        run: |
+          $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
+            --ks android/stardust.keystore \
+            --ks-key-alias ${{ secrets.KEY_ALIAS }} \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
+            --key-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
+            --out android/app/build/outputs/apk/release/stardust-scan-signed.apk \
+            android/app/build/outputs/apk/release/app-release-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: stardust-scan-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: stardust-scan-release
+          path: android/app/build/outputs/apk/release/stardust-scan-signed.apk
           if-no-files-found: error
           retention-days: 30
