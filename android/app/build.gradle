@@ -1,6 +1,4 @@
-plugins {
-    id 'com.android.application'
-}
+apply plugin: 'com.android.application'
 
 android {
     compileSdk 34
@@ -18,7 +16,6 @@ android {
         release {
             minifyEnabled false
         }
-        debug {}
     }
 
     compileOptions {
