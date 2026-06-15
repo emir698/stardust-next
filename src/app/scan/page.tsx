@@ -234,6 +234,7 @@ export default function ScanPage() {
   function selectSeans(saat: string) {
     setSelectedSeans(saat);
     setScreen('scan');
+    setTimeout(() => { barcodeRef.current?.focus(); }, 300);
   }
 
   function goBack() {
@@ -707,18 +708,17 @@ export default function ScanPage() {
 
             <div className="scan-body">
 
-              {/* Honeywell / HID barcode input */}
+              {/* Honeywell / HID barcode input - görünmez ama aktif */}
               <input
                 ref={barcodeRef}
                 type="text"
-                className="barcode-input"
-                placeholder="👆 Barkod okut veya buraya yaz"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="characters"
                 spellCheck={false}
                 onChange={e => handleBarcodeInput(e.target.value)}
                 onKeyDown={handleBarcodeKeyDown}
+                style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, zIndex: -1 }}
               />
 
               {/* QR Camera */}
