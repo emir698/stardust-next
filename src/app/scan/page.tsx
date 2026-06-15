@@ -708,17 +708,18 @@ export default function ScanPage() {
 
             <div className="scan-body">
 
-              {/* Honeywell / HID barcode input - görünmez ama aktif */}
+              {/* Honeywell / HID barcode input - görünmez, klavyesiz */}
               <input
                 ref={barcodeRef}
                 type="text"
+                inputMode="none"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="characters"
                 spellCheck={false}
                 onChange={e => handleBarcodeInput(e.target.value)}
                 onKeyDown={handleBarcodeKeyDown}
-                style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, zIndex: -1 }}
+                style={{ position: 'absolute', opacity: 0, width: 1, height: 1, top: 0, left: 0 }}
               />
 
               {/* QR Camera */}
