@@ -18,40 +18,34 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Android SDK
-        run: |
-          export ANDROID_HOME=/usr/local/lib/android/sdk
-          mkdir -p $ANDROID_HOME/cmdline-tools
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdtools.zip
-          unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools
-          mv /tmp/cmdtools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Download Gradle
+      - name: Accept SDK Licenses & Install Packages
         run: |
-          wget -q https://services.gradle.org/distributions/gradle-8.2-bin.zip -O /tmp/gradle.zip
-          unzip -q /tmp/gradle.zip -d /opt
-          echo "/opt/gradle-8.2/bin" >> $GITHUB_PATH
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
 
       - name: Build Debug APK
         working-directory: android
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
-        run: gradle assembleDebug --stacktrace
-
-      - name: Find APK
         run: |
-          echo "All APK files:"
-          find . -name "*.apk" -type f
-          echo "Build outputs:"
-          find android/app/build -type f 2>/dev/null || echo "No build dir"
+          ./gradlew assembleDebug --stacktrace
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx2048m"
+
+      - name: Verify APK exists
+        run: |
+          echo "=== APK files ==="
+          find android/app/build/outputs -name "*.apk" -type f 2>/dev/null || echo "NO APK FOUND"
+          ls -la android/app/build/outputs/apk/debug/ 2>/dev/null || echo "No debug dir"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: stardust-scan-apk
-          path: "**/*.apk"
+          name: stardust-scan-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
