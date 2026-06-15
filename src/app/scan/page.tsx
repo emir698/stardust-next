@@ -274,20 +274,42 @@ export default function ScanPage() {
     }
   }
 
-  async function submitBarcode(val: string) {
+  const submitBarcode = useCallback(async (val: string) => {
     if (!barcodeRef.current) return;
-    barcodeRef.current.value = '';
-    barcodeRef.current.focus();
     await islemYap(val);
-  }
+  }, [islemYap]);
 
-  // ── Keep barcode input focused ─────────────────────────────────────────
+  // ── Global keydown - Honeywell USB-HID klavyeye ihtiyaç duymaz ──────────
 
-  function refocusBarcode() {
-    if (screen !== 'scan') return;
-    if (sheetType !== 'none') return;
-    barcodeRef.current?.focus();
-  }
+  const barcodeBuffer = useRef('');
+  const barcodeFlushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (screen !== 'scan') return;
+      if (sheetType !== 'none') return;
+      if (e.key === 'Enter') {
+        if (barcodeFlushTimer.current) clearTimeout(barcodeFlushTimer.current);
+        const val = barcodeBuffer.current.trim().toUpperCase();
+        barcodeBuffer.current = '';
+        if (val.length >= 4) submitBarcode(val);
+        return;
+      }
+      if (e.key.length === 1) {
+        barcodeBuffer.current += e.key;
+        if (barcodeFlushTimer.current) clearTimeout(barcodeFlushTimer.current);
+        barcodeFlushTimer.current = setTimeout(() => {
+          const val = barcodeBuffer.current.trim().toUpperCase();
+          barcodeBuffer.current = '';
+          if (val.length >= 4) submitBarcode(val);
+        }, 100);
+      }
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [screen, sheetType, submitBarcode]);
+
+  function refocusBarcode() {}
 
   // ── QR Camera ─────────────────────────────────────────────────────────────
 
@@ -708,19 +730,7 @@ export default function ScanPage() {
 
             <div className="scan-body">
 
-              {/* Honeywell / HID barcode input - görünmez, klavyesiz */}
-              <input
-                ref={barcodeRef}
-                type="text"
-                inputMode="none"
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="characters"
-                spellCheck={false}
-                onChange={e => handleBarcodeInput(e.target.value)}
-                onKeyDown={handleBarcodeKeyDown}
-                style={{ position: 'absolute', opacity: 0, width: 1, height: 1, top: 0, left: 0 }}
-              />
+
 
               {/* QR Camera */}
               <div className="qr-card">
