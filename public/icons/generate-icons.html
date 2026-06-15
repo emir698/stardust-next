@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head><title>Stardust Icon Generator</title></head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const sizes = [96, 180, 192, 512];
+const links = [];
+sizes.forEach(size => {
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  
+  // Background
+  ctx.fillStyle = '#0a0a0a';
+  ctx.beginPath();
+  ctx.roundRect(0, 0, size, size, size * 0.2);
+  ctx.fill();
+  
+  // Gold star/diamond shape
+  ctx.fillStyle = '#e8c547';
+  const cx = size / 2, cy = size / 2;
+  const r = size * 0.28;
+  ctx.beginPath();
+  for (let i = 0; i < 4; i++) {
+    const angle = (i * Math.PI / 2) - Math.PI / 4;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    const midAngle = angle + Math.PI / 4;
+    const mr = r * 0.42;
+    ctx.lineTo(cx + Math.cos(midAngle) * mr, cy + Math.sin(midAngle) * mr);
+  }
+  ctx.closePath();
+  ctx.fill();
+  
+  // Text
+  if (size >= 192) {
+    ctx.fillStyle = '#e8c547';
+    ctx.font = `bold ${size * 0.1}px -apple-system, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('STARDUST', cx, cy + size * 0.38);
+  }
+  
+  const link = document.createElement('a');
+  link.download = `icon-${size}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.textContent = `Download icon-${size}.png`;
+  link.style.display = 'block';
+  link.style.margin = '8px';
+  document.body.appendChild(canvas);
+  document.body.appendChild(link);
+});
+</script>
+</body>
+</html>
