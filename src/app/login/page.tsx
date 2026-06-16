@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { getUserRecord } from '@/lib/db/users';
 import { useAuthStore } from '@/store/auth';
@@ -23,6 +23,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const loginEmail = email.includes('@') ? email : `${email}@stardust.app`;
+      await setPersistence(auth, browserSessionPersistence);
       const cred  = await signInWithEmailAndPassword(auth, loginEmail, password);
       const record = await getUserRecord(cred.user.uid);
       if (!record) {
