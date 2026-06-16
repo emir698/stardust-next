@@ -281,7 +281,11 @@ export default function AdminPage() {
   const aktifKod    = codes.filter(c => c?.status === 'aktif').length;
 
   return (
-    <div>
+    <div style={{ maxWidth: 1200 }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-tx)', letterSpacing: '-0.02em', margin: 0 }}>Admin</h1>
+        <p style={{ fontSize: 13, color: 'var(--color-mu)', marginTop: 4 }}>Kullanıcı ve sistem yönetimi.</p>
+      </div>
       {/* KPI */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:'1.5rem' }}>
         <div className="kpi"><div className="kpi-label">Toplam Bilet</div><div className="kpi-val">{toplamBilet.toLocaleString('tr-TR')}</div></div>

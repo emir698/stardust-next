@@ -108,19 +108,19 @@ select, input[type="date"] { color-scheme: dark; }
 .glass-card { background: var(--sf); border: 1px solid var(--bd); }
 
 /* ── Layout ──────────────────────────────────────────── */
-.panel { background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:1rem;margin-bottom:1rem }
-.panel-title { font-size:13px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1.25rem }
-.panel-card { background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:1.25rem }
-.page-section { background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:1rem;margin-bottom:1rem }
-.section-title { font-size:12px;font-weight:600;margin-bottom:.6rem;color:var(--mu);text-transform:uppercase;letter-spacing:.5px }
+.panel { background:var(--color-sf);border:1px solid var(--color-bd);border-radius:8px;padding:1.5rem;margin-bottom:.75rem }
+.panel-title { font-size:11px;font-weight:500;color:var(--color-mu);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1.25rem }
+.panel-card { background:var(--color-sf);border:1px solid var(--color-bd);border-radius:8px;padding:1.25rem }
+.page-section { background:var(--color-sf);border:1px solid var(--color-bd);border-radius:8px;padding:1.25rem;margin-bottom:.75rem }
+.section-title { font-size:11px;font-weight:500;margin-bottom:.6rem;color:var(--color-mu);text-transform:uppercase;letter-spacing:.12em }
 
 /* ── KPI ─────────────────────────────────────────────── */
-.kpi-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem }
-.kpi { background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:1rem;text-align:center }
-.kpi-label { font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px }
-.kpi-val { font-size:28px;font-weight:600;font-family:var(--mo);line-height:1 }
+.kpi-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-bottom:1.5rem;border:1px solid var(--color-bd);border-radius:8px;overflow:hidden }
+.kpi { background:var(--color-sf);border:1px solid var(--color-bd);border-radius:0;padding:1.25rem 1.5rem }
+.kpi-label { font-size:11px;font-weight:500;color:var(--color-mu);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px }
+.kpi-val { font-size:28px;font-weight:700;font-family:var(--font-mono);line-height:1;letter-spacing:-0.02em;color:var(--color-tx) }
 .kpi-sub { font-size:12px;color:var(--mu);margin-top:6px }
-.kpi-val.ac { color:var(--ac) } .kpi-val.gn { color:var(--gn) } .kpi-val.rd { color:var(--rd) } .kpi-val.bl { color:var(--bl) }
+.kpi-val.ac { color:var(--color-tx) } .kpi-val.gn { color:var(--color-tx) } .kpi-val.rd { color:var(--color-tx) } .kpi-val.bl { color:var(--color-tx) }
 
 /* ── Dashboard ───────────────────────────────────────── */
 .dash-grid { display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:1.5rem }
@@ -129,7 +129,7 @@ select, input[type="date"] { color-scheme: dark; }
 .tw { border:1px solid var(--bd);border-radius:12px;overflow:hidden }
 table { width:100%;border-collapse:collapse;font-size:13px }
 thead { background:var(--sf) }
-th { padding:11px 14px;text-align:left;font-size:11px;font-weight:500;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd) }
+th { padding:10px 14px;text-align:left;font-size:11px;font-weight:500;color:var(--color-mu);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--color-bd) }
 tbody tr { border-bottom:1px solid var(--bd);transition:background .1s }
 tbody tr:last-child { border-bottom:none }
 tbody tr:hover { background:var(--sf) }
@@ -139,8 +139,8 @@ td { padding:10px 14px }
 
 /* ── Badge ───────────────────────────────────────────── */
 .badge { display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;font-family:var(--mo) }
-.ba { background:rgba(74,222,128,.08);color:var(--gn);border:1px solid rgba(74,222,128,.2) }
-.bdd { background:rgba(248,113,113,.08);color:var(--rd);border:1px solid rgba(248,113,113,.2) }
+.ba { background:rgba(255,255,255,.06);color:var(--color-tx);border:1px solid var(--color-bd2) }
+.bdd { background:rgba(255,255,255,.03);color:var(--color-mu);border:1px solid var(--color-bd) }
 
 /* ── Toolbar / Search ────────────────────────────────── */
 .pag { display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;flex-wrap:wrap;gap:10px }
@@ -148,7 +148,7 @@ td { padding:10px 14px }
 .toolbar { display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center }
 .sw { position:relative;flex:1;min-width:200px }
 .sw input { width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:9px 12px 9px 34px;color:var(--tx);font-family:var(--mo);font-size:13px;outline:none;transition:border .15s }
-.sw input:focus { border-color:var(--ac) }
+.sw input:focus { border-color:var(--color-tx) }
 .si { position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mu);pointer-events:none }
 
 /* ── Date Filter ─────────────────────────────────────── */
@@ -163,13 +163,13 @@ td { padding:10px 14px }
 .tarih-picker-buton.pasif:hover { border-color:var(--ac);color:var(--ac) }
 .tarih-picker-date { position:relative;display:flex;align-items:center }
 .tarih-picker-date input[type=date] { padding:7px 36px 7px 12px;border-radius:8px;font-size:13px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);cursor:pointer;font-family:var(--mo);letter-spacing:.5px;appearance:none;-webkit-appearance:none;min-width:140px }
-.tarih-picker-date input[type=date]:focus { outline:none;border-color:var(--ac) }
+.tarih-picker-date input[type=date]:focus { outline:none;border-color:var(--color-tx) }
 .tarih-picker-date::after { content:'📅';position:absolute;right:10px;pointer-events:none;font-size:14px }
 
 /* ── Seans ───────────────────────────────────────────── */
 .seans-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:8px }
-.seans-card { background:var(--sf2);border:2px solid var(--bd);border-radius:10px;padding:.6rem .5rem;cursor:pointer;transition:all .2s;text-align:center }
-.seans-card:hover { border-color:var(--ac) }
+.seans-card { background:var(--color-sf2);border:1px solid var(--color-bd);border-radius:6px;padding:.75rem .5rem;cursor:pointer;transition:all .15s;text-align:center }
+.seans-card:hover { border-color:var(--color-tx);background:var(--color-sf3) }
 .seans-card.selected { border-color:var(--color-bd2);background:var(--color-sf2) }
 .seans-no { font-size:28px;font-weight:600;font-family:var(--mo);color:var(--ac) }
 .seans-label { font-size:11px;color:var(--mu);margin-top:2px }
@@ -207,7 +207,7 @@ td { padding:10px 14px }
 /* ── Form input ──────────────────────────────────────── */
 .form-label { font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block }
 .form-input { width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:13px 14px;color:var(--tx);font-family:var(--sa);font-size:16px;outline:none;transition:border .15s;box-sizing:border-box }
-.form-input:focus { border-color:var(--ac) }
+.form-input:focus { border-color:var(--color-tx) }
 
 /* ── Overlay / Modal ─────────────────────────────────── */
 .modal p { font-size:13px;color:var(--mu);margin-bottom:1rem;line-height:1.6 }

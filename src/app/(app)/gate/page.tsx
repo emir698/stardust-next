@@ -266,7 +266,12 @@ finally { setMailSending(false); }
   }
 
   return (
-    <div>
+    <div style={{ maxWidth: 1200 }}>
+      {/* Sayfa Başlığı */}
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-tx)', letterSpacing: '-0.02em', margin: 0 }}>Bilet Sorgulama</h1>
+        <p style={{ fontSize: 13, color: 'var(--color-mu)', marginTop: 4 }}>PNR veya QR kodu ile bilet ara ve doğrula.</p>
+      </div>
       {/* Tarih + Sorgula */}
       <div className="page-section">
         <div style={{ display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>

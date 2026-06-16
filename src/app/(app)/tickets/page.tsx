@@ -219,10 +219,15 @@ export default function TicketsPage() {
   ]);
 
   return (
-    <div>
+    <div style={{ maxWidth: 1200 }}>
+      {/* Sayfa Başlığı */}
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-tx)', letterSpacing: '-0.02em', margin: 0 }}>Yeni Bilet Satışı</h1>
+        <p style={{ fontSize: 13, color: 'var(--color-mu)', marginTop: 4 }}>Sipariş oluştur, indirim uygula ve işlemi tamamla.</p>
+      </div>
       {/* Tarih Seçici */}
-      <div style={{ display:'flex', alignItems:'center', gap:10, padding:'.6rem 1rem', background:'var(--sf)', border:'1px solid var(--bd)', borderRadius:10, marginBottom:'1rem' }}>
-        <span style={{ fontSize:11, color:'var(--mu)', textTransform:'uppercase', letterSpacing:'.5px', whiteSpace:'nowrap' }}>Tarih</span>
+      <div style={{ display:'flex', alignItems:'center', gap:8, padding:'.6rem 1rem', background:'var(--color-sf)', border:'1px solid var(--color-bd)', borderRadius:8, marginBottom:'1rem' }}>
+        <span style={{ fontSize:11, color:'var(--color-mu)', textTransform:'uppercase', letterSpacing:'.12em', whiteSpace:'nowrap', fontWeight:500 }}>Tarih</span>
         <button
           className={`tarih-picker-buton${selectedTarih !== todayStr() ? ' pasif' : ''}`}
           onClick={() => handleTarihChange(todayStr())}
@@ -241,9 +246,9 @@ export default function TicketsPage() {
           Bu tarihte etkinlik yok — yalnızca Çarşamba, Cuma, Cumartesi ve Pazar seansları mevcuttur.
         </div>
       ) : (
-        <div style={{ background:'var(--sf)', border:'1px solid var(--bd)', borderRadius:10, padding:'.75rem 1rem', marginBottom:'1rem' }}>
-          <div style={{ fontSize:11, color:'var(--mu)', textTransform:'uppercase', letterSpacing:'.5px', marginBottom:'.5rem' }}>
-            Seans Seç — <span style={{ color:'var(--ac)', textTransform:'none' }}>{selectedTarih}</span>
+        <div style={{ background:'var(--color-sf)', border:'1px solid var(--color-bd)', borderRadius:8, padding:'1rem 1.25rem', marginBottom:'1rem' }}>
+          <div style={{ fontSize:11, color:'var(--color-mu)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:'.75rem', fontWeight:500 }}>
+            Seans Seç — <span style={{ color:'var(--color-tx)', textTransform:'none', fontWeight:400 }}>{selectedTarih}</span>
           </div>
           <div className="seans-grid">
             {(saatler ?? []).map((saat) => (
@@ -252,9 +257,9 @@ export default function TicketsPage() {
                 className={`seans-card${selectedSeans === saat ? ' selected' : ''}`}
                 onClick={() => setSelectedSeans(saat)}
               >
-                <div className="seans-label" style={{ fontSize:22, fontWeight:700, color:'#fff' }}>{saat}</div>
+                <div className="seans-label" style={{ fontSize:18, fontWeight:600, color:'var(--color-tx)', fontFamily:'var(--font-mono)' }}>{saat}</div>
                 {/* Gerçek zamanlı satış sayısı — useSatisList'ten */}
-                <div className="seans-sold" style={{ color:'#555' }}>{seansCounts[saat] ?? 0} kişi</div>
+                <div className="seans-sold" style={{ color:'var(--color-mu)', fontSize:12 }}>{seansCounts[saat] ?? 0} kişi</div>
               </div>
             ))}
           </div>
