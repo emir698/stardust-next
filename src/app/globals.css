@@ -2,19 +2,19 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-bg:   #0f0f0f;
-  --color-sf:   #1a1a1a;
-  --color-sf2:  #242424;
-  --color-sf3:  #2a2a2a;
-  --color-bd:   #2a2a2a;
-  --color-bd2:  #3a3a3a;
+  --color-bg:   #09090b;
+  --color-sf:   #111117;
+  --color-sf2:  #18181f;
+  --color-sf3:  #1e1e27;
+  --color-bd:   #27272f;
+  --color-bd2:  #38383f;
   --color-tx:   #f0f0f0;
-  --color-mu:   #666666;
-  --color-mu2:  #888888;
-  --color-ac:   #e8c547;
-  --color-ac-hover: #f0cf5a;
-  --color-btn:  #e8c547;
-  --color-btn-hov: #f0cf5a;
+  --color-mu:   #666672;
+  --color-mu2:  #888894;
+  --color-ac:   #7c3aed;
+  --color-ac-hover: #8b5cf6;
+  --color-btn:  #7c3aed;
+  --color-btn-hov: #8b5cf6;
   --color-gn:   #4ade80;
   --color-rd:   #f87171;
   --color-bl:   #60a5fa;
@@ -60,6 +60,24 @@ body {
 
 /* ── Dark form elements ──────────────────────────────── */
 select, input[type="date"] { color-scheme: dark; }
+
+/* ── Sidebar accent (mor) ─────────────────────────────── */
+:root {
+  --sidebar-ac:        #7c3aed;
+  --sidebar-ac-hover:  #8b5cf6;
+  --sidebar-ac-light:  rgba(124,58,237,0.12);
+}
+
+/* ── Sidebar layout ──────────────────────────────────── */
+.sidebar-desktop { display: flex !important; }
+.sidebar-mobile  { display: none !important; }
+.sidebar-main    { padding-bottom: 0; }
+
+@media (max-width: 768px) {
+  .sidebar-desktop { display: none !important; }
+  .sidebar-mobile  { display: flex !important; }
+  .sidebar-main    { padding-bottom: 72px !important; }
+}
 
 /* ── CSS variable aliases (eski site kısa isimleri) ──── */
 :root {
@@ -140,7 +158,7 @@ td { padding:10px 14px }
 .date-input:focus { border-color:var(--ac) }
 
 /* ── Tarih Picker ────────────────────────────────────── */
-.tarih-picker-buton { padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--ac);background:var(--ac);color:#000;transition:all .15s }
+.tarih-picker-buton { padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--ac);background:var(--ac);color:#fff;transition:all .15s }
 .tarih-picker-buton.pasif { background:var(--sf2);color:var(--tx);border-color:var(--bd) }
 .tarih-picker-buton.pasif:hover { border-color:var(--ac);color:var(--ac) }
 .tarih-picker-date { position:relative;display:flex;align-items:center }
@@ -183,7 +201,7 @@ td { padding:10px 14px }
 .user-name { font-size:13px;font-weight:500 }
 .user-role-txt { font-size:11px;color:var(--mu);margin-top:2px }
 .role-badge { font-size:10px;padding:2px 8px;border-radius:10px;font-family:var(--mo) }
-.role-admin { background:rgba(232,197,71,.12);color:var(--ac);border:1px solid rgba(232,197,71,.3) }
+.role-admin { background:rgba(124,58,237,.12);color:var(--ac);border:1px solid rgba(124,58,237,.3) }
 .role-gise { background:rgba(74,222,128,.08);color:var(--gn);border:1px solid rgba(74,222,128,.2) }
 
 /* ── Form input ──────────────────────────────────────── */
@@ -248,7 +266,7 @@ td { padding:10px 14px }
 .btn { display:inline-flex;align-items:center;justify-content:center;padding:9px 18px;font-size:13px;font-weight:500;border-radius:8px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);cursor:pointer;transition:all .15s }
 .btn:hover { background:var(--sf2) }
 .btn:disabled { opacity:.45;cursor:not-allowed }
-.btn-ac { background:var(--ac);color:#000;border-color:var(--ac) }
+.btn-ac { background:var(--ac);color:#fff;border-color:var(--ac) }
 .btn-ac:hover { background:var(--ac-hover,var(--ac));filter:brightness(1.07) }
 .btn-r  { background:rgba(248,113,113,.1);color:var(--rd);border-color:rgba(248,113,113,.3) }
 

@@ -3,8 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { Topbar } from '@/components/layout/Topbar';
-import { Tabs } from '@/components/layout/Tabs';
+import { Sidebar } from '@/components/layout/Sidebar';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -16,8 +15,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center">
-        <div className="text-mu text-[13px] font-medium">Yükleniyor…</div>
+      <div style={{ minHeight: '100vh', background: 'var(--color-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontSize: 13, color: 'var(--color-mu)', fontFamily: 'var(--font-mono)' }}>Yükleniyor…</div>
       </div>
     );
   }
@@ -25,10 +24,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-bg">
-      <Topbar />
-      <main style={{ width: '100%', padding: '2rem 4rem', boxSizing: 'border-box' }}>
-        <Tabs />
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--color-bg)' }}>
+      <Sidebar />
+      <main className="sidebar-main" style={{ flex: 1, minWidth: 0, padding: '2rem', overflowY: 'auto' }}>
         {children}
       </main>
     </div>
