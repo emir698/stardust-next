@@ -24,8 +24,8 @@ const TICKET_TYPES = [
   { key: 'tam'      as const, label: 'Tam',          sub: '18 yaş üstü',  price: 1500, priceColor: '' },
   { key: 'cocuk'    as const, label: 'Çocuk',         sub: '4–18 yaş',     price: 1200, priceColor: '' },
   { key: 'yabanci'  as const, label: 'Yabancı',       sub: 'Tüm yaşlar',   price: 2250, priceColor: '' },
-  { key: 'davetli'  as const, label: 'Davetli',       sub: 'Ücretsiz giriş', price: 0, priceColor: 'var(--gn)' },
-  { key: 'kurumsal' as const, label: 'Kurumsal Satış', sub: 'Ücretsiz · Toplu', price: 0, priceColor: '#a855f7' },
+  { key: 'davetli'  as const, label: 'Davetli',       sub: 'Ücretsiz giriş', price: 0, priceColor: 'var(--ac)' },
+  { key: 'kurumsal' as const, label: 'Kurumsal Satış', sub: 'Ücretsiz · Toplu', price: 0, priceColor: 'var(--ac)' },
 ];
 
 async function buildQRUrl(text: string): Promise<string> {
@@ -252,9 +252,9 @@ export default function TicketsPage() {
                 className={`seans-card${selectedSeans === saat ? ' selected' : ''}`}
                 onClick={() => setSelectedSeans(saat)}
               >
-                <div className="seans-label" style={{ fontSize:22, fontWeight:700 }}>{saat}</div>
+                <div className="seans-label" style={{ fontSize:22, fontWeight:700, color:'var(--ac)' }}>{saat}</div>
                 {/* Gerçek zamanlı satış sayısı — useSatisList'ten */}
-                <div className="seans-sold">{seansCounts[saat] ?? 0} kişi</div>
+                <div className="seans-sold" style={{ color:'var(--ac)' }}>{seansCounts[saat] ?? 0} kişi</div>
               </div>
             ))}
           </div>
@@ -430,12 +430,13 @@ export default function TicketsPage() {
             </div>
           )}
 
-          <div style={{ display:'flex', gap:10, marginTop:'1.25rem' }}>
-            <Button variant="default" onClick={resetForm}>İptal</Button>
+          <div style={{ display:'flex', gap:16, marginTop:'2rem', justifyContent:'flex-end' }}>
+            <Button variant="default" onClick={resetForm} style={{ padding:'14px 32px', fontSize:15 }}>İptal</Button>
             <Button
               variant="accent"
               disabled={toplam === 0 || !ad.trim()}
               onClick={() => setConfirmOpen(true)}
+              style={{ padding:'14px 40px', fontSize:15 }}
             >
               Satışı Tamamla
             </Button>
