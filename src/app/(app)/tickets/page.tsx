@@ -24,8 +24,8 @@ const TICKET_TYPES = [
   { key: 'tam'      as const, label: 'Tam',          sub: '18 yaş üstü',  price: 1500, priceColor: '' },
   { key: 'cocuk'    as const, label: 'Çocuk',         sub: '4–18 yaş',     price: 1200, priceColor: '' },
   { key: 'yabanci'  as const, label: 'Yabancı',       sub: 'Tüm yaşlar',   price: 2250, priceColor: '' },
-  { key: 'davetli'  as const, label: 'Davetli',       sub: 'Ücretsiz giriş', price: 0, priceColor: 'var(--ac)' },
-  { key: 'kurumsal' as const, label: 'Kurumsal Satış', sub: 'Ücretsiz · Toplu', price: 0, priceColor: 'var(--ac)' },
+  { key: 'davetli'  as const, label: 'Davetli',       sub: 'Ücretsiz giriş', price: 0, priceColor: '' },
+  { key: 'kurumsal' as const, label: 'Kurumsal Satış', sub: 'Ücretsiz · Toplu', price: 0, priceColor: '' },
 ];
 
 async function buildQRUrl(text: string): Promise<string> {
@@ -261,8 +261,9 @@ export default function TicketsPage() {
         </div>
       )}
 
-      {/* Müşteri + Biletler */}
+      {/* Müşteri + Biletler — iki kolon */}
       {selectedSeans && (
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 380px', gap:16, alignItems:'start' }}>
         <div className="page-section">
           <div className="section-title">
             Müşteri Bilgileri — Seans <span style={{ color:'var(--ac)', textTransform:'none', fontWeight:400 }}>{selectedSeans}</span>
@@ -325,6 +326,9 @@ export default function TicketsPage() {
             </div>
           ))}
 
+        </div>
+        {/* Sağ kolon — sepet + indirim + butonlar */}
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           {/* Sepet Özeti */}
           {toplam > 0 && (
             <div className="ozet-box">
@@ -431,16 +435,17 @@ export default function TicketsPage() {
           )}
 
           <div style={{ display:'flex', gap:16, marginTop:'2rem', justifyContent:'flex-end' }}>
-            <Button variant="default" onClick={resetForm} style={{ padding:'14px 32px', fontSize:15 }}>İptal</Button>
+            <Button variant="danger" onClick={resetForm} style={{ padding:'14px 32px', fontSize:15 }}>İptal</Button>
             <Button
               variant="accent"
               disabled={toplam === 0 || !ad.trim()}
               onClick={() => setConfirmOpen(true)}
-              style={{ padding:'14px 40px', fontSize:15 }}
+              style={{ padding:'14px 40px', fontSize:15, background:'#4ade80', color:'#000' }}
             >
               Satışı Tamamla
             </Button>
           </div>
+        </div>
         </div>
       )}
 
