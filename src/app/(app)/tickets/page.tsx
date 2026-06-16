@@ -252,9 +252,9 @@ export default function TicketsPage() {
                 className={`seans-card${selectedSeans === saat ? ' selected' : ''}`}
                 onClick={() => setSelectedSeans(saat)}
               >
-                <div className="seans-label" style={{ fontSize:22, fontWeight:700, color:'var(--ac)' }}>{saat}</div>
+                <div className="seans-label" style={{ fontSize:22, fontWeight:700, color:'#fff' }}>{saat}</div>
                 {/* Gerçek zamanlı satış sayısı — useSatisList'ten */}
-                <div className="seans-sold" style={{ color:'var(--ac)' }}>{seansCounts[saat] ?? 0} kişi</div>
+                <div className="seans-sold" style={{ color:'#555' }}>{seansCounts[saat] ?? 0} kişi</div>
               </div>
             ))}
           </div>
