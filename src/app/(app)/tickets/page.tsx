@@ -435,15 +435,19 @@ export default function TicketsPage() {
           )}
 
           <div style={{ display:'flex', gap:16, marginTop:'2rem', justifyContent:'flex-end' }}>
-            <Button variant="danger" onClick={resetForm} style={{ padding:'14px 32px', fontSize:15 }}>İptal</Button>
-            <Button
-              variant="accent"
+            <button
+              onClick={resetForm}
+              style={{ padding:'14px 32px', fontSize:17, fontWeight:700, background:'#f87171', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', transition:'background .15s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ef4444'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#f87171'; }}
+            >İptal</button>
+            <button
               disabled={toplam === 0 || !ad.trim()}
               onClick={() => setConfirmOpen(true)}
-              style={{ padding:'14px 40px', fontSize:15, background:'#4ade80', color:'#000' }}
-            >
-              Satışı Tamamla
-            </Button>
+              style={{ padding:'14px 40px', fontSize:17, fontWeight:700, background:'#4ade80', color:'#000', border:'none', borderRadius:8, cursor: toplam === 0 || !ad.trim() ? 'default' : 'pointer', transition:'background .15s', opacity: toplam === 0 || !ad.trim() ? 0.4 : 1 }}
+              onMouseEnter={e => { if (!(e.currentTarget as HTMLButtonElement).disabled) (e.currentTarget as HTMLButtonElement).style.background = '#22c55e'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#4ade80'; }}
+            >Satışı Tamamla</button>
           </div>
         </div>
         </div>
