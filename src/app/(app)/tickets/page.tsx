@@ -252,9 +252,9 @@ export default function TicketsPage() {
                 className={`seans-card${selectedSeans === saat ? ' selected' : ''}`}
                 onClick={() => setSelectedSeans(saat)}
               >
-                <div className="seans-label" style={{ fontSize:22, fontWeight:700, color:'#fff' }}>{saat}</div>
+                <div className="seans-label" style={{ fontSize:22, fontWeight:700, color:'var(--ac)' }}>{saat}</div>
                 {/* Gerçek zamanlı satış sayısı — useSatisList'ten */}
-                <div className="seans-sold" style={{ color:'#888' }}>{seansCounts[saat] ?? 0} kişi</div>
+                <div className="seans-sold" style={{ color:'var(--ac)' }}>{seansCounts[saat] ?? 0} kişi</div>
               </div>
             ))}
           </div>
@@ -408,8 +408,8 @@ export default function TicketsPage() {
 
           {/* İndirim Kodu */}
           {toplam > 0 && (
-            <div style={{ marginTop:'0.5rem', background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:8, padding:'0.6rem 0.75rem' }}>
-              <div style={{ fontSize:11, color:'var(--mu)', textTransform:'uppercase', letterSpacing:'.5px', marginBottom:6 }}>İndirim Kodu</div>
+            <div style={{ marginTop:'1rem', background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:10, padding:'1rem' }}>
+              <div style={{ fontSize:12, color:'var(--mu)', textTransform:'uppercase', letterSpacing:'.5px', marginBottom:8 }}>İndirim Kodu</div>
               <div style={{ display:'flex', gap:8 }}>
                 <input
                   type="text"
@@ -435,16 +435,15 @@ export default function TicketsPage() {
           )}
 
           <div style={{ display:'flex', gap:16, marginTop:'2rem', justifyContent:'flex-end' }}>
-            <Button variant="danger" onClick={resetForm} style={{ padding:'14px 32px', fontSize:17, fontWeight:700 }}>İptal</Button>
-            <button
+            <Button variant="danger" onClick={resetForm} style={{ padding:'14px 32px', fontSize:15 }}>İptal</Button>
+            <Button
+              variant="accent"
               disabled={toplam === 0 || !ad.trim()}
               onClick={() => setConfirmOpen(true)}
-              style={{ padding:'14px 40px', fontSize:17, fontWeight:700, background:'#4ade80', color:'#000', border:'none', borderRadius:8, cursor:'pointer', opacity: toplam === 0 || !ad.trim() ? 0.4 : 1, transition:'background .15s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#22c55e'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#4ade80'; }}
+              style={{ padding:'14px 40px', fontSize:15, background:'#4ade80', color:'#000' }}
             >
               Satışı Tamamla
-            </button>
+            </Button>
           </div>
         </div>
         </div>
