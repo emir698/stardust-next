@@ -272,33 +272,40 @@ finally { setMailSending(false); }
         <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-tx)', letterSpacing: '-0.02em', margin: 0 }}>Bilet Sorgulama</h1>
         <p style={{ fontSize: 13, color: 'var(--color-mu)', marginTop: 4 }}>PNR veya QR kodu ile bilet ara ve doğrula.</p>
       </div>
-      {/* Tarih + Sorgula */}
-      <div className="page-section">
-        <div style={{ display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
-          <div style={{ display:'flex', flexDirection:'column', gap:'.4rem' }}>
-            <div className="section-title" style={{ margin:0 }}>Gün Seç</div>
-            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-              <button className={`tarih-picker-buton${selectedTarih !== todayStr() ? ' pasif' : ''}`} onClick={() => setSelectedTarih(todayStr())}>Bugün</button>
-              <div className="tarih-picker-date">
-                <input type="date" value={dateToInput(selectedTarih)} onChange={e => setSelectedTarih(inputToDate(e.target.value))} />
-              </div>
-            </div>
-          </div>
-          <div style={{ width:1, height:40, background:'var(--bd)', margin:'0 4px' }} />
-          <div style={{ display:'flex', flexDirection:'column', gap:'.4rem' }}>
-            <div className="section-title" style={{ margin:0 }}>Sorgula</div>
-            <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-              <input type="text" className="form-input" placeholder="PNR veya ad soyad..." style={{ fontSize:13, width:220 }} value={aramaInput} onChange={e => setAramaInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSorgula()} />
-              <Button variant="accent" size="sm" onClick={handleSorgula}>Sorgula</Button>
-            </div>
-          </div>
+      {/* Arama + Tarih — v0 Ticket Query stili */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center' }}>
+        <div style={{ flex: 1, position: 'relative' }}>
+          <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-mu)', pointerEvents: 'none' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" placeholder="PNR veya ad soyad ile ara..." value={aramaInput}
+            onChange={e => setAramaInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSorgula()}
+            style={{
+              width: '100%', padding: '9px 12px 9px 36px', fontSize: 13,
+              background: 'var(--color-sf)', border: '1px solid var(--color-bd)',
+              borderRadius: 8, color: 'var(--color-tx)', outline: 'none',
+              fontFamily: 'var(--font-sans)', boxSizing: 'border-box',
+            }}
+          />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={() => setSelectedTarih(todayStr())} style={{
+            padding: '7px 14px', fontSize: 12, fontWeight: 500, cursor: 'pointer',
+            background: 'var(--color-sf)', border: '1px solid var(--color-bd)',
+            borderRadius: 6, color: 'var(--color-mu)', transition: 'all .1s',
+          }}>Bugün</button>
+          <input type="date" value={dateToInput(selectedTarih)} onChange={e => setSelectedTarih(inputToDate(e.target.value))} style={{
+            padding: '7px 10px', fontSize: 12, background: 'var(--color-sf)',
+            border: '1px solid var(--color-bd)', borderRadius: 6, color: 'var(--color-tx)',
+            outline: 'none', fontFamily: 'var(--font-mono)', cursor: 'pointer',
+          }} />
+          <Button variant="default" size="sm" onClick={handleSorgula}>Sorgula</Button>
         </div>
       </div>
 
       {/* KPI */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:'1.5rem' }}>
-        <div className="kpi"><div className="kpi-label">Seçili Gün Toplam Bilet</div><div className="kpi-val ac">{toplamBilet}</div></div>
-        <div className="kpi"><div className="kpi-label">Giriş Yapıldı</div><div className="kpi-val gn">{girisYapan}</div></div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, marginBottom:'1.5rem', border:'1px solid var(--color-bd)', borderRadius:8, overflow:'hidden' }}>
+        <div className="kpi"><div className="kpi-label">Seçili Gün Toplam Bilet</div><div className="kpi-val">{toplamBilet}</div></div>
+        <div className="kpi"><div className="kpi-label">Giriş Yapıldı</div><div className="kpi-val">{girisYapan}</div></div>
       </div>
 
       {/* Tablo başlığı + Tümünü ZIP */}

@@ -271,7 +271,7 @@ export default function TicketsPage() {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 380px', gap:16, alignItems:'start' }}>
         <div className="page-section">
           <div className="section-title">
-            Müşteri Bilgileri — Seans <span style={{ color:'var(--ac)', textTransform:'none', fontWeight:400 }}>{selectedSeans}</span>
+            Müşteri Bilgileri — Seans <span style={{ color:'var(--color-tx)', textTransform:'none', fontWeight:400 }}>{selectedSeans}</span>
           </div>
           <div className="musteri-grid">
             <div><Input label="Ad" value={ad} onChange={e => setAd(e.target.value)} placeholder="Ad" /></div>
@@ -311,22 +311,37 @@ export default function TicketsPage() {
           )}
 
           <div className="section-title" style={{ marginTop:'1rem' }}>
-            Bilet Türü — Seans <span style={{ color:'var(--ac)', textTransform:'none', fontWeight:400 }}>{selectedSeans}</span>
+            Bilet Türü — Seans <span style={{ color:'var(--color-tx)', textTransform:'none', fontWeight:400 }}>{selectedSeans}</span>
           </div>
 
-          {TICKET_TYPES.map(tp => (
-            <div className="bilet-row" key={tp.key}>
+          {TICKET_TYPES.map((tp, i) => (
+            <div key={tp.key} style={{
+              display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 16,
+              alignItems: 'center', padding: '14px 0',
+              borderBottom: i < TICKET_TYPES.length - 1 ? '1px solid var(--color-bd)' : 'none',
+            }}>
               <div>
-                <div className="bilet-type-name" style={{ fontSize:16, fontWeight:600 }}>{tp.label}</div>
-                <div className="bilet-type-sub" style={{ fontSize:13 }}>{tp.sub}</div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-tx)' }}>{tp.label}
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--color-mu)', marginLeft: 8, fontWeight: 400 }}>
+                    {tp.price > 0 ? `$${(tp.price / 100).toFixed(2).replace('.', ',')}` : 'Ücretsiz'}
+                  </span>
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--color-mu)', marginTop: 2 }}>{tp.sub}</div>
               </div>
-              <div className="bilet-price" style={{ color:'#fff', fontSize:16, fontWeight:600 }}>
-                {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : '0 ₺'}
-              </div>
-              <div className="bilet-qty">
-                <button className="qty-btn" onClick={() => setQty(q => ({ ...q, [tp.key]: Math.max(0, q[tp.key] - 1) }))}>−</button>
-                <span className="qty-num">{qty[tp.key]}</span>
-                <button className="qty-btn" onClick={() => setQty(q => ({ ...q, [tp.key]: q[tp.key] + 1 }))}>+</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <button onClick={() => setQty(q => ({ ...q, [tp.key]: Math.max(0, q[tp.key] - 1) })) } style={{
+                  width: 28, height: 28, borderRadius: 6, border: '1px solid var(--color-bd)',
+                  background: 'var(--color-sf2)', color: 'var(--color-tx)', fontSize: 16,
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all .1s',
+                }}>−</button>
+                <span style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-mono)', minWidth: 20, textAlign: 'center', color: 'var(--color-tx)' }}>{qty[tp.key]}</span>
+                <button onClick={() => setQty(q => ({ ...q, [tp.key]: q[tp.key] + 1 }))} style={{
+                  width: 28, height: 28, borderRadius: 6, border: '1px solid var(--color-bd)',
+                  background: 'var(--color-sf2)', color: 'var(--color-tx)', fontSize: 16,
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all .1s',
+                }}>+</button>
               </div>
             </div>
           ))}
@@ -334,9 +349,9 @@ export default function TicketsPage() {
         </div>
         {/* Sağ kolon — sepet + indirim + butonlar */}
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-          {/* Sepet Özeti */}
+          {/* Sipariş Özeti */}
           {toplam > 0 && (
-            <div className="ozet-box">
+            <div style={{ background: 'var(--color-sf)', border: '1px solid var(--color-bd)', borderRadius: 8, padding: '1.25rem' }}>
               {/* Aile 2T+1Ç — indirim satırını göster */}
               {p.aile2t1c > 0 && (
                 <>
