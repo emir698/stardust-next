@@ -312,10 +312,10 @@ export default function TicketsPage() {
           {TICKET_TYPES.map(tp => (
             <div className="bilet-row" key={tp.key}>
               <div>
-                <div className="bilet-type-name">{tp.label}</div>
-                <div className="bilet-type-sub">{tp.sub}</div>
+                <div className="bilet-type-name" style={{ fontSize:16, fontWeight:600 }}>{tp.label}</div>
+                <div className="bilet-type-sub" style={{ fontSize:13 }}>{tp.sub}</div>
               </div>
-              <div className="bilet-price" style={tp.priceColor ? { color: tp.priceColor } : {}}>
+              <div className="bilet-price" style={{ color:'#fff', fontSize:16, fontWeight:600 }}>
                 {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : '0 ₺'}
               </div>
               <div className="bilet-qty">
@@ -437,16 +437,16 @@ export default function TicketsPage() {
           <div style={{ display:'flex', gap:16, marginTop:'2rem', justifyContent:'flex-end' }}>
             <button
               onClick={resetForm}
-              style={{ padding:'14px 32px', fontSize:17, fontWeight:700, background:'#f87171', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', transition:'background .15s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ef4444'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#f87171'; }}
+              style={{ padding:'14px 32px', fontSize:17, fontWeight:700, background:'transparent', color:'#f87171', border:'2px solid #f87171', borderRadius:8, cursor:'pointer', transition:'all .15s' }}
+              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background='#f87171'; b.style.color='#fff'; }}
+              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background='transparent'; b.style.color='#f87171'; }}
             >İptal</button>
             <button
               disabled={toplam === 0 || !ad.trim()}
               onClick={() => setConfirmOpen(true)}
-              style={{ padding:'14px 40px', fontSize:17, fontWeight:700, background:'#4ade80', color:'#000', border:'none', borderRadius:8, cursor: toplam === 0 || !ad.trim() ? 'default' : 'pointer', transition:'background .15s', opacity: toplam === 0 || !ad.trim() ? 0.4 : 1 }}
-              onMouseEnter={e => { if (!(e.currentTarget as HTMLButtonElement).disabled) (e.currentTarget as HTMLButtonElement).style.background = '#22c55e'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#4ade80'; }}
+              style={{ padding:'14px 40px', fontSize:17, fontWeight:700, background:'transparent', color:'#4ade80', border:'2px solid #4ade80', borderRadius:8, cursor: toplam === 0 || !ad.trim() ? 'default' : 'pointer', transition:'all .15s', opacity: toplam === 0 || !ad.trim() ? 0.4 : 1 }}
+              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; if (!b.disabled) { b.style.background='#4ade80'; b.style.color='#000'; } }}
+              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background='transparent'; b.style.color='#4ade80'; }}
             >Satışı Tamamla</button>
           </div>
         </div>
