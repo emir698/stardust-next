@@ -14,13 +14,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'STARDUST',
+  title: 'Stardust Ticket',
   description: 'Stardust Box Office bilet kontrol uygulaması',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'STARDUST',
+    title: 'Stardust Ticket',
   },
   icons: {
     apple: '/icons/icon-180.png',
