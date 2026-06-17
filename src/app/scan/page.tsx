@@ -718,8 +718,6 @@ export default function ScanPage() {
                 autoCorrect="off"
                 autoCapitalize="characters"
                 spellCheck={false}
-                // @ts-expect-error — virtualKeyboardPolicy henüz React tiplerinde yok, Chrome/WebView destekliyor
-                virtualKeyboardPolicy="manual"
                 onChange={e => handleBarcodeInput(e.target.value)}
                 onKeyDown={handleBarcodeKeyDown}
               />
