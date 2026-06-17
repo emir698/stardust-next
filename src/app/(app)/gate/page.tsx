@@ -52,15 +52,6 @@ function safeName(satis: Satis): string {
   return (satis.musteriAd ?? 'musteri').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_À-ɏ]/g, '');
 }
 
-async function downloadPNRPdf(satis: Satis) {
-  const biletNolar = getBiletNolar(satis);
-  const doc = new jsPDF({ unit: 'mm', format: [90, 140] });
-  for (let i = 0; i < biletNolar.length; i++) {
-    await buildTicketPage(doc, i, biletNolar[i], satis);
-  }
-  doc.save(`${satis.pnr}_${safeName(satis)}.pdf`);
-}
-
 async function downloadPNRZip(satis: Satis) {
   const zip = new JSZip();
   const biletNolar = getBiletNolar(satis);
@@ -115,7 +106,6 @@ export default function GatePage() {
   const [isimSecimModal, setIsimSecimModal] = useState(false);
   const [isimSecimList, setIsimSecimList] = useState<Satis[]>([]);
   const [zipLoading, setZipLoading] = useState(false);
-  const [pdfLoading, setPdfLoading] = useState<string | null>(null);
   const [zipRowLoading, setZipRowLoading] = useState<string | null>(null);
   const [mailAddress, setMailAddress] = useState('');
   const [mailSending, setMailSending] = useState(false);
@@ -217,13 +207,6 @@ export default function GatePage() {
     await update(ref(db), updates);
     toast(`${bekleyenler.length} bilete giriş verildi!`, 'ok');
     if (detayModal) setDetayModal(false);
-  }
-
-  async function handleBiletiGetir(t: Satis) {
-    setPdfLoading(t.id);
-    try { await downloadPNRPdf(t); }
-    catch { toast('PDF oluşturulamadı', 'err'); }
-    finally { setPdfLoading(null); }
   }
 
   async function handleZipIndir(t: Satis) {
@@ -352,7 +335,7 @@ finally { setMailSending(false); }
                   <td>{t.cocuk ?? 0}</td>
                   <td>{t.yabanci ?? 0}</td>
                   <td>{t.davetli ?? 0}</td>
-                  <td style={{ color:'var(--vi)', fontWeight:600 }}>{t.kurumsal ?? 0}</td>
+                  <td>{t.kurumsal ?? 0}</td>
                   <td className="dc">{t.satisZamani ?? '—'}</td>
                   <td>
                     {kullanildi
@@ -361,11 +344,8 @@ finally { setMailSending(false); }
                     }
                   </td>
                   <td>
-                    <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                    <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
                       <Button size="sm" onClick={() => openDetayModal(t)}>Detay</Button>
-                      <Button size="sm" disabled={pdfLoading === t.id} onClick={() => handleBiletiGetir(t)}>
-                        {pdfLoading === t.id ? '...' : 'Bileti Getir'}
-                      </Button>
                       <Button size="sm" disabled={zipRowLoading === t.id} onClick={() => handleZipIndir(t)}>
                         {zipRowLoading === t.id ? '...' : '↓ ZIP'}
                       </Button>

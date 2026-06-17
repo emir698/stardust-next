@@ -322,12 +322,12 @@ export default function TicketsPage() {
                       {fmtMoney(p.aile2t1c * aileOriginalFiyat2t1c)}
                     </span>
                   </div>
-                  <div className="ozet-row" style={{ color:'var(--ac)' }}>
+                  <div className="ozet-row">
                     <span>🎁 Aile Paketi × {p.aile2t1c}</span>
                     <span>{fmtMoney(p.aile2t1c * 3900)}</span>
                   </div>
                   {aileIndirim2t1c > 0 && (
-                    <div className="ozet-row" style={{ color:'var(--gn)', fontSize:12 }}>
+                    <div className="ozet-row" style={{ color:'var(--mu)', fontSize:12 }}>
                       <span>  ↳ {p.aile2t1c} pakette kazanılan indirim</span>
                       <span>−{fmtMoney(p.aile2t1c * aileIndirim2t1c)}</span>
                     </div>
@@ -337,7 +337,7 @@ export default function TicketsPage() {
 
               {/* Aile 1T+2Ç */}
               {p.aile1t2c > 0 && (
-                <div className="ozet-row" style={{ color:'var(--ac)' }}>
+                <div className="ozet-row">
                   <span>🎁 Aile (1T+2Ç) × {p.aile1t2c}</span>
                   <span>{fmtMoney(p.aile1t2c * 3900)}</span>
                 </div>
@@ -362,7 +362,7 @@ export default function TicketsPage() {
                 </div>
               )}
               {qty.davetli > 0 && (
-                <div className="ozet-row" style={{ color:'var(--gn)' }}>
+                <div className="ozet-row">
                   <span>Davetli × {qty.davetli}</span><span>0₺</span>
                 </div>
               )}

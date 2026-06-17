@@ -23,7 +23,7 @@ const variantClasses: Record<Variant, string> = {
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: 'px-3 py-[5px] text-[12px] rounded-md gap-1',
+  sm: 'px-4 py-[8px] text-[13px] rounded-md gap-1.5',
   md: 'px-4 py-[9px] text-[13px] rounded-lg gap-1.5',
   lg: 'px-5 py-[10px] text-[13px] rounded-lg gap-2',
 };
