@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useSatisList, useCodes, useBatches, useVitoDrivers } from '@/hooks/useFirebaseData';
-import { dateToInput, inputToDate, todayStr, addDays, dateInRange, fmtMoney } from '@/lib/utils';
+import { dateToInput, inputToDate, todayStr, dateInRange, fmtMoney } from '@/lib/utils';
 import { HAFTALIK_SAATLER } from '@/types';
 
 function getAllAktifSaatler(): string[] {
@@ -165,7 +165,7 @@ export default function DashboardPage() {
   const vitoDrivers = useVitoDrivers();
 
   const today = todayStr();
-  const [startDate, setStartDate] = useState(addDays(today, -6));
+  const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(today);
 
   const filtered = useMemo(
@@ -223,7 +223,7 @@ export default function DashboardPage() {
     };
   }).filter(v => v.turSayisi > 0);
 
-  const setHizli = (gun: number) => { setEndDate(today); setStartDate(addDays(today, -gun + 1)); };
+  const setBugun = () => { setStartDate(today); setEndDate(today); };
 
   return (
     <div style={{ maxWidth: 1200 }}>
@@ -235,17 +235,15 @@ export default function DashboardPage() {
           <p style={{ fontSize: 13, color: 'var(--color-mu)', marginTop: 4 }}>Gerçek zamanlı bilet ofisi performansı</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          {[['Bugün', 1], ['7 Gün', 7], ['30 Gün', 30]].map(([label, n]) => (
-            <button key={label as string} onClick={() => setHizli(n as number)} style={{
-              padding: '5px 12px', fontSize: 12, fontWeight: 500,
-              background: 'var(--color-sf)', border: '1px solid var(--color-bd)',
-              borderRadius: 6, color: 'var(--color-mu)', cursor: 'pointer',
-              transition: 'all .1s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-tx)'; e.currentTarget.style.borderColor = 'var(--color-bd2)'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-mu)'; e.currentTarget.style.borderColor = 'var(--color-bd)'; }}
-            >{label as string}</button>
-          ))}
+          <button onClick={setBugun} style={{
+            padding: '5px 12px', fontSize: 12, fontWeight: 500,
+            background: 'var(--color-sf)', border: '1px solid var(--color-bd)',
+            borderRadius: 6, color: 'var(--color-mu)', cursor: 'pointer',
+            transition: 'all .1s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-tx)'; e.currentTarget.style.borderColor = 'var(--color-bd2)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-mu)'; e.currentTarget.style.borderColor = 'var(--color-bd)'; }}
+          >Bugün</button>
           <input type="date" value={dateToInput(startDate)} onChange={e => setStartDate(inputToDate(e.target.value))} style={{
             padding: '5px 10px', fontSize: 12, background: 'var(--color-sf)',
             border: '1px solid var(--color-bd)', borderRadius: 6, color: 'var(--color-tx)',
