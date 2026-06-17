@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 import { watchSatisList, watchPNRler, watchBiletler } from '@/lib/db/tickets';
 import { watchCodes, watchBatches } from '@/lib/db/codes';
-import { watchVitoDrivers } from '@/lib/db/vito';
 import { watchKurumsalPaketler } from '@/lib/db/kurumsal';
 import { watchUsers } from '@/lib/db/users';
-import type { Satis, PNRKayit, IndirimKodu, CodeBatch, VitoDriver, KurumsalPaket, AppUser } from '@/types';
+import type { Satis, PNRKayit, IndirimKodu, CodeBatch, KurumsalPaket, AppUser } from '@/types';
 
 export function useSatisList() {
   const [satisList, setSatisList] = useState<Satis[]>([]);
@@ -30,12 +29,6 @@ export function useBatches() {
   const [batches, setBatches] = useState<CodeBatch[]>([]);
   useEffect(() => watchBatches(setBatches), []);
   return batches;
-}
-
-export function useVitoDrivers() {
-  const [drivers, setDrivers] = useState<VitoDriver[]>([]);
-  useEffect(() => watchVitoDrivers(setDrivers), []);
-  return drivers;
 }
 
 export function useKurumsalPaketler() {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { useSatisList, useCodes, useBatches, useVitoDrivers } from '@/hooks/useFirebaseData';
+import { useSatisList, useCodes, useBatches } from '@/hooks/useFirebaseData';
 import { dateToInput, inputToDate, todayStr, dateInRange, fmtMoney } from '@/lib/utils';
 import { HAFTALIK_SAATLER } from '@/types';
 
@@ -162,7 +162,6 @@ export default function DashboardPage() {
   const satisList = useSatisList();
   const codes = useCodes();
   const batches = useBatches();
-  const vitoDrivers = useVitoDrivers();
 
   const today = todayStr();
   const [startDate, setStartDate] = useState(today);
@@ -210,18 +209,6 @@ export default function DashboardPage() {
     const kul = (b.codes||[]).filter(c => codes.find(x => x?.code === c)?.status === 'deaktif').length;
     return { name: b.name, toplam: tot, kullanilan: kul, aktif: tot - kul };
   }).sort((a, b) => (b.toplam > 0 ? b.kullanilan/b.toplam : 0) - (a.toplam > 0 ? a.kullanilan/a.toplam : 0));
-
-  const vitoSatislar = satisList.filter(t => t.vitoSurucu && dateInRange(t.tarih, startDate, endDate));
-  const vitoRapor = vitoDrivers.map(d => {
-    const turler = vitoSatislar.filter(t => t.vitoSurucu === d._key);
-    return {
-      driver: d,
-      turSayisi: turler.length,
-      toplamKisi: turler.reduce((s,t) => s+(t.tam||0)+(t.cocuk||0)+(t.yabanci||0), 0),
-      toplamHakedis: turler.reduce((s,t) => s+(t.vitoKomisyon||0), 0),
-      turler,
-    };
-  }).filter(v => v.turSayisi > 0);
 
   const setBugun = () => { setStartDate(today); setEndDate(today); };
 
@@ -313,44 +300,6 @@ export default function DashboardPage() {
           <CapacityBar key={g.name} label={g.name} filled={g.kullanilan} total={g.toplam} />
         ))}
       </div>
-
-      {/* Vito Komisyon */}
-      {vitoRapor.length > 0 && (
-        <div style={{ background: 'var(--color-sf)', border: '1px solid var(--color-bd)', borderRadius: 8, padding: 24 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-tx)', marginBottom: 20 }}>Vito Komisyon Raporu</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 1, border: '1px solid var(--color-bd)', borderRadius: 6, overflow: 'hidden', marginBottom: 16 }}>
-            {[
-              { label: 'Toplam Tur', value: vitoRapor.reduce((s,v) => s+v.turSayisi, 0).toString() },
-              { label: 'Toplam Kişi', value: vitoRapor.reduce((s,v) => s+v.toplamKisi, 0).toString() },
-              { label: 'Toplam Hakediş', value: fmtMoney(vitoRapor.reduce((s,v) => s+v.toplamHakedis, 0)) },
-            ].map(item => (
-              <div key={item.label} style={{ padding: '16px 20px', background: 'var(--color-sf2)' }}>
-                <div style={{ fontSize: 11, color: 'var(--color-mu)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>{item.label}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--color-tx)' }}>{item.value}</div>
-              </div>
-            ))}
-          </div>
-          <div className="tw">
-            <table>
-              <thead>
-                <tr><th>Sürücü</th><th>Tarih</th><th>Seans</th><th>Kişi</th><th>Hakediş</th><th>Ödeme</th></tr>
-              </thead>
-              <tbody>
-                {vitoRapor.flatMap(v => v.turler.map(t => (
-                  <tr key={t.id}>
-                    <td style={{ fontWeight: 600 }}>{v.driver.ad}</td>
-                    <td className="dc">{t.tarih}</td>
-                    <td style={{ fontFamily: 'var(--font-mono)' }}>{t.seans}</td>
-                    <td style={{ fontFamily: 'var(--font-mono)' }}>{(t.tam||0)+(t.cocuk||0)+(t.yabanci||0)}</td>
-                    <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{fmtMoney(t.vitoKomisyon||0)}</td>
-                    <td><span className={`badge ${t.vitoOdendi ? 'ba' : 'bdd'}`}>{t.vitoOdendi ? 'Ödendi' : 'Bekliyor'}</span></td>
-                  </tr>
-                )))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

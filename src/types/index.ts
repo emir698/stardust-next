@@ -86,10 +86,6 @@ export interface Satis {
   satisZamani: string;
   kasiyerId: string;
   kasiyerAd: string;
-  vitoSurucu?: string;
-  vitoPlaka?: string;
-  vitoKomisyon?: number;
-  vitoOdendi?: boolean;
 }
 
 // ─── Bilet Miktarları ────────────────────────────────────────────────────────
@@ -131,17 +127,6 @@ export interface CodeBatch {
   indirim: number;
   codes: string[];
   createdAt: string;
-}
-
-// ─── Vito Sürücü ─────────────────────────────────────────────────────────────
-
-export interface VitoDriver {
-  _key: string;
-  ad: string;
-  plaka: string;
-  tel?: string;
-  komisyonOran?: number;
-  aktif: boolean;
 }
 
 // ─── Kurumsal Paket ──────────────────────────────────────────────────────────

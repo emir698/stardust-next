@@ -6,7 +6,7 @@ import { update } from 'firebase/database';
 import { ref } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/hooks/useAuth';
-import { useSatisList, useVitoDrivers, useCodes, useBatches } from '@/hooks/useFirebaseData';
+import { useSatisList, useCodes, useBatches } from '@/hooks/useFirebaseData';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalActions } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
@@ -48,7 +48,6 @@ function buildSeansCounts(satisList: Satis[], tarih: string): Record<string, num
 export default function TicketsPage() {
   const { user } = useAuth();
   const satisList = useSatisList();
-  const vitoDrivers = useVitoDrivers();
   const codes = useCodes();
   const batches = useBatches();
 
@@ -58,7 +57,6 @@ export default function TicketsPage() {
   const [soyad, setSoyad] = useState('');
   const [tel, setTel] = useState('');
   const [mail, setMail] = useState('');
-  const [vitoSurucuKey, setVitoSurucuKey] = useState('');
   const [qty, setQty] = useState<TicketQty>({ ...EMPTY_QTY });
   const [indirimInput, setIndirimInput] = useState('');
   const [aktifIndirimKodu, setAktifIndirimKodu] = useState<IndirimKodu | null>(null);
@@ -80,9 +78,6 @@ export default function TicketsPage() {
   const seansCounts = buildSeansCounts(satisList, selectedTarih);
 
   const toplam = qty.tam + qty.cocuk + qty.yabanci + qty.davetli + qty.kurumsal;
-  const vitoSurucu = vitoDrivers.find(d => d._key === vitoSurucuKey) ?? null;
-  const vitoKomisyon = vitoSurucu ? 500 : 0;
-  const activeDrivers = vitoDrivers.filter(d => d.aktif);
 
   const p = hesaplaFiyat(qty.tam, qty.cocuk, qty.yabanci);
   const indirimTutar = indirimOrani > 0 ? Math.round(p.gelir * indirimOrani) : 0;
@@ -118,7 +113,7 @@ export default function TicketsPage() {
   function resetForm() {
     setSelectedSeans(null);
     setQty({ ...EMPTY_QTY });
-    setAd(''); setSoyad(''); setTel(''); setMail(''); setVitoSurucuKey('');
+    setAd(''); setSoyad(''); setTel(''); setMail('');
     setAktifIndirimKodu(null); setIndirimOrani(0); setIndirimInput(''); setIndirimMsg('');
   }
 
@@ -169,9 +164,6 @@ export default function TicketsPage() {
       biletler: biletNolar.map(no => ({ no, pnr, tur: 'tam', kullanildi: false })),
       ...(aktifIndirimKodu?.code ? { indirimKodu: aktifIndirimKodu.code } : {}),
       ...(indirimOrani > 0 ? { indirimOran: Math.round(indirimOrani * 100) } : {}),
-      ...(vitoSurucu
-        ? { vitoSurucu: vitoSurucu._key, vitoPlaka: vitoSurucu.plaka, vitoKomisyon, vitoOdendi: false }
-        : {}),
     };
 
     const pnrKayit: PNRKayit = {
@@ -215,7 +207,7 @@ export default function TicketsPage() {
   }, [
     selectedSeans, selectedTarih, ad, soyad, tel, mail,
     qty, indirimOrani, indirimTutar, aktifIndirimKodu,
-    vitoSurucu, vitoKomisyon, p, user,
+    p, user,
   ]);
 
   return (
@@ -278,37 +270,7 @@ export default function TicketsPage() {
             <div><Input label="Soyad" value={soyad} onChange={e => setSoyad(e.target.value)} placeholder="Soyad" /></div>
             <div><Input label="Telefon" value={tel} onChange={e => setTel(e.target.value)} placeholder="+90 555 000 00 00" type="tel" /></div>
             <div><Input label="E-posta" value={mail} onChange={e => setMail(e.target.value)} placeholder="musteri@mail.com" type="email" /></div>
-
-            {/* Vito Sürücüsü — opsiyonel */}
-            {activeDrivers.length > 0 && (
-              <div>
-                <label className="form-label">
-                  Vito Sürücüsü <span style={{ color:'var(--mu)', fontSize:10, fontWeight:400 }}>(opsiyonel)</span>
-                </label>
-                <select
-                  className="form-input"
-                  value={vitoSurucuKey}
-                  onChange={e => setVitoSurucuKey(e.target.value)}
-                >
-                  <option value="">— Sürücü yok —</option>
-                  {activeDrivers.map(d => (
-                    <option key={d._key} value={d._key}>{d.ad} · {d.plaka}</option>
-                  ))}
-                </select>
-              </div>
-            )}
           </div>
-
-          {/* Vito seçiliyse özet */}
-          {vitoSurucu && (
-            <div style={{ background:'#1a1500', border:'1px solid #3a2e00', borderRadius:8, padding:'10px 14px', marginBottom:12, fontSize:12 }}>
-              <div style={{ color:'var(--ac)', fontSize:10, textTransform:'uppercase', letterSpacing:'.5px', marginBottom:6 }}>Vito Komisyon</div>
-              <div style={{ display:'flex', justifyContent:'space-between', color:'#aaa' }}>
-                <span>{vitoSurucu.ad} · <span style={{ fontFamily:'var(--mo)', color:'var(--ac)' }}>{vitoSurucu.plaka}</span></span>
-                <span style={{ color:'var(--gn)', fontWeight:600 }}>{fmtMoney(vitoKomisyon)}</span>
-              </div>
-            </div>
-          )}
 
           <div className="section-title" style={{ marginTop:'1rem' }}>
             Bilet Türü — Seans <span style={{ color:'var(--color-tx)', textTransform:'none', fontWeight:400 }}>{selectedSeans}</span>
@@ -490,11 +452,6 @@ export default function TicketsPage() {
           {aktifIndirimKodu && (
             <div style={{ fontSize:13, color:'var(--gn)', marginTop:4 }}>
               Kod: {aktifIndirimKodu.code} (%{Math.round(indirimOrani * 100)} indirim — −{fmtMoney(indirimTutar)})
-            </div>
-          )}
-          {vitoSurucu && (
-            <div style={{ fontSize:13, color:'var(--mu)', marginTop:4 }}>
-              Vito: {vitoSurucu.ad} · {vitoSurucu.plaka} · {fmtMoney(vitoKomisyon)} komisyon
             </div>
           )}
           <div style={{ fontSize:15, fontWeight:600, color:'var(--ac)', marginTop:8, borderTop:'1px solid var(--bd)', paddingTop:8 }}>
