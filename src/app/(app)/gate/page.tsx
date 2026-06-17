@@ -344,7 +344,7 @@ finally { setMailSending(false); }
                     }
                   </td>
                   <td>
-                    <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+                    <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
                       <Button size="sm" onClick={() => openDetayModal(t)}>Detay</Button>
                       <Button size="sm" disabled={zipRowLoading === t.id} onClick={() => handleZipIndir(t)}>
                         {zipRowLoading === t.id ? '...' : '↓ ZIP'}

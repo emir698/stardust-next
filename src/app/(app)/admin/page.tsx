@@ -191,7 +191,7 @@ function KurumsalYonetimi() {
               {p.prefix} · {p.kullanilanAdet}/{p.adet} kullanıldı · {p.baslangic}–{p.bitis}
             </div>
           </div>
-          <div style={{ display:'flex', gap:10 }}>
+          <div style={{ display:'flex', gap:12 }}>
             <Button size="sm" onClick={() => openEdit(p)}>Düzenle</Button>
             <Button variant="danger" size="sm" onClick={() => handleSil(p._key, p.firma)}>Sil</Button>
           </div>
@@ -252,7 +252,7 @@ function TehlikeliIslemler() {
         <div style={{ fontSize:13, fontWeight:600, color:'var(--rd)', textTransform:'uppercase', letterSpacing:'.5px' }}>Tehlikeli İşlemler</div>
       </div>
       <div style={{ padding:'1rem 1.25rem' }}>
-        <div style={{ display:'flex', gap:10 }}>
+        <div style={{ display:'flex', gap:12 }}>
           <Button onClick={handleExport}>📤 Veri Yedeği Al</Button>
           <Button variant="danger" onClick={() => setResetModal(true)}>⚠️ Verileri Sıfırla</Button>
         </div>
