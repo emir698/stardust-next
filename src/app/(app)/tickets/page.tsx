@@ -316,17 +316,16 @@ export default function TicketsPage() {
 
           {TICKET_TYPES.map((tp, i) => (
             <div key={tp.key} style={{
-              display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 16,
+              display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 20,
               alignItems: 'center', padding: '14px 0',
               borderBottom: i < TICKET_TYPES.length - 1 ? '1px solid var(--color-bd)' : 'none',
             }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-tx)' }}>{tp.label}
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--color-mu)', marginLeft: 8, fontWeight: 400 }}>
-                    {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : 'Ücretsiz'}
-                  </span>
-                </div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-tx)' }}>{tp.label}</div>
                 <div style={{ fontSize: 12, color: 'var(--color-mu)', marginTop: 2 }}>{tp.sub}</div>
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 700, fontFamily: 'var(--font-mono)', color: '#ffffff', whiteSpace: 'nowrap', textAlign: 'right' }}>
+                {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : 'Ücretsiz'}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <button onClick={() => setQty(q => ({ ...q, [tp.key]: Math.max(0, q[tp.key] - 1) })) } style={{
