@@ -49,28 +49,26 @@ export default function LoginPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      <div style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 20, padding: '1.75rem', width: '100%', maxWidth: 380 }}>
+      <div style={{ background: '#141414', border: '1px solid #222', borderRadius: 8, padding: '2rem', width: '100%', maxWidth: 380 }}>
 
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ fontSize: 13, letterSpacing: 4, color: '#e8c547', fontWeight: 700, fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif' }}>
-            ✦ ✦ ✦
-          </div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: '#fff', marginTop: 8, letterSpacing: 1, fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ width: 8, height: 8, borderRadius: 2, background: '#ededed', margin: '0 auto 14px' }} />
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#ededed', letterSpacing: '0.2em', fontFamily: 'var(--font-mono), monospace' }}>
             STARDUST
           </div>
         </div>
 
         {/* Error */}
         {error && (
-          <div style={{ fontSize: 13, color: '#f87171', textAlign: 'center', marginBottom: '1rem' }}>
+          <div style={{ fontSize: 13, color: '#888', textAlign: 'center', marginBottom: '1rem', background: '#1a1a1a', border: '1px solid #222', borderRadius: 6, padding: '10px 12px' }}>
             {error}
           </div>
         )}
 
         {/* Form */}
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ fontSize: 12, color: '#666', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 6, display: 'block' }}>
+          <label style={{ fontSize: 11, fontWeight: 500, color: '#666', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8, display: 'block' }}>
             Kullanıcı Adı
           </label>
           <input
@@ -81,14 +79,14 @@ export default function LoginPage() {
             autoCapitalize="none"
             autoComplete="username"
             autoFocus
-            style={{ width: '100%', background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: 12, padding: '14px 16px', color: '#fff', fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif', fontSize: 16, outline: 'none', WebkitAppearance: 'none', transition: 'border .15s', boxSizing: 'border-box' }}
-            onFocus={e => (e.currentTarget.style.borderColor = '#e8c547')}
-            onBlur={e  => (e.currentTarget.style.borderColor = '#2a2a2a')}
+            style={{ width: '100%', background: '#0a0a0a', border: '1px solid #222', borderRadius: 8, padding: '13px 14px', color: '#ededed', fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif', fontSize: 16, outline: 'none', WebkitAppearance: 'none', transition: 'border-color .15s', boxSizing: 'border-box' }}
+            onFocus={e => (e.currentTarget.style.borderColor = '#ededed')}
+            onBlur={e  => (e.currentTarget.style.borderColor = '#222')}
           />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ fontSize: 12, color: '#666', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 6, display: 'block' }}>
+          <label style={{ fontSize: 11, fontWeight: 500, color: '#666', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8, display: 'block' }}>
             Şifre
           </label>
           <input
@@ -98,18 +96,18 @@ export default function LoginPage() {
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
             placeholder="••••••••"
             autoComplete="current-password"
-            style={{ width: '100%', background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: 12, padding: '14px 16px', color: '#fff', fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif', fontSize: 16, outline: 'none', WebkitAppearance: 'none', transition: 'border .15s', boxSizing: 'border-box' }}
-            onFocus={e => (e.currentTarget.style.borderColor = '#e8c547')}
-            onBlur={e  => (e.currentTarget.style.borderColor = '#2a2a2a')}
+            style={{ width: '100%', background: '#0a0a0a', border: '1px solid #222', borderRadius: 8, padding: '13px 14px', color: '#ededed', fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif', fontSize: 16, outline: 'none', WebkitAppearance: 'none', transition: 'border-color .15s', boxSizing: 'border-box' }}
+            onFocus={e => (e.currentTarget.style.borderColor = '#ededed')}
+            onBlur={e  => (e.currentTarget.style.borderColor = '#222')}
           />
         </div>
 
         <button
           onClick={handleLogin}
           disabled={loading || !email || !password}
-          style={{ width: '100%', padding: 16, background: '#e8c547', color: '#000', border: 'none', borderRadius: 14, fontSize: 16, fontWeight: 700, cursor: loading || !email || !password ? 'default' : 'pointer', fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif', marginTop: '.5rem', opacity: loading || !email || !password ? 0.6 : 1, transition: 'background .15s' }}
-          onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#f0cf5a'; }}
-          onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#e8c547'; }}
+          style={{ width: '100%', padding: 14, background: '#ededed', color: '#0a0a0a', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: loading || !email || !password ? 'default' : 'pointer', fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif', marginTop: '.5rem', opacity: loading || !email || !password ? 0.4 : 1, transition: 'background .15s' }}
+          onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#ffffff'; }}
+          onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#ededed'; }}
         >
           {loading ? 'Giriş yapılıyor…' : 'Giriş Yap'}
         </button>
