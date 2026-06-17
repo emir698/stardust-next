@@ -168,7 +168,7 @@ td { padding:10px 14px }
 
 /* ── Seans ───────────────────────────────────────────── */
 .seans-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:8px }
-.seans-card { background:var(--color-sf2);border:1px solid var(--color-bd);border-radius:6px;padding:.75rem .5rem;cursor:pointer;transition:all .15s;text-align:center }
+.seans-card { background:var(--color-sf2);border:1px solid var(--color-bd);border-radius:6px;padding:1.1rem .5rem;cursor:pointer;transition:all .15s;text-align:center }
 .seans-card:hover { border-color:var(--color-tx);background:var(--color-sf3) }
 .seans-card.selected { border-color:var(--color-bd2);background:var(--color-sf2) }
 .seans-no { font-size:28px;font-weight:600;font-family:var(--mo);color:var(--ac) }
