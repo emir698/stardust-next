@@ -323,7 +323,7 @@ export default function TicketsPage() {
               <div>
                 <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-tx)' }}>{tp.label}
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--color-mu)', marginLeft: 8, fontWeight: 400 }}>
-                    {tp.price > 0 ? `$${(tp.price / 100).toFixed(2).replace('.', ',')}` : 'Ücretsiz'}
+                    {tp.price > 0 ? `${tp.price.toLocaleString('tr-TR')} ₺` : 'Ücretsiz'}
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--color-mu)', marginTop: 2 }}>{tp.sub}</div>
