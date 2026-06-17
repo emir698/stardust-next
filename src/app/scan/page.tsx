@@ -554,7 +554,7 @@ export default function ScanPage() {
   if (authLoading || !user) {
     return (
       <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: '#e8c547', fontSize: 13, letterSpacing: 4 }}>✦ STARDUST ✦</div>
+        <div style={{ color: '#ededed', fontSize: 13, letterSpacing: 4, fontFamily: 'monospace' }}>STARDUST</div>
       </div>
     );
   }
@@ -563,93 +563,93 @@ export default function ScanPage() {
 
   return (
     <>
-      {/* ── Global styles (scoped) ── */}
+      {/* ── Global styles (scoped) — v0.dev monokrom tema ── */}
       <style>{`
-        .scan-root { background: #0a0a0a; color: #f0f0f0; min-height: 100vh; max-width: 430px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-        .scan-header { background: #1a1a1a; border-bottom: 1px solid #2a2a2a; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; }
-        .scan-header-logo { font-size: 11px; letter-spacing: 3px; color: #e8c547; font-weight: 700; }
-        .scan-header-sub { font-size: 9px; color: #666; letter-spacing: 2px; margin-top: 1px; }
-        .scan-header-right { display: flex; align-items: center; gap: 8px; }
-        .scan-btn-sm { background: none; border: 1px solid #2a2a2a; border-radius: 8px; padding: 5px 10px; font-size: 11px; color: #666; cursor: pointer; font-family: inherit; }
-        
+        .scan-root { background: #0a0a0a; color: #ededed; min-height: 100vh; max-width: 430px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        .scan-header { background: #0a0a0a; border-bottom: 1px solid #222; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; }
+        .scan-header-logo { font-size: 12px; letter-spacing: 0.2em; color: #ededed; font-weight: 600; font-family: monospace; }
+        .scan-header-sub { font-size: 10px; color: #666; letter-spacing: 0.12em; margin-top: 2px; }
+        .scan-header-right { display: flex; align-items: center; gap: 10px; }
+        .scan-btn-sm { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 6px 12px; font-size: 11px; font-weight: 500; color: #888; cursor: pointer; font-family: inherit; }
+
         /* Seans screen */
-        .seans-screen { padding: 16px; }
-        .seans-title { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
-        .seans-date { font-size: 14px; color: #666; margin-bottom: 20px; }
-        .seans-kart { background: #1a1a1a; border-radius: 16px; margin-bottom: 12px; border: 1.5px solid #2a2a2a; display: flex; align-items: center; cursor: pointer; transition: border .15s, background .15s; }
-        .seans-kart:active { border-color: #e8c547; background: #242424; }
-        .seans-info { padding: 20px 16px; flex: 1; }
-        .seans-saat { font-size: 28px; font-weight: 800; letter-spacing: 1px; }
-        .seans-tarih { font-size: 13px; color: #666; margin-top: 4px; }
-        .seans-stat { font-size: 12px; color: #4ade80; margin-top: 6px; }
-        .seans-chevron { font-size: 20px; color: #666; padding-right: 16px; }
+        .seans-screen { padding: 20px 16px; }
+        .seans-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+        .seans-date { font-size: 13px; color: #666; margin-bottom: 24px; }
+        .seans-kart { background: #141414; border-radius: 8px; margin-bottom: 10px; border: 1px solid #222; display: flex; align-items: center; cursor: pointer; transition: border-color .15s, background .15s; }
+        .seans-kart:active { border-color: #383838; background: #1a1a1a; }
+        .seans-info { padding: 18px 16px; flex: 1; }
+        .seans-saat { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; font-family: monospace; color: #ededed; }
+        .seans-tarih { font-size: 12px; color: #666; margin-top: 4px; font-family: monospace; }
+        .seans-stat { font-size: 12px; color: #888; margin-top: 8px; }
+        .seans-chevron { font-size: 18px; color: #444; padding-right: 16px; }
 
         /* Scan screen */
-        .scan-topbar { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2a2a2a; background: #1a1a1a; gap: 8px; }
-        .back-btn { display: flex; align-items: center; gap: 4px; font-size: 14px; color: #60a5fa; background: none; border: none; cursor: pointer; font-weight: 500; padding: 0; font-family: inherit; flex-shrink: 0; }
-        .seans-label { font-size: 18px; font-weight: 800; color: #e8c547; letter-spacing: 1px; }
-        .stat-pill { font-size: 12px; color: #4ade80; background: rgba(74,222,128,.1); border: 1px solid rgba(74,222,128,.3); border-radius: 20px; padding: 4px 10px; flex-shrink: 0; }
-        .liste-btn { background: #242424; border: 1px solid #2a2a2a; border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 600; color: #f0f0f0; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+        .scan-topbar { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #222; background: #0a0a0a; gap: 8px; }
+        .back-btn { display: flex; align-items: center; gap: 4px; font-size: 13px; color: #888; background: none; border: none; cursor: pointer; font-weight: 500; padding: 0; font-family: inherit; flex-shrink: 0; }
+        .seans-label { font-size: 16px; font-weight: 600; color: #ededed; letter-spacing: -0.01em; font-family: monospace; }
+        .stat-pill { font-size: 11px; font-weight: 500; color: #888; background: #141414; border: 1px solid #222; border-radius: 20px; padding: 4px 10px; flex-shrink: 0; font-family: monospace; }
+        .liste-btn { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 8px 14px; font-size: 12px; font-weight: 500; color: #ededed; cursor: pointer; font-family: inherit; flex-shrink: 0; }
 
         .scan-body { padding: 12px; }
 
         /* Barcode input */
-        .barcode-input { width: 100%; background: #1a2a1a; border: 2px solid #4ade80; border-radius: 12px; padding: 16px; color: #4ade80; font-size: 15px; font-weight: 600; font-family: monospace; outline: none; text-align: center; box-sizing: border-box; margin-bottom: 12px; caret-color: #4ade80; }
-        .barcode-input::placeholder { color: #2a4a2a; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 400; font-size: 13px; }
+        .barcode-input { width: 100%; background: #141414; border: 1.5px solid #ededed; border-radius: 8px; padding: 16px; color: #ededed; font-size: 15px; font-weight: 600; font-family: monospace; outline: none; text-align: center; box-sizing: border-box; margin-bottom: 12px; caret-color: #ededed; }
+        .barcode-input::placeholder { color: #444; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 400; font-size: 13px; }
 
         /* QR card */
-        .qr-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 20px; overflow: hidden; margin-bottom: 16px; }
-        .qr-start-btn { width: 100%; padding: 10px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .qr-icon { font-size: 36px; line-height: 1; }
-        .qr-label { font-size: 22px; font-weight: 700; color: #f0f0f0; }
+        .qr-card { background: #141414; border: 1px solid #222; border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+        .qr-start-btn { width: 100%; padding: 14px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .qr-icon { font-size: 32px; line-height: 1; opacity: 0.7; }
+        .qr-label { font-size: 22px; font-weight: 700; color: #ededed; }
         .qr-sub { font-size: 14px; color: #666; }
-        .qr-stop-btn { width: 100%; padding: 18px; background: #f87171; color: #fff; border: none; cursor: pointer; font-size: 16px; font-weight: 700; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .qr-stop-btn { width: 100%; padding: 16px; background: #ededed; color: #0a0a0a; border: none; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
         #qr-reader { width: 100%; background: #000; display: none; }
         #qr-reader video { width: 100% !important; }
 
         /* Overlay / Sheet */
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 50; align-items: flex-end; justify-content: center; }
         .overlay.open { display: flex; }
-        .sheet { background: #1a1a1a; border-radius: 24px 24px 0 0; width: 100%; max-width: 430px; max-height: 88vh; overflow-y: auto; padding: 20px; }
-        .sheet-handle { width: 36px; height: 4px; background: #2a2a2a; border-radius: 2px; margin: 0 auto 20px; }
-        .r-icon { font-size: 64px; text-align: center; margin-bottom: 12px; line-height: 1; }
-        .r-title { font-size: 26px; font-weight: 800; text-align: center; margin-bottom: 4px; }
-        .r-title.green { color: #4ade80; }
-        .r-title.red { color: #f87171; }
-        .r-name { font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 6px; }
-        .r-info { font-size: 14px; color: #666; text-align: center; margin-bottom: 20px; line-height: 1.7; white-space: pre-line; }
+        .sheet { background: #141414; border-radius: 16px 16px 0 0; width: 100%; max-width: 430px; max-height: 88vh; overflow-y: auto; padding: 20px; border-top: 1px solid #222; }
+        .sheet-handle { width: 36px; height: 4px; background: #2e2e2e; border-radius: 2px; margin: 0 auto 20px; }
+        .r-icon { font-size: 56px; text-align: center; margin-bottom: 12px; line-height: 1; opacity: 0.9; }
+        .r-title { font-size: 22px; font-weight: 600; text-align: center; margin-bottom: 4px; letter-spacing: -0.01em; }
+        .r-title.green { color: #ededed; }
+        .r-title.red { color: #888; }
+        .r-name { font-size: 16px; font-weight: 500; text-align: center; margin-bottom: 6px; color: #ededed; }
+        .r-info { font-size: 13px; color: #888; text-align: center; margin-bottom: 20px; line-height: 1.7; white-space: pre-line; }
 
         /* Bilet items */
-        .bilet-item { background: #242424; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-        .bi-no { font-size: 12px; font-family: monospace; color: #60a5fa; font-weight: 600; }
+        .bilet-item { background: #1a1a1a; border: 1px solid #222; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+        .bi-no { font-size: 12px; font-family: monospace; color: #ededed; font-weight: 600; }
         .bi-tur { font-size: 12px; color: #666; margin-top: 2px; }
-        .bi-cb { width: 22px; height: 22px; accent-color: #e8c547; cursor: pointer; }
-        .bi-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
-        .bi-status.ok { background: rgba(74,222,128,.15); color: #4ade80; }
-        .bi-status.used { background: rgba(248,113,113,.15); color: #f87171; }
+        .bi-cb { width: 20px; height: 20px; accent-color: #ededed; cursor: pointer; }
+        .bi-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; border: 1px solid #2e2e2e; }
+        .bi-status.ok { background: rgba(255,255,255,.06); color: #ededed; border-color: #2e2e2e; }
+        .bi-status.used { background: transparent; color: #555; border-color: #222; }
 
         /* Buttons */
-        .giris-btn { width: 100%; padding: 18px; background: #4ade80; color: #000; border: none; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 12px; font-family: inherit; }
-        .giris-btn:disabled { opacity: .4; cursor: default; }
-        .kapat-btn { width: 100%; padding: 14px; background: #242424; color: #666; border: none; border-radius: 16px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; font-family: inherit; }
+        .giris-btn { width: 100%; padding: 16px; background: #ededed; color: #0a0a0a; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 12px; font-family: inherit; }
+        .giris-btn:disabled { opacity: .3; cursor: default; }
+        .kapat-btn { width: 100%; padding: 14px; background: #1a1a1a; border: 1px solid #222; color: #888; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px; font-family: inherit; }
 
         /* Liste sheet */
-        .liste-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-        .liste-ozet { background: #e8c547; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
-        .liste-ozet-label { font-size: 14px; font-weight: 600; color: #000; }
-        .liste-ozet-sayi { font-size: 22px; font-weight: 800; color: #000; }
-        .liste-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #242424; border-radius: 12px; margin-bottom: 8px; }
-        .li-name { font-size: 14px; font-weight: 500; }
+        .liste-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.01em; }
+        .liste-ozet { background: #1a1a1a; border: 1px solid #222; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .liste-ozet-label { font-size: 13px; font-weight: 500; color: #888; }
+        .liste-ozet-sayi { font-size: 20px; font-weight: 700; color: #ededed; font-family: monospace; }
+        .liste-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #1a1a1a; border: 1px solid #222; border-radius: 8px; margin-bottom: 8px; }
+        .li-name { font-size: 14px; font-weight: 500; color: #ededed; }
         .li-detail { font-size: 12px; color: #666; margin-top: 2px; }
-        .li-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
-        .li-badge.ok { background: rgba(74,222,128,.15); color: #4ade80; }
-        .li-badge.no { background: rgba(248,113,113,.15); color: #f87171; }
+        .li-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; white-space: nowrap; border: 1px solid #2e2e2e; }
+        .li-badge.ok { background: rgba(255,255,255,.06); color: #ededed; }
+        .li-badge.no { background: transparent; color: #555; border-color: #222; }
 
         /* Toast */
-        .scan-toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 14px; padding: 12px 20px; font-size: 14px; font-weight: 500; z-index: 100; opacity: 0; transition: all .25s; pointer-events: none; white-space: nowrap; max-width: 90vw; text-align: center; }
+        .scan-toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: #141414; border: 1px solid #2e2e2e; border-radius: 10px; padding: 12px 20px; font-size: 13px; font-weight: 500; z-index: 100; opacity: 0; transition: all .25s; pointer-events: none; white-space: nowrap; max-width: 90vw; text-align: center; }
         .scan-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .scan-toast.ok { border-color: rgba(74,222,128,.4); color: #4ade80; }
-        .scan-toast.err { border-color: rgba(248,113,113,.4); color: #f87171; }
+        .scan-toast.ok { border-color: #3e3e3e; color: #ededed; }
+        .scan-toast.err { border-color: #2e2e2e; color: #888; }
       `}</style>
 
       <div className="scan-root" onClick={refocusBarcode}>
@@ -657,7 +657,7 @@ export default function ScanPage() {
         {/* ── Header ── */}
         <div className="scan-header">
           <div>
-            <div className="scan-header-logo">✦ STARDUST ✦</div>
+            <div className="scan-header-logo">STARDUST</div>
             <div className="scan-header-sub">TICKET SCAN</div>
           </div>
           <div className="scan-header-right">
