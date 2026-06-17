@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Stardust Ticket Scan',
-    short_name: 'StarScan',
+    name: 'STARDUST',
+    short_name: 'STARDUST',
     description: 'Stardust Box Office bilet kontrol',
     start_url: '/scan',
     scope: '/',
