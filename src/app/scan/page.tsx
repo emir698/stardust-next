@@ -394,15 +394,18 @@ export default function ScanPage() {
       openResultSheet({ icon: '✗', title: 'PNR Bulunamadı', titleCls: 'red', name: '', info: 'Bu PNR sistemde kayıtlı değil.', showGiris: false });
       return;
     }
-    if (p.tarih !== selectedGun || p.seans !== selectedSeans) {
+    // Kurumsal PNR: tüm biletler kurumsal ise tarih/seans kontrolü yapma
+    const biletNoList = p.biletler ?? [];
+    const biletSnaplar = await Promise.all(biletNoList.map(async bno => {
+      const bs = await get(ref(db, `biletler/${bno}`));
+      return bs.val() as BiletDoc | null;
+    }));
+    const tumKurumsal = biletSnaplar.length > 0 && biletSnaplar.every(b => b?.tur === 'kurumsal');
+    if (!tumKurumsal && (p.tarih !== selectedGun || p.seans !== selectedSeans)) {
       openResultSheet({ icon: '⚠️', title: 'Yanlış Seans', titleCls: 'red', name: p.musteriAd, info: `Bu bilet ${p.tarih} · Seans ${p.seans} için geçerlidir.\nŞu an: ${selectedGun} · Seans ${selectedSeans}`, showGiris: false });
       return;
     }
-    const biletNoList = p.biletler ?? [];
-    const results = await Promise.all(biletNoList.map(async bno => {
-      const bs = await get(ref(db, `biletler/${bno}`));
-      return { no: bno, data: bs.val() as BiletDoc | null };
-    }));
+    const results = biletNoList.map((bno, i) => ({ no: bno, data: biletSnaplar[i] }));
     const biletItems: BiletItem[] = results.map(b => ({
       no: b.no,
       tur: b.data?.tur ?? '-',
