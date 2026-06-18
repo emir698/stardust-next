@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useAuth, logout } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { StardustLogo } from '@/components/brand/Logo';
 
 const TicketIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -133,11 +132,8 @@ export function Sidebar() {
 
         {/* Wordmark */}
         <div style={S.logo}>
-          <StardustLogo
-            layout="horizontal"
-            size="sm"
-            style={{ color: 'var(--color-tx)' }}
-          />
+          <span style={S.logoMark} aria-hidden />
+          <span style={S.logoText}>STARDUST</span>
         </div>
 
         {/* Nav */}
