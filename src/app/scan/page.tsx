@@ -431,6 +431,29 @@ export default function ScanPage() {
       openResultSheet({ icon: '✗', title: 'Geçersiz Bilet', titleCls: 'red', name: '', info: 'Bu bilet bulunamadı.', showGiris: false });
       return;
     }
+
+    // Kurumsal biletler: tarih/seans bağımsız, geçerlilik aralığı yok (satış anında belirlendi)
+    if (b.tur === 'kurumsal') {
+      if (b.kullanildi) {
+        openResultSheet({ icon: '✗', title: 'Kullanılmış', titleCls: 'red', name: b.musteriAd ?? '', info: `${b.kullanildiSaat} saatinde giriş yapıldı.`, showGiris: false });
+        return;
+      }
+      const saat = nowSaat();
+      const upd: Record<string, unknown> = {};
+      upd[`biletler/${val}/kullanildi`] = true;
+      upd[`biletler/${val}/kullanildiSaat`] = saat;
+      await update(ref(db), upd);
+      openResultSheet({
+        icon: '✓', title: 'Kurumsal Giriş', titleCls: 'green',
+        name: b.musteriAd ?? 'Kurumsal Misafir',
+        info: `Kurumsal bilet\n${val}`,
+        showGiris: false,
+      });
+      setTimeout(() => closeSheet(), 3000);
+      return;
+    }
+
+    // Bireysel biletler: tarih ve seans eşleşmeli
     if (b.tarih !== selectedGun || b.seans !== selectedSeans) {
       openResultSheet({ icon: '⚠️', title: 'Yanlış Seans', titleCls: 'red', name: b.musteriAd ?? '', info: `Bu bilet ${b.tarih} · Seans ${b.seans} için geçerlidir.\nŞu an: ${selectedGun} · Seans ${selectedSeans}`, showGiris: false });
       return;
