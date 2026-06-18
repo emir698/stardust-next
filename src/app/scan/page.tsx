@@ -417,6 +417,26 @@ export default function ScanPage() {
       openResultSheet({ icon: '✗', title: 'Tümü Kullanılmış', titleCls: 'red', name: p.musteriAd, info: `${p.tarih} · Seans ${p.seans}`, showGiris: false });
       return;
     }
+
+    // Kurumsal PNR: sheet açmadan direkt tüm bekleyen biletlere giriş ver
+    if (tumKurumsal) {
+      const saat = nowSaat();
+      const upd: Record<string, unknown> = {};
+      bekleyenler.forEach(b => {
+        upd[`biletler/${b.no}/kullanildi`] = true;
+        upd[`biletler/${b.no}/kullanildiSaat`] = saat;
+      });
+      await update(ref(db), upd);
+      openResultSheet({
+        icon: '✓', title: 'Kurumsal Giriş', titleCls: 'green',
+        name: p.musteriAd,
+        info: `${bekleyenler.length} bilet onaylandı`,
+        showGiris: false,
+      });
+      setTimeout(() => closeSheet(), 3000);
+      return;
+    }
+
     setCurrentPNR({ pnr: val, bekleyenler });
     openResultSheet({
       icon: '📋', title: 'PNR Bulundu', titleCls: '',
