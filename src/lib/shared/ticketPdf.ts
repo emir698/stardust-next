@@ -6,10 +6,17 @@
  *
  * Tema: beyaz zemin, monokrom (siyah/beyaz/gri), ticket-stub mark.
  * Yıldız / spark YOK.
+ *
+ * Font: Noto Sans (gömülü, base64) — Helvetica/Courier yerine.
+ * jsPDF'in standart fontları (helvetica, courier, times) WinAnsi/Latin-1
+ * kodlamasını kullanır ve Türkçe karakterleri (ı, ş, ğ, ç, ö, ü, İ)
+ * doğru render edemez. Noto Sans tam Unicode desteği sağlar.
  */
 
 import { jsPDF } from 'jspdf';
 import QRCode from 'qrcode';
+import { NotoSansRegularBase64 } from './fonts/NotoSansRegular';
+import { NotoSansBoldBase64 } from './fonts/NotoSansBold';
 
 export interface TicketPdfInput {
   biletNo: string;
@@ -33,6 +40,21 @@ const INK = { r: 10, g: 10, b: 10 };
 const MUTED = { r: 140, g: 140, b: 140 };
 const BORDER = { r: 225, g: 225, b: 225 };
 const CHIP_BG = { r: 244, g: 244, b: 244 };
+
+let fontsRegistered = false;
+
+/**
+ * Noto Sans fontunu jsPDF'in VFS (virtual file system)'ine kaydeder.
+ * Her yeni doc instance'ı için çağrılması gerekir çünkü font, document'a
+ * özel olarak addFont ile bağlanır.
+ */
+function registerFonts(doc: jsPDF) {
+  doc.addFileToVFS('NotoSans-Regular.ttf', NotoSansRegularBase64);
+  doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
+  doc.addFileToVFS('NotoSans-Bold.ttf', NotoSansBoldBase64);
+  doc.addFont('NotoSans-Bold.ttf', 'NotoSans', 'bold');
+  fontsRegistered = true;
+}
 
 function drawTicketMark(doc: jsPDF, cx: number, cy: number, h: number) {
   const ratio = 52 / 60;
@@ -69,6 +91,11 @@ function drawTicketMark(doc: jsPDF, cx: number, cy: number, h: number) {
 export async function drawTicketPage(doc: jsPDF, pageIdx: number, t: TicketPdfInput) {
   if (pageIdx > 0) doc.addPage();
 
+  // Font kaydı her yeni doc instance için bir kez yapılmalı.
+  // pageIdx===0 yeni sayfa demek değil, yeni doc demek olabilir; emniyetle
+  // her çağrıda kontrol ediyoruz (addFont tekrar çağrılırsa sorun olmaz).
+  registerFonts(doc);
+
   const w = doc.internal.pageSize.getWidth();
   const h = doc.internal.pageSize.getHeight();
 
@@ -77,13 +104,13 @@ export async function drawTicketPage(doc: jsPDF, pageIdx: number, t: TicketPdfIn
 
   let y = 16;
   drawTicketMark(doc, w / 2 - 13, y, 7);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('NotoSans', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(INK.r, INK.g, INK.b);
   doc.text('STARDUST', w / 2 + 3, y + 2.2, { align: 'left' });
 
   y += 10;
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('NotoSans', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
   doc.text('Astra Lumina İstanbul', w / 2, y, { align: 'center' });
@@ -95,7 +122,7 @@ export async function drawTicketPage(doc: jsPDF, pageIdx: number, t: TicketPdfIn
 
   y += 9;
   const tarihStr = t.gunAdi ? `${t.gunAdi}, ${t.tarih}` : t.tarih;
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('NotoSans', 'normal');
   doc.setFontSize(10);
   doc.setTextColor(60, 60, 60);
   doc.text(`${tarihStr} · Seans ${t.seans}`, w / 2, y, { align: 'center' });
@@ -112,7 +139,7 @@ export async function drawTicketPage(doc: jsPDF, pageIdx: number, t: TicketPdfIn
   y += qrSize + 7;
 
   const label = TUR_LABEL[t.tur] ?? t.tur;
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('NotoSans', 'bold');
   doc.setFontSize(9);
   const chipPadX = 5;
   const chipTextW = doc.getTextWidth(label);
@@ -125,7 +152,7 @@ export async function drawTicketPage(doc: jsPDF, pageIdx: number, t: TicketPdfIn
   doc.text(label, w / 2, y + chipH / 2 + 1.4, { align: 'center' });
   y += chipH + 6;
 
-  doc.setFont('courier', 'normal');
+  doc.setFont('NotoSans', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
   doc.text(t.biletNo, w / 2, y, { align: 'center' });
@@ -136,7 +163,7 @@ export async function drawTicketPage(doc: jsPDF, pageIdx: number, t: TicketPdfIn
   doc.line(10, y, w - 10, y);
   y += 7;
 
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('NotoSans', 'bold');
   doc.setFontSize(7.3);
   doc.setTextColor(40, 40, 40);
   const kurallarLines = doc.splitTextToSize(
@@ -146,7 +173,7 @@ export async function drawTicketPage(doc: jsPDF, pageIdx: number, t: TicketPdfIn
   doc.text(kurallarLines, 10, y);
   y += kurallarLines.length * 3.3 + 3;
 
-  doc.setFont('helvetica', 'italic');
+  doc.setFont('NotoSans', 'normal');
   doc.setFontSize(6.8);
   doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
   const rulesEn = doc.splitTextToSize(
@@ -161,16 +188,17 @@ export async function drawTicketPage(doc: jsPDF, pageIdx: number, t: TicketPdfIn
   doc.setDrawColor(INK.r, INK.g, INK.b);
   doc.setLineWidth(0.4);
   doc.roundedRect(10, boxY, w - 20, boxH, 2, 2, 'S');
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('NotoSans', 'bold');
   doc.setFontSize(7.3);
   doc.setTextColor(INK.r, INK.g, INK.b);
   doc.text('PDF biletinizi yanınızda veya mobil cihazınızda bulundurmayı unutmayın!', w / 2, boxY + 5.5, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('NotoSans', 'normal');
   doc.setFontSize(6.8);
   doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
   doc.text('PDF biletinizdeki karekod kapıda okutulacaktır.', w / 2, boxY + 10.5, { align: 'center' });
 }
 
 export function newTicketDoc(): jsPDF {
-  return new jsPDF({ unit: 'mm', format: [90, 150] });
+  const doc = new jsPDF({ unit: 'mm', format: [90, 150] });
+  return doc;
 }
