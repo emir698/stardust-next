@@ -12,40 +12,23 @@ import { todayStr, dateToInput, inputToDate, getDayName } from '@/lib/utils';
 import type { Satis } from '@/types';
 import { sendBiletMail } from '@/lib/email';
 import QRCode from 'qrcode';
-import { jsPDF } from 'jspdf';
+import { newTicketDoc, drawTicketPage } from '@/lib/shared/ticketPdf';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 // ─── PDF helpers ──────────────────────────────────────────────────────────────
 
-async function buildTicketPage(doc: jsPDF, pageIdx: number, biletNo: string, satis: Satis) {
-  if (pageIdx > 0) doc.addPage();
-  const qrDataUrl = await QRCode.toDataURL(biletNo, { width: 200, margin: 1, color: { dark: '#000', light: '#fff' } });
-  const w = doc.internal.pageSize.getWidth();
-  doc.setFillColor(255, 255, 255);
-  doc.rect(0, 0, w, doc.internal.pageSize.getHeight(), 'F');
-  doc.setFontSize(8); doc.setTextColor(160, 160, 160);
-  doc.text('✦ STARDUST ✦', w / 2, 18, { align: 'center' });
-  doc.setFontSize(16); doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold');
-  doc.text('Astra Lumina Istanbul', w / 2, 28, { align: 'center' });
-  doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
-  doc.text(`${satis.tarih} — Seans ${satis.seans}`, w / 2, 36, { align: 'center' });
-  doc.setFontSize(11); doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold');
-  doc.text(satis.musteriAd ?? '', w / 2, 44, { align: 'center' });
-  const qrSize = 60;
-  // jsPDF addImage — data URL'den PNG
-const qrBase64 = qrDataUrl.split(',')[1];
-doc.addImage(qrBase64, 'PNG', (w - qrSize) / 2, 52, qrSize, qrSize);
-  doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(160, 160, 160);
-  doc.text(biletNo, w / 2, 120, { align: 'center' });
-  doc.setFontSize(9); doc.setTextColor(80, 80, 80);
-  doc.text(`PNR: ${satis.pnr}`, w / 2, 128, { align: 'center' });
-}
-
 function getBiletNolar(satis: Satis): string[] {
   return (satis.biletler as Array<{ no: string } | string> || []).map(b =>
     typeof b === 'string' ? b : b.no
   );
+}
+
+function getBiletTur(satis: Satis, no: string): string {
+  const found = (satis.biletler as Array<{ no: string; tur?: string }> || []).find(b =>
+    typeof b !== 'string' && b.no === no
+  );
+  return (found && typeof found !== 'string' && found.tur) || 'tam';
 }
 
 function safeName(satis: Satis): string {
@@ -56,8 +39,11 @@ async function downloadPNRZip(satis: Satis) {
   const zip = new JSZip();
   const biletNolar = getBiletNolar(satis);
   for (const no of biletNolar) {
-    const doc = new jsPDF({ unit: 'mm', format: [90, 140] });
-    await buildTicketPage(doc, 0, no, satis);
+    const doc = newTicketDoc();
+    await drawTicketPage(doc, 0, {
+      biletNo: no, tur: getBiletTur(satis, no), musteriAd: satis.musteriAd ?? '',
+      tarih: satis.tarih, seans: satis.seans ?? '', pnr: satis.pnr,
+    });
     zip.file(`${no}.pdf`, doc.output('arraybuffer'));
   }
   const blob = await zip.generateAsync({ type: 'blob' });
@@ -71,14 +57,18 @@ async function downloadAllZip(satisList: Satis[], tarih: string) {
   for (const satis of gunSatislari) {
     const biletNolar = getBiletNolar(satis);
     for (const no of biletNolar) {
-      const doc = new jsPDF({ unit: 'mm', format: [90, 140] });
-      await buildTicketPage(doc, 0, no, satis);
+      const doc = newTicketDoc();
+      await drawTicketPage(doc, 0, {
+        biletNo: no, tur: getBiletTur(satis, no), musteriAd: satis.musteriAd ?? '',
+        tarih: satis.tarih, seans: satis.seans ?? '', pnr: satis.pnr,
+      });
       zip.file(`${satis.pnr}/${no}.pdf`, doc.output('arraybuffer'));
     }
   }
   const blob = await zip.generateAsync({ type: 'blob' });
   saveAs(blob, `biletler_${tarih}.zip`);
 }
+
 
 const TUR_LABEL: Record<string, string> = {
   tam: 'Tam', cocuk: 'Çocuk', yabanci: 'Yabancı', davetli: 'Davetli', kurumsal: 'Kurumsal',
@@ -381,7 +371,12 @@ finally { setMailSending(false); }
                   const kullanildi = biletler[q.no]?.kullanildi;
                   return (
                     <div key={q.no} style={{ background:'#fff', color:'#000', borderRadius:10, padding:'1.25rem', marginBottom:10, border: kullanildi ? '2px solid #ef4444' : '1px solid #eee', opacity: kullanildi ? 0.7 : 1 }}>
-                      <div style={{ fontSize:10, letterSpacing:3, color:'#888', textAlign:'center', marginBottom:4 }}>✦ STARDUST ✦</div>
+                      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, marginBottom:4 }}>
+                        <svg width="13" height="15" viewBox="0 0 52 60" xmlns="http://www.w3.org/2000/svg">
+                          <path fillRule="evenodd" clipRule="evenodd" fill="#0a0a0a" d="M8.5 1 H33.5 Q41 1 41 8.5 V20 A10 10 0 0 0 41 40 V51.5 Q41 59 33.5 59 H8.5 Q1 59 1 51.5 V8.5 Q1 1 8.5 1 Z M7 16 Q7 11 12 11 H27 Q33 11 33 16 V44 Q33 49 28 49 H12 Q7 49 7 44 Z" />
+                        </svg>
+                        <span style={{ fontSize:10, letterSpacing:3, color:'#888', fontWeight:700 }}>STARDUST</span>
+                      </div>
                       <div style={{ fontSize:18, fontWeight:700, textAlign:'center', marginBottom:2 }}>Astra Lumina İstanbul</div>
                       <div style={{ fontSize:12, color:'#555', textAlign:'center', marginBottom:8 }}>
                         {getDayName(detayTarget.tarih, false)}, {detayTarget.tarih} — Seans {detayTarget.seans}

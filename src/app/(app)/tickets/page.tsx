@@ -65,7 +65,7 @@ export default function TicketsPage() {
   const [indirimChecking, setIndirimChecking] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [biletModalOpen, setBiletModalOpen] = useState(false);
-  const [biletlerData, setBiletlerData] = useState<Array<{ no: string; tur: string; qrUrl: string }>>([]);
+  const [biletlerData, setBiletlerData] = useState<Array<{ no: string; tur: string; turLabel: string; qrUrl: string }>>([]);
   const [lastPNR, setLastPNR] = useState('');
   const [lastAdSoyad, setLastAdSoyad] = useState('');
   const [lastTarih, setLastTarih] = useState('');
@@ -138,7 +138,7 @@ export default function TicketsPage() {
 
     const biletNolar: string[] = [];
     const biletlerFirebase: Record<string, Bilet> = {};
-    const biletlerPreview: Array<{ no: string; tur: string; qrUrl: string }> = [];
+    const biletlerPreview: Array<{ no: string; tur: string; turLabel: string; qrUrl: string }> = [];
 
     for (const tp of biletTipleri) {
       const n = qty[tp.key] || 0;
@@ -150,7 +150,7 @@ export default function TicketsPage() {
           tarih: selectedTarih, kullanildi: false,
         };
         const qrUrl = await buildQRUrl(bNo);
-        biletlerPreview.push({ no: bNo, tur: tp.label, qrUrl });
+        biletlerPreview.push({ no: bNo, tur: tp.key, turLabel: tp.label, qrUrl });
       }
     }
 
@@ -201,8 +201,10 @@ export default function TicketsPage() {
     toast(`Satış tamamlandı! ${biletNolar.length} bilet oluşturuldu.`, 'ok');
 
     if (mail.trim()) {
-      sendBiletMail(mail.trim(), pnr, adSoyad, selectedTarih, selectedSeans, biletNolar.length, sonToplam)
-        .catch(() => {/* mail hatası satışı etkilemesin */});
+      sendBiletMail(
+        mail.trim(), pnr, adSoyad, selectedTarih, selectedSeans, biletNolar.length, sonToplam,
+        biletlerPreview.map(b => ({ no: b.no, tur: b.tur }))
+      ).catch(() => {/* mail hatası satışı etkilemesin */});
     }
   }, [
     selectedSeans, selectedTarih, ad, soyad, tel, mail,
@@ -479,7 +481,12 @@ export default function TicketsPage() {
         <div id="biletlerWrap" className="print-area" style={{ marginTop:'1rem' }}>
           {biletlerData.map((b) => (
             <div key={b.no} style={{ background:'#fff', color:'#000', borderRadius:10, padding:'1.25rem', marginBottom:10, fontFamily:'var(--sa)', border:'1px solid #eee' }}>
-              <div style={{ fontSize:10, letterSpacing:3, color:'#888', textAlign:'center', marginBottom:4 }}>✦ STARDUST ✦</div>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, marginBottom:4 }}>
+                <svg width="13" height="15" viewBox="0 0 52 60" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" clipRule="evenodd" fill="#0a0a0a" d="M8.5 1 H33.5 Q41 1 41 8.5 V20 A10 10 0 0 0 41 40 V51.5 Q41 59 33.5 59 H8.5 Q1 59 1 51.5 V8.5 Q1 1 8.5 1 Z M7 16 Q7 11 12 11 H27 Q33 11 33 16 V44 Q33 49 28 49 H12 Q7 49 7 44 Z" />
+                </svg>
+                <span style={{ fontSize:10, letterSpacing:3, color:'#888', fontWeight:700 }}>STARDUST</span>
+              </div>
               <div style={{ fontSize:18, fontWeight:700, textAlign:'center', marginBottom:2 }}>Astra Lumina İstanbul</div>
               <div style={{ fontSize:12, color:'#555', textAlign:'center', marginBottom:8 }}>
                 {getDayName(lastTarih, false)}, {lastTarih} — Seans {lastSeans}
@@ -492,9 +499,9 @@ export default function TicketsPage() {
               <div style={{ textAlign:'center' }}>
                 <span style={{
                   display:'inline-block', padding:'4px 16px', borderRadius:20, fontSize:12, fontWeight:600, margin:'6px 0',
-                  background: b.tur==='Tam' ? '#e8f5e9' : b.tur==='Çocuk' ? '#e3f2fd' : b.tur==='Yabancı' ? '#fff3e0' : b.tur==='Kurumsal Satış' ? 'rgba(168,85,247,.1)' : '#e8f5e9',
-                  color:       b.tur==='Tam' ? '#2e7d32' : b.tur==='Çocuk' ? '#1565c0' : b.tur==='Yabancı' ? '#e65100' : b.tur==='Kurumsal Satış' ? '#a855f7' : '#2e7d32',
-                }}>{b.tur}</span>
+                  background: '#f4f4f4',
+                  color:       '#1a1a1a',
+                }}>{b.turLabel}</span>
               </div>
               <div style={{ fontSize:9, color:'#aaa', textAlign:'center', marginTop:6, fontFamily:'monospace' }}>{b.no}</div>
             </div>
