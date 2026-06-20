@@ -2,14 +2,18 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdk 34
-    namespace 'com.stardust.ticketscan'
+    // NOTE: namespace kept distinct from production (com.stardust.ticketscan)
+    // while this native-webview rewrite is being tested on a separate device.
+    // Switch both namespace + applicationId back to com.stardust.ticketscan
+    // when this is ready to replace the production TWA build.
+    namespace 'com.stardust.ticketscan.dev'
 
     defaultConfig {
-        applicationId "com.stardust.ticketscan"
+        applicationId "com.stardust.ticketscan.dev"
         minSdk 21
         targetSdk 34
         versionCode 1
-        versionName "1.0"
+        versionName "1.0-native-test"
     }
 
     buildTypes {
@@ -26,6 +30,5 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.browser:browser:1.8.0'
-    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+    implementation 'androidx.webkit:webkit:1.10.0'
 }
