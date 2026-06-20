@@ -5,34 +5,34 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.FrameLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 /**
- * Native WebView shell for stardustticket.com/scan.
+ * Native WebView shell for the standalone scan tool at
+ * https://emir698.github.io/stardust/scan.html — a separate static-HTML
+ * project from stardustticket.com, with its own login UI built into the
+ * same page (no separate /login route to worry about).
  *
- * Replaces the previous TWA (Trusted Web Activity) wrapper. This gives us
- * direct access to real Android APIs (InputMethodManager, runtime
- * permissions, key event dispatch) instead of depending on Chrome /
- * Custom Tabs behavior — which is what we need to reliably control the
- * soft keyboard around the Honeywell HID barcode scanner without
- * affecting how the scanner's hardware key events are delivered.
+ * This replaces the old TWA wrapper (which pointed at stardustticket.com)
+ * and the earlier native-WebView attempt that mistakenly also pointed at
+ * stardustticket.com. Direct access to real Android APIs here is what
+ * lets us reliably control the soft keyboard around the Honeywell HID
+ * barcode scanner without affecting how the scanner's hardware key
+ * events are delivered.
  */
 public class MainActivity extends AppCompatActivity {
 
-    private static final String START_URL = "https://stardustticket.com/scan";
-    private static final String ALLOWED_HOST_SUFFIX = "stardustticket.com";
+    private static final String START_URL = "https://emir698.github.io/stardust/scan.html";
+    private static final String ALLOWED_HOST = "emir698.github.io";
     private static final int CAMERA_PERMISSION_REQUEST = 1001;
 
     private WebView webView;
@@ -61,10 +61,10 @@ public class MainActivity extends AppCompatActivity {
         settings.setBuiltInZoomControls(false);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
 
-        // Bridge so the web app can call native Android APIs (e.g. to
-        // dismiss the soft keyboard right after focusing the barcode
-        // input) without affecting hardware key delivery from the
-        // Honeywell scanner.
+        // Bridge so scan.html can call native Android APIs (e.g. to
+        // dismiss the soft keyboard right after focusing #barcodeHidden)
+        // without affecting hardware key delivery from the Honeywell
+        // scanner.
         webView.addJavascriptInterface(new AndroidBridge(), "Android");
 
         webView.setWebViewClient(new WebViewClient() {
@@ -72,41 +72,24 @@ public class MainActivity extends AppCompatActivity {
             public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) {
                 Uri uri = request.getUrl();
                 String host = uri.getHost();
-                if (host != null && (host.equals(ALLOWED_HOST_SUFFIX) || host.endsWith("." + ALLOWED_HOST_SUFFIX))) {
+                if (host != null && host.equals(ALLOWED_HOST)) {
                     return false; // let the WebView load it
                 }
-                // External link (e.g. a "mailto:" or third-party URL) -> hand off to the OS
+                // External link -> hand off to the OS instead of navigating away in-app
                 try {
                     startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, uri));
                 } catch (Exception ignored) {
-                    // No app can handle it; just ignore rather than crash
+                    // No app can handle it; ignore rather than crash
                 }
                 return true;
-            }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                bounceToScanIfElsewhere(view, url);
-            }
-
-            @Override
-            public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
-                super.doUpdateVisitedHistory(view, url, isReload);
-                // Next.js does client-side (SPA) navigation via History API
-                // pushState/replaceState for things like the post-login
-                // router.push('/tickets') — that does NOT trigger a full
-                // page load, so onPageFinished alone would miss it. This
-                // callback fires on those history changes too.
-                bounceToScanIfElsewhere(view, url);
             }
         });
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(PermissionRequest request) {
-                // The QR camera flow calls getUserMedia() in the page;
-                // route that through Android's runtime permission system.
+                // scan.html's QR flow calls getUserMedia(); route that
+                // through Android's runtime permission system.
                 for (String resource : request.getResources()) {
                     if (resource.equals(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
                         if (hasCameraPermission()) {
@@ -132,30 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    /**
-     * This app exists ONLY for barcode/ticket scanning. The site's /login
-     * page currently redirects everyone to /tickets regardless of role —
-     * harmless for the regular website/old TWA build, which shares
-     * Chrome's already-logged-in session and rarely goes through /login
-     * at all. Our WebView has its own separate, fresh session though, so
-     * it always goes through /login -> /tickets. Bounce straight back to
-     * /scan instead of ever showing the admin/sales screens in this app.
-     *
-     * /login itself must stay allowed — /scan redirects unauthenticated
-     * users there, so blocking it would create an infinite bounce loop
-     * (/scan -> /login -> bounced back to /scan -> /login -> ...).
-     */
-    private static final String LOGIN_URL_PREFIX = "https://" + ALLOWED_HOST_SUFFIX + "/login";
-
-    private void bounceToScanIfElsewhere(WebView view, String url) {
-        if (url == null) return;
-        boolean onOurDomain = url.startsWith("https://" + ALLOWED_HOST_SUFFIX);
-        boolean allowed = url.startsWith(START_URL) || url.startsWith(LOGIN_URL_PREFIX);
-        if (onOurDomain && !allowed) {
-            view.post(() -> view.loadUrl(START_URL));
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -179,21 +138,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * The Honeywell EDA51 internal scanner, when set to "Keyboard Wedge"
-     * mode, delivers scans as real hardware KeyEvents. Those reach the
-     * focused WebView/input the same way physical keyboard input does,
-     * so we don't need to do anything special here for scanning itself —
-     * this override exists only as a safety net in case a future build
-     * needs to intercept a specific trigger key (e.g. a side scan
-     * button) at the Activity level instead of in JS.
-     */
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        return super.dispatchKeyEvent(event);
-    }
-
-    /** JS-callable bridge exposed as `window.Android` in the web app. */
+    /** JS-callable bridge exposed as `window.Android` in scan.html. */
     private class AndroidBridge {
         @android.webkit.JavascriptInterface
         public void hideKeyboard() {

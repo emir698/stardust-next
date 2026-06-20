@@ -234,7 +234,7 @@ export default function ScanPage() {
   function selectSeans(saat: string) {
     setSelectedSeans(saat);
     setScreen('scan');
-    setTimeout(() => { focusBarcode(); }, 400);
+    setTimeout(() => { barcodeRef.current?.focus(); }, 400);
   }
 
   function goBack() {
@@ -277,20 +277,8 @@ export default function ScanPage() {
   async function submitBarcode(val: string) {
     if (!barcodeRef.current) return;
     barcodeRef.current.value = '';
-    focusBarcode();
+    barcodeRef.current.focus();
     await islemYap(val);
-  }
-
-  // ── Native app bridge (no-op on regular web / old TWA build) ──────────────
-  // The native WebView wrapper (android/app/src/main/java/.../MainActivity.java)
-  // exposes window.Android.hideKeyboard() via addJavascriptInterface. Calling
-  // it right after focusing the barcode input lets native Android dismiss an
-  // already-shown soft keyboard without touching how the Honeywell scanner's
-  // hardware key events reach the input.
-  function focusBarcode() {
-    barcodeRef.current?.focus();
-    const w = window as unknown as { Android?: { hideKeyboard?: () => void } };
-    w.Android?.hideKeyboard?.();
   }
 
   // ── Keep barcode input focused ─────────────────────────────────────────
@@ -298,7 +286,7 @@ export default function ScanPage() {
   function refocusBarcode() {
     if (screen !== 'scan') return;
     if (sheetType !== 'none') return;
-    focusBarcode();
+    barcodeRef.current?.focus();
   }
 
   // ── QR Camera ─────────────────────────────────────────────────────────────
@@ -560,7 +548,7 @@ export default function ScanPage() {
     setCurrentPNR(null);
     setTimeout(() => {
       barcodeRef.current?.value !== undefined && (barcodeRef.current.value = '');
-      focusBarcode();
+      barcodeRef.current?.focus();
     }, 200);
   }
 
