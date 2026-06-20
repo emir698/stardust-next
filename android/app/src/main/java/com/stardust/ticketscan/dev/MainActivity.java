@@ -83,6 +83,23 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                bounceToScanIfElsewhere(view, url);
+            }
+
+            @Override
+            public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
+                super.doUpdateVisitedHistory(view, url, isReload);
+                // Next.js does client-side (SPA) navigation via History API
+                // pushState/replaceState for things like the post-login
+                // router.push('/tickets') — that does NOT trigger a full
+                // page load, so onPageFinished alone would miss it. This
+                // callback fires on those history changes too.
+                bounceToScanIfElsewhere(view, url);
+            }
         });
 
         webView.setWebChromeClient(new WebChromeClient() {
@@ -113,6 +130,30 @@ public class MainActivity extends AppCompatActivity {
     private boolean hasCameraPermission() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * This app exists ONLY for barcode/ticket scanning. The site's /login
+     * page currently redirects everyone to /tickets regardless of role —
+     * harmless for the regular website/old TWA build, which shares
+     * Chrome's already-logged-in session and rarely goes through /login
+     * at all. Our WebView has its own separate, fresh session though, so
+     * it always goes through /login -> /tickets. Bounce straight back to
+     * /scan instead of ever showing the admin/sales screens in this app.
+     *
+     * /login itself must stay allowed — /scan redirects unauthenticated
+     * users there, so blocking it would create an infinite bounce loop
+     * (/scan -> /login -> bounced back to /scan -> /login -> ...).
+     */
+    private static final String LOGIN_URL_PREFIX = "https://" + ALLOWED_HOST_SUFFIX + "/login";
+
+    private void bounceToScanIfElsewhere(WebView view, String url) {
+        if (url == null) return;
+        boolean onOurDomain = url.startsWith("https://" + ALLOWED_HOST_SUFFIX);
+        boolean allowed = url.startsWith(START_URL) || url.startsWith(LOGIN_URL_PREFIX);
+        if (onOurDomain && !allowed) {
+            view.post(() -> view.loadUrl(START_URL));
+        }
     }
 
     @Override
