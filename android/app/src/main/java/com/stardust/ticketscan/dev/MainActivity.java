@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 bounceToScanIfElsewhere(view, url);
+                injectScanOnlyWatchdog(view);
             }
 
             @Override
@@ -95,9 +96,12 @@ public class MainActivity extends AppCompatActivity {
                 super.doUpdateVisitedHistory(view, url, isReload);
                 // Next.js does client-side (SPA) navigation via History API
                 // pushState/replaceState for things like the post-login
-                // router.push('/tickets') — that does NOT trigger a full
-                // page load, so onPageFinished alone would miss it. This
-                // callback fires on those history changes too.
+                // router.push('/tickets'). This callback is *supposed* to
+                // fire for those too, but in practice it's not reliable on
+                // every WebView version (notably on this Android 10
+                // device) — the JS watchdog injected in onPageFinished is
+                // the mechanism we actually depend on; this is just a
+                // secondary attempt in case it does fire.
                 bounceToScanIfElsewhere(view, url);
             }
         });
@@ -154,6 +158,30 @@ public class MainActivity extends AppCompatActivity {
         if (onOurDomain && !allowed) {
             view.post(() -> view.loadUrl(START_URL));
         }
+    }
+
+    /**
+     * Belt-and-suspenders fix for the same /login -> /tickets problem:
+     * runs *inside* the page itself, polling location.pathname directly,
+     * so it doesn't depend on Android's WebViewClient callbacks firing
+     * for client-side (History API) navigation — which turned out to be
+     * unreliable on this device's WebView. If the path ever drifts away
+     * from /scan (and isn't /login, which must stay reachable so the
+     * unauthenticated redirect from /scan can land there), force a real
+     * navigation back to /scan.
+     */
+    private void injectScanOnlyWatchdog(WebView view) {
+        String js =
+            "(function(){" +
+            "  if(window.__scanWatchdog) return;" +
+            "  window.__scanWatchdog = setInterval(function(){" +
+            "    var p = window.location.pathname;" +
+            "    if(p !== '/scan' && p !== '/login'){" +
+            "      window.location.href = '" + START_URL + "';" +
+            "    }" +
+            "  }, 400);" +
+            "})();";
+        view.evaluateJavascript(js, null);
     }
 
     @Override
