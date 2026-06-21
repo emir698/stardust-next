@@ -188,9 +188,9 @@ export default function ScanPage() {
   // ── Auth guard ────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (!authLoading && !user) { router.replace('/login'); return; }
+    if (!authLoading && !user) { router.replace('/login?next=/scan'); return; }
     if (!authLoading && user && user.role !== 'admin' && user.role !== 'okutma') {
-      router.replace('/login');
+      router.replace('/login?next=/scan');
     }
   }, [user, authLoading, router]);
 

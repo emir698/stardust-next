@@ -35,7 +35,8 @@ export default function LoginPage() {
       const user: AppUser = { uid: cred.user.uid, email: cred.user.email ?? '', name: record.name, role: record.role };
       setUser(user);
       Cookies.set('stardust_session', '1', { expires: 7 });
-      router.push('/tickets');
+      const next = new URLSearchParams(window.location.search).get('next');
+      router.push(next === '/scan' ? '/scan' : '/tickets');
     } catch (err: unknown) {
       const code = (err as { code?: string }).code;
       setError(
