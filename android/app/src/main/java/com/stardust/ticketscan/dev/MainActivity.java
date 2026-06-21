@@ -22,6 +22,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewFeature;
+
+import java.util.Collections;
 
 /**
  * Native WebView shell for stardustticket.com/scan.
@@ -37,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String START_URL = "https://stardustticket.com/scan";
     private static final String ALLOWED_HOST_SUFFIX = "stardustticket.com";
+    private static final String ALLOWED_HOST_SUFFIX_RULE = "https://" + ALLOWED_HOST_SUFFIX;
     private static final int CAMERA_PERMISSION_REQUEST = 1001;
 
     private WebView webView;
@@ -45,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     // Bump this on every change so we can visually confirm, on the device
     // itself, that the running app actually corresponds to the build we
     // think it does — independent of any file-hash/download confusion.
-    private static final String BUILD_TAG = "BUILD v7 — instant-bounce";
+    private static final String BUILD_TAG = "BUILD v8 — early-inject + kb-retry";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +97,18 @@ public class MainActivity extends AppCompatActivity {
         // Honeywell scanner.
         webView.addJavascriptInterface(new AndroidBridge(), "Android");
 
+        // Inject the scan-only watchdog as early as possible — ideally
+        // BEFORE the page's own scripts (Next.js) run, so our
+        // history.pushState/replaceState override is the one Next.js's
+        // router actually calls, instead of Next.js having already
+        // cached a reference to the native function before we patched
+        // it (which is why injecting only in onPageFinished still let
+        // the wrong /tickets screen flash briefly before bouncing back).
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+            WebViewCompat.addDocumentStartJavaScript(
+                webView, watchdogJs(), Collections.singleton(ALLOWED_HOST_SUFFIX_RULE));
+        }
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) {
@@ -113,7 +130,12 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 bounceToScanIfElsewhere(view, url);
-                injectScanOnlyWatchdog(view);
+                if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+                    // Fallback for WebView versions too old to support
+                    // document-start injection — still better than nothing,
+                    // just may flash briefly like before.
+                    view.evaluateJavascript(watchdogJs(), null);
+                }
             }
 
             @Override
@@ -201,8 +223,8 @@ public class MainActivity extends AppCompatActivity {
      * unauthenticated redirect from /scan can land there), force a real
      * navigation back to /scan.
      */
-    private void injectScanOnlyWatchdog(WebView view) {
-        String js =
+    private String watchdogJs() {
+        return
             "(function(){" +
             "  if(window.__scanWatchdog) return;" +
             "  window.__scanWatchdog = true;" +
@@ -229,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
             "  setInterval(check, 200);" + // fallback in case something bypasses both APIs
             "  console.log('[scan-watchdog] installed, path=' + window.location.pathname);" +
             "})();";
-        view.evaluateJavascript(js, null);
     }
 
     @Override
@@ -273,12 +294,20 @@ public class MainActivity extends AppCompatActivity {
     private class AndroidBridge {
         @android.webkit.JavascriptInterface
         public void hideKeyboard() {
-            runOnUiThread(() -> {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(webView.getWindowToken(), 0);
-                }
-            });
+            // Android's IME show request can land slightly AFTER our hide
+            // call (a classic focus/IME race), so a single immediate call
+            // isn't reliable on its own. Repeat it a few times over the
+            // next ~400ms to reliably catch the keyboard regardless of
+            // exactly when Android decides to show it.
+            int[] delaysMs = {0, 50, 120, 250, 400};
+            for (int delay : delaysMs) {
+                webView.postDelayed(() -> {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(webView.getWindowToken(), 0);
+                    }
+                }, delay);
+            }
         }
     }
 }
