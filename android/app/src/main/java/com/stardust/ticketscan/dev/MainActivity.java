@@ -15,6 +15,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
+import android.graphics.Color;
+import android.view.Gravity;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -38,12 +42,33 @@ public class MainActivity extends AppCompatActivity {
     private WebView webView;
     private PermissionRequest pendingWebPermissionRequest;
 
+    // Bump this on every change so we can visually confirm, on the device
+    // itself, that the running app actually corresponds to the build we
+    // think it does — independent of any file-hash/download confusion.
+    private static final String BUILD_TAG = "BUILD v6 — watchdog-fix";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         webView = new WebView(this);
-        setContentView(webView);
+
+        FrameLayout root = new FrameLayout(this);
+        root.addView(webView, new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+
+        TextView badge = new TextView(this);
+        badge.setText(BUILD_TAG);
+        badge.setTextColor(Color.WHITE);
+        badge.setBackgroundColor(Color.parseColor("#CC1565C0"));
+        badge.setTextSize(11);
+        badge.setPadding(12, 4, 12, 4);
+        FrameLayout.LayoutParams badgeParams = new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        badgeParams.gravity = Gravity.TOP | Gravity.END;
+        root.addView(badge, badgeParams);
+
+        setContentView(root);
 
         configureWebView();
         webView.loadUrl(START_URL);
@@ -107,6 +132,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(android.webkit.ConsoleMessage cm) {
+                android.util.Log.d("StardustScanWebView", cm.message() + " [" + cm.sourceId() + ":" + cm.lineNumber() + "]");
+                return true;
+            }
+
             @Override
             public void onPermissionRequest(PermissionRequest request) {
                 // The QR camera flow calls getUserMedia() in the page;
@@ -174,9 +205,11 @@ public class MainActivity extends AppCompatActivity {
         String js =
             "(function(){" +
             "  if(window.__scanWatchdog) return;" +
+            "  console.log('[scan-watchdog] installed, path=' + window.location.pathname);" +
             "  window.__scanWatchdog = setInterval(function(){" +
             "    var p = window.location.pathname;" +
             "    if(p !== '/scan' && p !== '/login'){" +
+            "      console.log('[scan-watchdog] bouncing from ' + p + ' back to /scan');" +
             "      window.location.href = '" + START_URL + "';" +
             "    }" +
             "  }, 400);" +
