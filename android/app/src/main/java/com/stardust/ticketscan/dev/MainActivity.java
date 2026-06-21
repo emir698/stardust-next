@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     // Bump this on every change so we can visually confirm, on the device
     // itself, that the running app actually corresponds to the build we
     // think it does — independent of any file-hash/download confusion.
-    private static final String BUILD_TAG = "BUILD v6 — watchdog-fix";
+    private static final String BUILD_TAG = "BUILD v7 — instant-bounce";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,14 +205,29 @@ public class MainActivity extends AppCompatActivity {
         String js =
             "(function(){" +
             "  if(window.__scanWatchdog) return;" +
-            "  console.log('[scan-watchdog] installed, path=' + window.location.pathname);" +
-            "  window.__scanWatchdog = setInterval(function(){" +
+            "  window.__scanWatchdog = true;" +
+            "  function check(){" +
             "    var p = window.location.pathname;" +
             "    if(p !== '/scan' && p !== '/login'){" +
             "      console.log('[scan-watchdog] bouncing from ' + p + ' back to /scan');" +
-            "      window.location.href = '" + START_URL + "';" +
+            "      window.location.replace('" + START_URL + "');" +
             "    }" +
-            "  }, 400);" +
+            "  }" +
+            "  var origPush = history.pushState;" +
+            "  var origReplace = history.replaceState;" +
+            "  history.pushState = function(){" +
+            "    var r = origPush.apply(history, arguments);" +
+            "    check();" +
+            "    return r;" +
+            "  };" +
+            "  history.replaceState = function(){" +
+            "    var r = origReplace.apply(history, arguments);" +
+            "    check();" +
+            "    return r;" +
+            "  };" +
+            "  window.addEventListener('popstate', check);" +
+            "  setInterval(check, 200);" + // fallback in case something bypasses both APIs
+            "  console.log('[scan-watchdog] installed, path=' + window.location.pathname);" +
             "})();";
         view.evaluateJavascript(js, null);
     }
