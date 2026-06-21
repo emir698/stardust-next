@@ -19,6 +19,9 @@ import android.graphics.Color;
 import android.view.Gravity;
 import android.widget.TextView;
 
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -44,19 +47,53 @@ public class MainActivity extends AppCompatActivity {
     private static final String ALLOWED_HOST_SUFFIX_RULE = "https://" + ALLOWED_HOST_SUFFIX;
     private static final int CAMERA_PERMISSION_REQUEST = 1001;
 
-    private WebView webView;
+    private ImeAwareWebView webView;
     private PermissionRequest pendingWebPermissionRequest;
 
     // Bump this on every change so we can visually confirm, on the device
     // itself, that the running app actually corresponds to the build we
     // think it does — independent of any file-hash/download confusion.
-    private static final String BUILD_TAG = "BUILD v8 — early-inject + kb-retry";
+    private static final String BUILD_TAG = "BUILD v9 — ime-suppress";
+
+    /**
+     * /scan has exactly one text input (the Honeywell barcode field), and
+     * manual typing into it is also done via that same field — there's
+     * no other text input on /scan that needs the soft keyboard. So
+     * instead of fighting a focus/IME timing race with repeated hide()
+     * calls (kept as a secondary safety net below), we cut the soft
+     * keyboard off at the source: returning null from
+     * onCreateInputConnection tells Android there's nothing for an IME
+     * to attach to, so it never even tries to show one. Hardware key
+     * events (the Honeywell scanner in Keyboard Wedge mode) don't go
+     * through InputConnection at all — they're dispatched directly to
+     * the focused view — so this has zero effect on scanning.
+     *
+     * Suppression is gated on suppressIme (toggled per-page in
+     * onPageFinished/doUpdateVisitedHistory below) rather than
+     * hardcoded, so /login — reached rarely now, only as a fallback —
+     * still gets a normal soft keyboard for its email/password fields.
+     */
+    private static class ImeAwareWebView extends WebView {
+        volatile boolean suppressIme = false;
+
+        ImeAwareWebView(Context context) {
+            super(context);
+        }
+
+        @Override
+        public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+            if (suppressIme) {
+                return null;
+            }
+            return super.onCreateInputConnection(outAttrs);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        webView = new WebView(this);
+        webView = new ImeAwareWebView(this);
 
         FrameLayout root = new FrameLayout(this);
         root.addView(webView, new FrameLayout.LayoutParams(
@@ -130,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 bounceToScanIfElsewhere(view, url);
+                updateImeSuppression(url);
                 if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
                     // Fallback for WebView versions too old to support
                     // document-start injection — still better than nothing,
@@ -150,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 // the mechanism we actually depend on; this is just a
                 // secondary attempt in case it does fire.
                 bounceToScanIfElsewhere(view, url);
+                updateImeSuppression(url);
             }
         });
 
@@ -203,6 +242,25 @@ public class MainActivity extends AppCompatActivity {
      * (/scan -> /login -> bounced back to /scan -> /login -> ...).
      */
     private static final String LOGIN_URL_PREFIX = "https://" + ALLOWED_HOST_SUFFIX + "/login";
+
+    /**
+     * /scan: suppress the soft keyboard entirely (see ImeAwareWebView).
+     * Anywhere else (in practice just /login, reached rarely now that
+     * /login can redirect straight back to /scan): allow the normal
+     * soft keyboard, since /login's email/password fields need it.
+     */
+    private void updateImeSuppression(String url) {
+        boolean onScan = url != null && url.startsWith(START_URL);
+        webView.suppressIme = onScan;
+        if (!onScan) {
+            // Leaving /scan (e.g. landing on /login) — if the keyboard
+            // was suppressed, force Android to re-evaluate the input
+            // connection for the currently focused field so the normal
+            // keyboard can appear without needing an extra tap.
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) imm.restartInput(webView);
+        }
+    }
 
     private void bounceToScanIfElsewhere(WebView view, String url) {
         if (url == null) return;
