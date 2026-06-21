@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     // Bump this on every change so we can visually confirm, on the device
     // itself, that the running app actually corresponds to the build we
     // think it does — independent of any file-hash/download confusion.
-    private static final String BUILD_TAG = "BUILD v9 — ime-suppress";
+    private static final String BUILD_TAG = "BUILD v10 — early-ime-suppress";
 
     /**
      * /scan has exactly one text input (the Honeywell barcode field), and
@@ -74,7 +74,13 @@ public class MainActivity extends AppCompatActivity {
      * still gets a normal soft keyboard for its email/password fields.
      */
     private static class ImeAwareWebView extends WebView {
-        volatile boolean suppressIme = false;
+        // Default true: this app's start URL is always /scan, and we'd
+        // rather suppress the keyboard a moment too early (briefly, on
+        // the unlikely path through /login before its own page-start
+        // event flips this back) than too late — once an InputConnection
+        // is established with the keyboard already showing, flipping
+        // this flag alone won't retroactively hide it.
+        volatile boolean suppressIme = true;
 
         ImeAwareWebView(Context context) {
             super(context);
@@ -161,6 +167,17 @@ public class MainActivity extends AppCompatActivity {
                     // No app can handle it; just ignore rather than crash
                 }
                 return true;
+            }
+
+            @Override
+            public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                // Set this as early as possible — before the destination
+                // page's own JS runs and potentially auto-focuses an
+                // input — rather than waiting for onPageFinished, which
+                // can fire well after the page has already shown a
+                // keyboard once.
+                updateImeSuppression(url);
             }
 
             @Override
