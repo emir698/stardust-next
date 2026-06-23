@@ -85,14 +85,21 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
 
         seansLabel.text = selectedSeans
 
-        // The one and only real fix for "soft keyboard shouldn't appear for
-        // a Honeywell-fed field": this is a documented, first-class Android
-        // API for exactly this situation — unlike a WebView, there's no
-        // timing race or InputConnection workaround needed. Physical key
-        // events (the Honeywell scanner in Keyboard Wedge mode) are
-        // dispatched to the focused EditText the normal way regardless.
+        // setShowSoftInputOnFocus(false) is the documented, correct API
+        // for this — but on this Honeywell device it isn't fully
+        // respected on its own. Belt-and-suspenders: also explicitly
+        // hide the IME every time the field gains focus, and again when
+        // the window itself gains focus (covers the keyboard popping up
+        // on activity launch before our focus listener is even wired
+        // up). None of this touches hardware key dispatch — the
+        // Honeywell scanner's key events reach the EditText completely
+        // independently of IME visibility.
         barcodeInput.setShowSoftInputOnFocus(false)
+        barcodeInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) hideKeyboard()
+        }
         barcodeInput.requestFocus()
+        hideKeyboard()
 
         setupBarcodeInput()
 
@@ -115,6 +122,29 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
     override fun onResume() {
         super.onResume()
         refocusBarcode()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            // Catches the case where the system tries to show the
+            // keyboard as soon as the window actually becomes focused
+            // (can happen on activity launch, before any user
+            // interaction) — independent of the focus-change listener
+            // above.
+            hideKeyboard()
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        imm.hideSoftInputFromWindow(barcodeInput.windowToken, 0)
+        // This device's IME has shown up slightly *after* an immediate
+        // hide call before — a couple of short delayed retries catch
+        // that without any visible side effect when the keyboard was
+        // never going to show in the first place.
+        barcodeInput.postDelayed({ imm.hideSoftInputFromWindow(barcodeInput.windowToken, 0) }, 100)
+        barcodeInput.postDelayed({ imm.hideSoftInputFromWindow(barcodeInput.windowToken, 0) }, 300)
     }
 
     private fun updateStatPill() {
@@ -174,6 +204,7 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
 
     private fun refocusBarcode() {
         barcodeInput.requestFocus()
+        hideKeyboard()
     }
 
     // ── QR camera (CameraX + ML Kit) ────────────────────────────────────
