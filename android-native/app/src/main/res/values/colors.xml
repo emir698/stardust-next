@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#0A0A0A</color>
+    <color name="bg">#0A0A0A</color>
+    <color name="surface">#141414</color>
+    <color name="surfaceAlt">#1A1A1A</color>
+    <color name="border">#222222</color>
+    <color name="borderLight">#2E2E2E</color>
+    <color name="textPrimary">#EDEDED</color>
+    <color name="textMuted">#888888</color>
+    <color name="textFaint">#666666</color>
+    <color name="textDim">#444444</color>
+    <color name="white">#FFFFFF</color>
+</resources>

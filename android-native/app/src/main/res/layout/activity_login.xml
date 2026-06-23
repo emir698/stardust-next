@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="STARDUST"
+        android:textColor="@color/textPrimary"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.15"
+        android:fontFamily="monospace"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="40dp"
+        android:text="TICKET SCAN"
+        android:textColor="@color/textFaint"
+        android:textSize="11sp"
+        android:letterSpacing="0.12"
+        android:gravity="center" />
+
+    <EditText
+        android:id="@+id/emailInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_card"
+        android:hint="E-posta"
+        android:textColorHint="@color/textDim"
+        android:textColor="@color/textPrimary"
+        android:inputType="textEmailAddress"
+        android:padding="16dp"
+        android:textSize="14sp"
+        android:singleLine="true" />
+
+    <EditText
+        android:id="@+id/passwordInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/bg_card"
+        android:hint="Şifre"
+        android:textColorHint="@color/textDim"
+        android:textColor="@color/textPrimary"
+        android:inputType="textPassword"
+        android:padding="16dp"
+        android:textSize="14sp"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/errorText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:textColor="@color/textMuted"
+        android:textSize="13sp"
+        android:gravity="center"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_button_light"
+        android:text="Giriş Yap"
+        android:textColor="@color/bg"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:padding="16dp"
+        android:elevation="0dp"
+        android:stateListAnimator="@null" />
+
+    <ProgressBar
+        android:id="@+id/loginProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:visibility="gone" />
+
+</LinearLayout>
