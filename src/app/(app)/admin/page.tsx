@@ -7,7 +7,7 @@ import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/hooks/useAuth';
-import { useSatisList, useCodes, useUsers, useKurumsalPaketler } from '@/hooks/useFirebaseData';
+import { useSatisList, useCodes, useUsers, useKurumsalPaketler, usePNRler, useBiletler } from '@/hooks/useFirebaseData';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
@@ -215,6 +215,66 @@ function KurumsalYonetimi() {
   );
 }
 
+function KurumsalBiletTakibi() {
+  const pnrler   = usePNRler();
+  const biletler = useBiletler();
+  const paketler = useKurumsalPaketler();
+
+  interface FirmaOzet { firma: string; toplam: number; giris: number; }
+
+  const ozet: Record<string, FirmaOzet> = {};
+
+  // 1) PNR üzerinden kişiye özel kesilmiş kurumsal biletler (tur === 'kurumsal')
+  //    Firma adı PNR'deki musteriAd'den gelir (örn. "Koru Sigorta").
+  Object.values(pnrler).forEach(p => {
+    const biletNoList = p.biletler ?? [];
+    const kurumsalNolar = biletNoList.filter(b => biletler[b.no]?.tur === 'kurumsal');
+    if (kurumsalNolar.length === 0) return;
+    const ad = p.musteriAd?.trim() || 'Tanımsız Firma';
+    const giris = kurumsalNolar.filter(b => biletler[b.no]?.kullanildi).length;
+    if (!ozet[ad]) ozet[ad] = { firma: ad, toplam: 0, giris: 0 };
+    ozet[ad].toplam += kurumsalNolar.length;
+    ozet[ad].giris += giris;
+  });
+
+  // 2) Sabit adetli kurumsal paket kodları (örn. tek bir kod ile satılan toplu paketler)
+  paketler.forEach(p => {
+    const ad = p.firma?.trim() || 'Tanımsız Firma';
+    if (!ozet[ad]) ozet[ad] = { firma: ad, toplam: 0, giris: 0 };
+    ozet[ad].toplam += p.adet ?? 0;
+    ozet[ad].giris += p.kullanilanAdet ?? 0;
+  });
+
+  const liste = Object.values(ozet).sort((a, b) => a.firma.localeCompare(b.firma, 'tr'));
+  const genelToplam = liste.reduce((s, f) => s + f.toplam, 0);
+  const genelGiris  = liste.reduce((s, f) => s + f.giris, 0);
+
+  return (
+    <div className="panel">
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1rem' }}>
+        <div className="panel-title" style={{ margin:0 }}>Kurumsal Bilet Takibi</div>
+        <Badge variant="gise">{genelGiris}/{genelToplam} okutuldu</Badge>
+      </div>
+      {liste.length === 0 ? (
+        <div style={{ color:'var(--mu)', fontSize:13, textAlign:'center', padding:'2rem' }}>Henüz kurumsal bilet kaydı yok</div>
+      ) : liste.map(f => {
+        const kalan = f.toplam - f.giris;
+        return (
+          <div key={f.firma} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'var(--sf2)', border:'1px solid var(--bd)', borderRadius:8, padding:'10px 14px', marginBottom:8 }}>
+            <div>
+              <div style={{ fontWeight:600, fontSize:14 }}>{f.firma}</div>
+              <div style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)', marginTop:2 }}>
+                {f.giris}/{f.toplam} okutuldu · {kalan} kaldı
+              </div>
+            </div>
+            <Badge variant={f.giris > 0 ? 'admin' : 'gise'}>{f.giris}/{f.toplam}</Badge>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function TehlikeliIslemler() {
   const satisList = useSatisList();
   const codes     = useCodes();
@@ -296,6 +356,7 @@ export default function AdminPage() {
       <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
         <KullaniciYonetimi />
         <KurumsalYonetimi />
+        <KurumsalBiletTakibi />
         <TehlikeliIslemler />
       </div>
     </div>
