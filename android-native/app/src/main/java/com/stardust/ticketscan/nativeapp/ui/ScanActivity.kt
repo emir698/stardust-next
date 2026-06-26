@@ -179,13 +179,21 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
             override fun afterTextChanged(s: Editable?) {
                 debounceJob?.cancel()
                 val v = s?.toString()?.trim()?.uppercase() ?: return
-                val shouldAutoSubmit = (v.startsWith("SD-") && v.length >= 10) ||
-                    (v.startsWith("PNR-") && v.length >= 10) ||
-                    (v.startsWith("KURUMSAL") && v.length >= 8)
-                if (shouldAutoSubmit) {
+                if (v.isEmpty()) return
+                // Auto-submit on any input pause once there's enough text
+                // to plausibly be a real code — NOT gated on a fixed
+                // SD-/PNR-/KURUMSAL prefix, since companies can set an
+                // arbitrary custom prefix for their kurumsal codes (e.g.
+                // "KORU0001") which would never match a hardcoded list.
+                // The Honeywell scanner fires all characters within a
+                // few ms and then stops; a short pause after that is a
+                // reliable "scan finished" signal regardless of format.
+                if (v.length >= 4) {
                     debounceJob = lifecycleScope.launch {
-                        delay(80)
-                        submitBarcode(v)
+                        delay(120)
+                        if (barcodeInput.text.toString().trim().uppercase() == v) {
+                            submitBarcode(v)
+                        }
                     }
                 }
             }
