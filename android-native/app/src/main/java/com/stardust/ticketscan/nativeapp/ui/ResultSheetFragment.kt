@@ -97,6 +97,13 @@ class ResultSheetFragment : BottomSheetDialogFragment() {
             statusText.text = "Kullanıldı"
             statusText.setBackgroundResource(R.drawable.bg_badge_no)
             statusText.setTextColor(resources.getColor(R.color.textDim, null))
+        } else if (!item.genelYapildi) {
+            // Orman gate only: this ticket hasn't cleared the genel
+            // checkpoint yet, so it can't be given orman entry here.
+            checkbox.visibility = View.GONE
+            statusText.text = "Genel Girişi Yok"
+            statusText.setBackgroundResource(R.drawable.bg_badge_no)
+            statusText.setTextColor(resources.getColor(R.color.textDim, null))
         } else {
             checkbox.visibility = View.VISIBLE
             checkbox.isChecked = working?.checked ?: true

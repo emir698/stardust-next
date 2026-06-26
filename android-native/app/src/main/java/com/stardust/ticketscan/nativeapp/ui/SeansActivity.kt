@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.stardust.ticketscan.nativeapp.R
 import com.stardust.ticketscan.nativeapp.data.BiletDoc
 import com.stardust.ticketscan.nativeapp.data.FirebaseRepository
+import com.stardust.ticketscan.nativeapp.data.Gate
 import com.stardust.ticketscan.nativeapp.data.SeansHelpers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -21,11 +22,13 @@ class SeansActivity : AppCompatActivity() {
     private lateinit var gunText: TextView
     private lateinit var noEventText: TextView
     private lateinit var userNameText: TextView
+    private lateinit var gateBadge: TextView
 
     private var biletler: Map<String, BiletDoc> = emptyMap()
     private var selectedGun: String = ""
     private lateinit var userName: String
     private lateinit var userRole: String
+    private var gate: Gate = Gate.GENEL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,12 +36,21 @@ class SeansActivity : AppCompatActivity() {
 
         userName = intent.getStringExtra("userName") ?: ""
         userRole = intent.getStringExtra("userRole") ?: ""
+        gate = GatePrefs.get(this) ?: Gate.GENEL
 
         seansListContainer = findViewById(R.id.seansListContainer)
         gunText = findViewById(R.id.gunText)
         noEventText = findViewById(R.id.noEventText)
         userNameText = findViewById(R.id.userNameText)
         userNameText.text = userName
+        gateBadge = findViewById(R.id.gateBadge)
+        updateGateBadge()
+        gateBadge.setOnClickListener {
+            startActivity(Intent(this, GateSelectActivity::class.java).apply {
+                putExtra("userName", userName)
+                putExtra("userRole", userRole)
+            })
+        }
 
         findViewById<Button>(R.id.logoutButton).setOnClickListener {
             FirebaseRepository.logout()
@@ -56,6 +68,10 @@ class SeansActivity : AppCompatActivity() {
             }
         }
         renderSeansList()
+    }
+
+    private fun updateGateBadge() {
+        gateBadge.text = if (gate == Gate.GENEL) "🚪 KAPI 1" else "🌲 KAPI 2"
     }
 
     private fun renderSeansList() {
@@ -79,6 +95,7 @@ class SeansActivity : AppCompatActivity() {
                     putExtra("userRole", userRole)
                     putExtra("selectedGun", selectedGun)
                     putExtra("selectedSeans", saat)
+                    putExtra("gate", gate.name)
                 })
             }
             seansListContainer.addView(item)
@@ -87,6 +104,9 @@ class SeansActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Re-read the gate too — staff may have just changed it via the badge.
+        gate = GatePrefs.get(this) ?: Gate.GENEL
+        updateGateBadge()
         // Coming back from ScanActivity ("Geri") — re-resolve in case the
         // day rolled over while the scanner was on the scan screen.
         val freshGun = SeansHelpers.resolveInitialGun()

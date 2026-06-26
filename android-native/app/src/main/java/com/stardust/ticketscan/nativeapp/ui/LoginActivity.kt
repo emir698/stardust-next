@@ -60,10 +60,18 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun goToSeans(name: String, role: String) {
-        startActivity(Intent(this, SeansActivity::class.java).apply {
-            putExtra("userName", name)
-            putExtra("userRole", role)
-        })
+        val savedGate = GatePrefs.get(this)
+        if (savedGate == null) {
+            startActivity(Intent(this, GateSelectActivity::class.java).apply {
+                putExtra("userName", name)
+                putExtra("userRole", role)
+            })
+        } else {
+            startActivity(Intent(this, SeansActivity::class.java).apply {
+                putExtra("userName", name)
+                putExtra("userRole", role)
+            })
+        }
         finish()
     }
 

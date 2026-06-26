@@ -24,6 +24,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.stardust.ticketscan.nativeapp.R
 import com.stardust.ticketscan.nativeapp.data.BiletDoc
 import com.stardust.ticketscan.nativeapp.data.FirebaseRepository
+import com.stardust.ticketscan.nativeapp.data.Gate
 import com.stardust.ticketscan.nativeapp.data.KurumsalPaket
 import com.stardust.ticketscan.nativeapp.data.ResultSheetData
 import kotlinx.coroutines.Job
@@ -39,6 +40,7 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
     private lateinit var barcodeInput: EditText
     private lateinit var seansLabel: TextView
     private lateinit var statPill: TextView
+    private lateinit var gateBanner: TextView
     private lateinit var qrCard: FrameLayout
     private lateinit var cameraPreview: PreviewView
     private lateinit var qrStartButton: Button
@@ -49,6 +51,7 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
     private lateinit var selectedSeans: String
     private lateinit var userName: String
     private lateinit var userRole: String
+    private var gate: Gate = Gate.GENEL
 
     private var biletler: Map<String, BiletDoc> = emptyMap()
     private var kurumsalPaketler: Map<String, KurumsalPaket> = emptyMap()
@@ -73,10 +76,12 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
         userRole = intent.getStringExtra("userRole") ?: ""
         selectedGun = intent.getStringExtra("selectedGun") ?: ""
         selectedSeans = intent.getStringExtra("selectedSeans") ?: ""
+        gate = intent.getStringExtra("gate")?.let { runCatching { Gate.valueOf(it) }.getOrNull() } ?: Gate.GENEL
 
         barcodeInput = findViewById(R.id.barcodeInput)
         seansLabel = findViewById(R.id.seansLabel)
         statPill = findViewById(R.id.statPill)
+        gateBanner = findViewById(R.id.gateBanner)
         qrCard = findViewById(R.id.qrCard)
         cameraPreview = findViewById(R.id.cameraPreview)
         qrStartButton = findViewById(R.id.qrStartButton)
@@ -84,6 +89,13 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
         toastText = findViewById(R.id.toastText)
 
         seansLabel.text = selectedSeans
+        if (gate == Gate.GENEL) {
+            gateBanner.text = "🚪 KAPI 1 · GENEL ALAN GİRİŞİ"
+            gateBanner.setBackgroundColor(resources.getColor(R.color.accentGenel, null))
+        } else {
+            gateBanner.text = "🌲 KAPI 2 · ORMAN GİRİŞİ"
+            gateBanner.setBackgroundColor(resources.getColor(R.color.accentOrman, null))
+        }
 
         // setShowSoftInputOnFocus(false) is the documented, correct API
         // for this — but on this Honeywell device it isn't fully
@@ -148,8 +160,14 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
     }
 
     private fun updateStatPill() {
-        val stat = FirebaseRepository.getSeansIstatistik(biletler, selectedGun, selectedSeans)
-        statPill.text = "${stat.giris}/${stat.toplam}"
+        if (gate == Gate.GENEL) {
+            val stat = FirebaseRepository.getSeansIstatistik(biletler, selectedGun, selectedSeans)
+            statPill.text = "${stat.giris}/${stat.toplam}"
+        } else {
+            val ilgili = biletler.values.filter { it.tarih == selectedGun && it.seans == selectedSeans && it.kullanildi }
+            val ormanGiris = ilgili.count { it.ormanGiris }
+            statPill.text = "$ormanGiris/${ilgili.size}"
+        }
     }
 
     // ── Barcode input (mirrors handleBarcodeInput / handleBarcodeKeyDown) ──
@@ -296,7 +314,7 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
     // ── Core scan logic ──────────────────────────────────────────────────
 
     private suspend fun islemYap(v: String) {
-        val result = FirebaseRepository.islemYap(v, kurumsalPaketler, selectedGun, selectedSeans)
+        val result = FirebaseRepository.islemYap(v, kurumsalPaketler, selectedGun, selectedSeans, gate)
         when (result) {
             is FirebaseRepository.ScanResult.Result -> openResultSheet(result.sheet)
             is FirebaseRepository.ScanResult.PNRFound -> {
@@ -336,15 +354,17 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
 
     override fun onGirisVer(secilenler: List<String>) {
         lifecycleScope.launch {
-            FirebaseRepository.girisVer(currentPnr ?: "", secilenler)
+            FirebaseRepository.girisVer(currentPnr ?: "", secilenler, gate)
             val pnr = currentPnr
-            if (pnr != null && secilenler.size >= currentPnrPendingCount) {
+            if (gate == Gate.GENEL && pnr != null && secilenler.size >= currentPnrPendingCount) {
                 // Every pending ticket on this PNR was given entry — mark
                 // the PNR record itself as fully used too, matching the
-                // web app's behavior.
+                // web app's behavior. Only meaningful at the Genel gate;
+                // the PNR-level flag has nothing to do with Orman.
                 FirebaseRepository.markPnrFullyUsed(pnr)
             }
-            showToast("✓ ${secilenler.size} bilete giriş verildi!", true)
+            val label = if (gate == Gate.GENEL) "bilete giriş verildi" else "bilete orman girişi verildi"
+            showToast("✓ ${secilenler.size} $label!", true)
         }
     }
 

@@ -1,5 +1,8 @@
 package com.stardust.ticketscan.nativeapp.data
 
+/** Which physical checkpoint this device is acting as right now. */
+enum class Gate { GENEL, ORMAN }
+
 /** Mirrors the web app's AppUser (src/types.ts) */
 data class AppUser(
     val uid: String,
@@ -22,22 +25,32 @@ data class PNRDoc(
     val kullanildiSaat: String? = null
 )
 
-/** Mirrors BiletDoc from scan/page.tsx (extends the base Bilet type) */
+/**
+ * Mirrors BiletDoc from scan/page.tsx (extends the base Bilet type), plus
+ * two ADDITIVE fields (ormanGiris/ormanGirisSaat) used only by this native
+ * app for the second checkpoint. The website and its existing
+ * kullanildi/kullanildiSaat fields are untouched — "Genel" gate behavior
+ * is byte-for-byte identical to before.
+ */
 data class BiletDoc(
     val tarih: String = "",
     val seans: String = "",
     val tur: String = "",
     val kullanildi: Boolean = false,
     val musteriAd: String? = null,
-    val kullanildiSaat: String? = null
+    val kullanildiSaat: String? = null,
+    val ormanGiris: Boolean = false,
+    val ormanGirisSaat: String? = null
 )
 
-/** Mirrors KurumsalBilet from scan/page.tsx */
+/** Mirrors KurumsalBilet from scan/page.tsx, + the same additive orman-gate fields. */
 data class KurumsalBilet(
     val kod: String = "",
     val kullanildi: Boolean = false,
     val kullanimTarihi: String? = null,
-    val kullanimSaat: String? = null
+    val kullanimSaat: String? = null,
+    val ormanGiris: Boolean = false,
+    val ormanGirisSaat: String? = null
 )
 
 /** Mirrors KurumsalPaketRaw from scan/page.tsx */
@@ -69,7 +82,12 @@ data class BiletItem(
     val no: String,
     val tur: String,
     val kullanildi: Boolean,
-    var checked: Boolean
+    var checked: Boolean,
+    // Only meaningful at the ORMAN gate: whether this ticket is even
+    // eligible (genel entry already done) and whether orman entry was
+    // already given.
+    val genelYapildi: Boolean = true,
+    val ormanYapildi: Boolean = false
 )
 
 /** Mirrors ResultSheet from scan/page.tsx */

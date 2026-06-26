@@ -28,6 +28,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.GateSelectActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.ScanActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

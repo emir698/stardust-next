@@ -11,4 +11,6 @@
     <color name="textFaint">#666666</color>
     <color name="textDim">#444444</color>
     <color name="white">#FFFFFF</color>
+    <color name="accentGenel">#3B82F6</color>
+    <color name="accentOrman">#22C55E</color>
 </resources>
