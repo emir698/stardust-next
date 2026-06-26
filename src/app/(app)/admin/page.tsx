@@ -153,14 +153,14 @@ function KurumsalYonetimi() {
     }
     const data = {
       firma: firma.trim(), baslangic, bitis,
-      adet: parseInt(adet, 10), kullanilanAdet: 0,
+      adet: parseInt(adet, 10), kullanilan: 0,
       prefix: prefix.trim().toUpperCase(), createdAt: todayStr(),
     };
     if (editKey) {
       const snap = await get(ref(db, `kurumsalPaketler/${editKey}`));
       const old = snap.val() as KurumsalPaket | null;
       await update(ref(db, `kurumsalPaketler/${editKey}`), {
-        ...data, kullanilanAdet: old?.kullanilanAdet ?? 0, createdAt: old?.createdAt ?? todayStr(),
+        ...data, kullanilan: old?.kullanilan ?? 0, createdAt: old?.createdAt ?? todayStr(),
       });
     } else {
       const newRef = ref(db, `kurumsalPaketler/${Date.now().toString(36).toUpperCase()}`);
@@ -188,7 +188,7 @@ function KurumsalYonetimi() {
           <div>
             <div style={{ fontWeight:600, fontSize:14 }}>{p.firma}</div>
             <div style={{ fontSize:12, color:'var(--mu)', fontFamily:'var(--mo)', marginTop:2 }}>
-              {p.prefix} · {p.kullanilanAdet}/{p.adet} kullanıldı · {p.baslangic}–{p.bitis}
+              {p.prefix} · {p.kullanilan}/{p.adet} kullanıldı · {p.baslangic}–{p.bitis}
             </div>
           </div>
           <div style={{ display:'flex', gap:12 }}>
@@ -242,7 +242,7 @@ function KurumsalBiletTakibi() {
     const ad = p.firma?.trim() || 'Tanımsız Firma';
     if (!ozet[ad]) ozet[ad] = { firma: ad, toplam: 0, giris: 0 };
     ozet[ad].toplam += p.adet ?? 0;
-    ozet[ad].giris += p.kullanilanAdet ?? 0;
+    ozet[ad].giris += p.kullanilan ?? 0;
   });
 
   const liste = Object.values(ozet).sort((a, b) => a.firma.localeCompare(b.firma, 'tr'));

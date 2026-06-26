@@ -137,7 +137,7 @@ export interface KurumsalPaket {
   baslangic: string; // DD.MM.YYYY
   bitis: string;     // DD.MM.YYYY
   adet: number;
-  kullanilanAdet: number;
+  kullanilan: number;
   prefix: string;
   createdAt: string;
 }
