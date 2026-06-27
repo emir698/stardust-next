@@ -90,10 +90,10 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
 
         seansLabel.text = selectedSeans
         if (gate == Gate.GENEL) {
-            gateBanner.text = "🚪 KAPI 1 · GENEL ALAN GİRİŞİ"
+            gateBanner.text = "ÖN GİRİŞ"
             gateBanner.setBackgroundColor(resources.getColor(R.color.accentGenel, null))
         } else {
-            gateBanner.text = "🌲 KAPI 2 · ORMAN GİRİŞİ"
+            gateBanner.text = "GİRİŞ"
             gateBanner.setBackgroundColor(resources.getColor(R.color.accentOrman, null))
         }
 

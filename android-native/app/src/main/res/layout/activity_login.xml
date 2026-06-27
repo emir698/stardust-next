@@ -12,9 +12,9 @@
         android:layout_height="wrap_content"
         android:text="STARDUST"
         android:textColor="@color/textPrimary"
-        android:textSize="22sp"
+        android:textSize="24sp"
         android:textStyle="bold"
-        android:letterSpacing="0.15"
+        android:letterSpacing="0.1"
         android:fontFamily="monospace"
         android:gravity="center" />
 
@@ -23,10 +23,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:layout_marginBottom="40dp"
-        android:text="TICKET SCAN"
+        android:text="GATE"
         android:textColor="@color/textFaint"
         android:textSize="11sp"
-        android:letterSpacing="0.12"
+        android:letterSpacing="0.2"
         android:gravity="center" />
 
     <EditText

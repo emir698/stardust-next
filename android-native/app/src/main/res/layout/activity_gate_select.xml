@@ -38,7 +38,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🚪 Kapı 1"
+            android:text="Ön Giriş"
             android:textColor="@color/textPrimary"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -63,7 +63,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🌲 Kapı 2"
+            android:text="Giriş"
             android:textColor="@color/textPrimary"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -71,7 +71,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Orman Girişi (önce genel giriş şart)"
+            android:text="Orman Girişi (önce ön giriş şart)"
             android:textColor="@color/textFaint"
             android:textSize="14sp" />
     </LinearLayout>

@@ -21,7 +21,6 @@ class SeansActivity : AppCompatActivity() {
     private lateinit var seansListContainer: LinearLayout
     private lateinit var gunText: TextView
     private lateinit var noEventText: TextView
-    private lateinit var userNameText: TextView
     private lateinit var gateBadge: TextView
 
     private var biletler: Map<String, BiletDoc> = emptyMap()
@@ -41,8 +40,6 @@ class SeansActivity : AppCompatActivity() {
         seansListContainer = findViewById(R.id.seansListContainer)
         gunText = findViewById(R.id.gunText)
         noEventText = findViewById(R.id.noEventText)
-        userNameText = findViewById(R.id.userNameText)
-        userNameText.text = userName
         gateBadge = findViewById(R.id.gateBadge)
         updateGateBadge()
         gateBadge.setOnClickListener {
@@ -71,7 +68,7 @@ class SeansActivity : AppCompatActivity() {
     }
 
     private fun updateGateBadge() {
-        gateBadge.text = if (gate == Gate.GENEL) "🚪 KAPI 1" else "🌲 KAPI 2"
+        gateBadge.text = if (gate == Gate.GENEL) "Ön Giriş" else "Giriş"
     }
 
     private fun renderSeansList() {

@@ -6,75 +6,78 @@
     android:orientation="vertical">
 
     <!-- Header -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
         android:background="@color/bg"
-        android:padding="16dp">
+        android:paddingTop="20dp"
+        android:paddingBottom="16dp"
+        android:paddingHorizontal="16dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical"
+            android:gravity="center">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="STARDUST"
                 android:textColor="@color/textPrimary"
-                android:textSize="13sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
                 android:fontFamily="monospace"
-                android:letterSpacing="0.15" />
+                android:letterSpacing="0.1" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TICKET SCAN"
+                android:layout_marginTop="2dp"
+                android:text="GATE"
                 android:textColor="@color/textFaint"
-                android:textSize="10sp"
-                android:letterSpacing="0.1" />
+                android:textSize="11sp"
+                android:letterSpacing="0.2" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/gateBadge"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:background="@drawable/bg_pill"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="5dp"
-            android:textColor="@color/textPrimary"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true" />
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/userNameText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:textColor="@color/textFaint"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/gateBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_pill"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                android:textColor="@color/textPrimary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
 
-        <Button
-            android:id="@+id/logoutButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_button_dark"
-            android:text="Çıkış"
-            android:textAllCaps="false"
-            android:textColor="@color/textMuted"
-            android:textSize="11sp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            android:elevation="0dp"
-            android:stateListAnimator="@null" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/logoutButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_button_dark"
+                android:text="Çıkış"
+                android:textAllCaps="false"
+                android:textColor="@color/textMuted"
+                android:textSize="11sp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:elevation="0dp"
+                android:stateListAnimator="@null" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
