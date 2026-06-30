@@ -120,6 +120,11 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
         qrStartButton.setOnClickListener { requestCameraAndStart() }
         qrStopButton.setOnClickListener { stopQr() }
 
+        // Camera is now the primary scanning method — start it
+        // automatically as soon as the screen opens instead of waiting
+        // for a manual tap on the camera icon.
+        requestCameraAndStart()
+
         lifecycleScope.launch {
             FirebaseRepository.watchBiletler().collect { map ->
                 biletler = map
@@ -380,6 +385,8 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
         currentPnr = null
         currentPnrPendingCount = 0
         refocusBarcode()
+        // Resume continuous camera scanning for the next ticket.
+        if (!qrActive) requestCameraAndStart()
     }
 
     // ── Toast ─────────────────────────────────────────────────────────────
