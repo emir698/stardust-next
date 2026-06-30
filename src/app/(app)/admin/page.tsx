@@ -342,38 +342,46 @@ function SeansTakvimiYonetimi() {
   };
 
   return (
-    <div style={{ border:'1px solid var(--br)', borderRadius:12, overflow:'hidden' }}>
-      <div style={{ padding:'1rem 1.25rem', borderBottom:'1px solid var(--br)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+    <div style={{ border:'1px solid var(--bd)', borderRadius:12, overflow:'hidden', background:'var(--color-bg)' }}>
+      <div style={{ padding:'1rem 1.25rem', borderBottom:'1px solid var(--bd)', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
         <div>
           <div style={{ fontSize:13, fontWeight:600, color:'var(--color-tx)', textTransform:'uppercase', letterSpacing:'.5px' }}>Seans Takvimi</div>
           <div style={{ fontSize:12, color:'var(--color-mu)', marginTop:2 }}>Firebase üzerinden yönet — kaydettiğin an web ve Gate uygulaması güncellenir.</div>
         </div>
-        <div style={{ display:'flex', gap:8 }}>
-          {Object.keys(takvim).length === 0 && !loading && (
+        <div style={{ display:'flex', gap:8, flexShrink:0 }}>
+          {!loading && Object.keys(takvim).length === 0 && (
             <Button onClick={handleSeed} disabled={seeding}>{seeding ? 'Aktarılıyor...' : '📥 Mevcut Takvimi Aktar'}</Button>
           )}
           <Button onClick={openAdd}>+ Tarih Ekle</Button>
         </div>
       </div>
 
-      <div style={{ padding:'1rem 1.25rem' }}>
-        {loading && <div style={{ fontSize:13, color:'var(--color-mu)' }}>Yükleniyor...</div>}
+      <div style={{ padding:'1rem 1.25rem', minHeight:60 }}>
+        {loading && (
+          <div style={{ fontSize:13, color:'var(--color-mu)', padding:'8px 0' }}>Yükleniyor...</div>
+        )}
 
         {!loading && sortedEntries.length === 0 && (
           <div style={{ fontSize:13, color:'var(--color-mu)', textAlign:'center', padding:'24px 0' }}>
-            Henüz takvimde tarih yok. "Mevcut Takvimi Aktar" ile başlayabilirsiniz.
+            Henüz takvimde tarih yok.{' '}
+            <span
+              onClick={handleSeed}
+              style={{ color:'var(--color-tx)', textDecoration:'underline', cursor:'pointer' }}
+            >
+              Mevcut takvimi aktar
+            </span>
           </div>
         )}
 
         {sortedEntries.map(([tarih, saatler]) => (
-          <div key={tarih} style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 0', borderBottom:'1px solid var(--br)' }}>
+          <div key={tarih} style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 0', borderBottom:'1px solid var(--bd)' }}>
             <div style={{ flex:1 }}>
               <div style={{ fontSize:13, fontWeight:600, color:'var(--color-tx)' }}>
                 {tarih} <span style={{ fontWeight:400, color:'var(--color-mu)' }}>{gunAdi(tarih)}</span>
               </div>
               <div style={{ fontSize:12, color:'var(--color-mu)', marginTop:2 }}>
                 {saatler.length === 0
-                  ? <span style={{ color:'var(--rd)' }}>Etkinlik yok (override)</span>
+                  ? <span style={{ color:'#ef4444' }}>Etkinlik yok (override)</span>
                   : saatler.join(' · ')}
               </div>
             </div>
@@ -398,7 +406,7 @@ function SeansTakvimiYonetimi() {
               value={saatInput}
               onChange={e => setSaatInput(e.target.value)}
             />
-            <div style={{ fontSize:11, color:'var(--color-mu)', marginTop:4 }}>Boş bırakırsan o gün "etkinlik yok" olarak işaretlenir (haftalık kuralı override eder).</div>
+            <div style={{ fontSize:11, color:'var(--color-mu)', marginTop:4 }}>Boş bırakırsan o gün &quot;etkinlik yok&quot; olarak işaretlenir.</div>
           </div>
         </div>
         <ModalActions>
