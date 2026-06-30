@@ -61,6 +61,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="@drawable/bg_button_danger"
+            android:backgroundTint="@null"
             android:text="Çıkış"
             android:textAllCaps="false"
             android:textColor="@color/white"
