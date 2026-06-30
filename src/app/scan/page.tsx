@@ -12,6 +12,30 @@ import type { Bilet, OZEL_SAATLER, HAFTALIK_SAATLER } from '@/types';
 const OZEL: Record<string, string[]> = {
   '19.05.2026': ['20:45', '21:00', '21:30', '22:00'],
   '28.05.2026': ['20:45', '21:00', '21:30', '22:00', '22:30'],
+
+  // ── Temmuz 2026 — Biletix'teki gerçek Astra Lumina takvimiyle
+  //    senkronize (30.06.2026 itibarıyla). Sadece 1, 3, 4, 5, 8, 10,
+  //    11 Temmuz'da satış var; ayın geri kalanı boş — haftalık tekrar
+  //    eden kuralın (HSEANS) o günler için hayalet seans üretmesini
+  //    engellemek için 12-31 Temmuz arasındaki Çar/Cum/Cmt/Paz
+  //    günleri açıkça [] olarak override edildi.
+  '01.07.2026': ['21:15', '21:30', '22:00', '22:30'],
+  '03.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
+  '04.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
+  '05.07.2026': ['21:15', '21:30', '22:00', '22:30'],
+  '08.07.2026': ['21:15', '21:30', '22:00', '22:30'],
+  '10.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
+  '11.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
+  '15.07.2026': [],
+  '17.07.2026': [],
+  '18.07.2026': [],
+  '19.07.2026': [],
+  '22.07.2026': [],
+  '24.07.2026': [],
+  '25.07.2026': [],
+  '26.07.2026': [],
+  '29.07.2026': [],
+  '31.07.2026': [],
 };
 const HSEANS: Record<number, string[]> = {
   3: ['21:00', '21:30', '22:00', '22:30'],
@@ -53,7 +77,10 @@ function getSaatler(ds: string): string[] | null {
   return HSEANS[new Date(+p[2], +p[1] - 1, +p[0]).getDay()] ?? null;
 }
 
-function isEtkinlik(ds: string) { return getSaatler(ds) !== null; }
+function isEtkinlik(ds: string) {
+  const s = getSaatler(ds);
+  return s !== null && s.length > 0;
+}
 
 function nowSaat() {
   const n = new Date();

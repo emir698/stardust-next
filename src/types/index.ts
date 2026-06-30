@@ -137,7 +137,7 @@ export interface KurumsalPaket {
   baslangic: string; // DD.MM.YYYY
   bitis: string;     // DD.MM.YYYY
   adet: number;
-  kullanilan: number;
+  kullanilanAdet: number;
   prefix: string;
   createdAt: string;
 }
@@ -156,6 +156,32 @@ export interface DashboardKPI {
 export const OZEL_SAATLER: Record<string, string[]> = {
   '19.05.2026': ['20:45', '21:00', '21:30', '22:00'],
   '28.05.2026': ['20:45', '21:00', '21:30', '22:00', '22:30'],
+
+  // ── Temmuz 2026 — Biletix'teki gerçek Astra Lumina takvimiyle
+  //    birebir senkronize (30.06.2026'da Biletix'ten alınmıştır).
+  //    Biletix'te sadece 1, 3, 4, 5, 8, 10, 11 Temmuz'da satış var;
+  //    ayın geri kalanında hiç seans yok. Haftalık tekrar eden kural
+  //    (HAFTALIK_SAATLER) bu boş günler için de Çar/Cum/Cmt/Paz
+  //    seansı üretmeye çalışacağından, 12-31 Temmuz arasındaki
+  //    tüm Çar/Cum/Cmt/Paz günleri açıkça boş ([]) olarak override
+  //    edilip "hayalet" seansların görünmesi engellenmiştir.
+  '01.07.2026': ['21:15', '21:30', '22:00', '22:30'],
+  '03.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
+  '04.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
+  '05.07.2026': ['21:15', '21:30', '22:00', '22:30'],
+  '08.07.2026': ['21:15', '21:30', '22:00', '22:30'],
+  '10.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
+  '11.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
+  '15.07.2026': [],
+  '17.07.2026': [],
+  '18.07.2026': [],
+  '19.07.2026': [],
+  '22.07.2026': [],
+  '24.07.2026': [],
+  '25.07.2026': [],
+  '26.07.2026': [],
+  '29.07.2026': [],
+  '31.07.2026': [],
 };
 
 // 3=Çarşamba, 5=Cuma, 6=Cumartesi, 0=Pazar

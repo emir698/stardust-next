@@ -79,7 +79,8 @@ export function getSaatler(ds: string): string[] | null {
 }
 
 export function isEtkinlikGunu(ds: string): boolean {
-  return getSaatler(ds) !== null;
+  const saatler = getSaatler(ds);
+  return saatler !== null && saatler.length > 0;
 }
 
 // ─── PNR Üretimi ─────────────────────────────────────────────────────────────
