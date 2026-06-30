@@ -13,4 +13,7 @@
     <color name="white">#FFFFFF</color>
     <color name="accentGenel">#3B82F6</color>
     <color name="accentOrman">#22C55E</color>
+    <color name="accentOrmanBg">#DCFCE7</color>
+    <color name="accentOrmanDark">#15803D</color>
+    <color name="danger">#DC2626</color>
 </resources>

@@ -56,7 +56,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_card"
+        android:background="@drawable/bg_card_green"
         android:padding="24dp"
         android:clickable="true"
         android:focusable="true">
@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Giriş"
-            android:textColor="@color/textPrimary"
+            android:textColor="@color/accentOrmanDark"
             android:textSize="22sp"
             android:textStyle="bold" />
         <TextView
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="Orman Girişi (önce ön giriş şart)"
-            android:textColor="@color/textFaint"
+            android:textColor="@color/accentOrmanDark"
             android:textSize="14sp" />
     </LinearLayout>
 
