@@ -5,7 +5,7 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:background="@drawable/bg_card"
-    android:layout_marginBottom="10dp"
+    android:layout_marginBottom="14dp"
     android:clickable="true"
     android:focusable="true">
 
@@ -14,14 +14,14 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:padding="18dp">
+        android:padding="20dp">
 
         <TextView
             android:id="@+id/saatText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/textPrimary"
-            android:textSize="24sp"
+            android:textSize="26sp"
             android:textStyle="bold"
             android:fontFamily="monospace" />
 
@@ -29,9 +29,9 @@
             android:id="@+id/tarihText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/textFaint"
-            android:textSize="12sp"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/textMuted"
+            android:textSize="13sp"
             android:fontFamily="monospace" />
 
         <TextView

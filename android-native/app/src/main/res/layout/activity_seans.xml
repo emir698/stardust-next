@@ -14,6 +14,21 @@
         android:paddingBottom="16dp"
         android:paddingHorizontal="16dp">
 
+        <TextView
+            android:id="@+id/gateBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_pill"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
+            android:textColor="@color/textPrimary"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -25,10 +40,10 @@
                 android:layout_height="wrap_content"
                 android:text="STARDUST"
                 android:textColor="@color/textPrimary"
-                android:textSize="24sp"
+                android:textSize="26sp"
                 android:textStyle="bold"
-                android:fontFamily="monospace"
-                android:letterSpacing="0.1" />
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.08" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -39,44 +54,23 @@
                 android:letterSpacing="0.2" />
         </LinearLayout>
 
-        <LinearLayout
+        <Button
+            android:id="@+id/logoutButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/gateBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_pill"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="5dp"
-                android:textColor="@color/textPrimary"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <Button
-                android:id="@+id/logoutButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_button_dark"
-                android:text="Çıkış"
-                android:textAllCaps="false"
-                android:textColor="@color/textMuted"
-                android:textSize="11sp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:elevation="0dp"
-                android:stateListAnimator="@null" />
-        </LinearLayout>
+            android:background="@drawable/bg_button_dark"
+            android:text="Çıkış"
+            android:textAllCaps="false"
+            android:textColor="@color/textMuted"
+            android:textSize="11sp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:elevation="0dp"
+            android:stateListAnimator="@null" />
     </RelativeLayout>
 
     <View
@@ -99,17 +93,17 @@
                 android:layout_height="wrap_content"
                 android:text="Seans Seçimi"
                 android:textColor="@color/textPrimary"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/gunText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="24dp"
-                android:textColor="@color/textFaint"
-                android:textSize="13sp" />
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="28dp"
+                android:textColor="@color/textMuted"
+                android:textSize="14sp" />
 
             <LinearLayout
                 android:id="@+id/seansListContainer"
