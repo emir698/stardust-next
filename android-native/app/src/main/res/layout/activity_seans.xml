@@ -54,25 +54,21 @@
                 android:letterSpacing="0.2" />
         </LinearLayout>
 
-        <Button
+        <TextView
             android:id="@+id/logoutButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="@drawable/bg_button_danger"
-            android:backgroundTint="@null"
             android:text="Çıkış"
-            android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="11sp"
             android:textStyle="bold"
             android:paddingHorizontal="12dp"
             android:paddingVertical="6dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            android:elevation="0dp"
-            android:stateListAnimator="@null" />
+            android:clickable="true"
+            android:focusable="true" />
     </RelativeLayout>
 
     <View

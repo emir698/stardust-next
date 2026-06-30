@@ -3,7 +3,6 @@ package com.stardust.ticketscan.nativeapp.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -49,7 +48,7 @@ class SeansActivity : AppCompatActivity() {
             })
         }
 
-        findViewById<Button>(R.id.logoutButton).setOnClickListener {
+        findViewById<TextView>(R.id.logoutButton).setOnClickListener {
             FirebaseRepository.logout()
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
