@@ -5,38 +5,11 @@ import { ref, get, update, onValue, off } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { useAuth, logout } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import type { Bilet, OZEL_SAATLER, HAFTALIK_SAATLER } from '@/types';
+import { watchSeansTakvimi, type SeansTakvimi } from '@/lib/db/seans';
+import type { Bilet } from '@/types';
 
-// ─── Seans helpers ────────────────────────────────────────────────────────────
+// ─── Seans helpers — Firebase takviminden çalışır ─────────────────────────────
 
-const OZEL: Record<string, string[]> = {
-  '19.05.2026': ['20:45', '21:00', '21:30', '22:00'],
-  '28.05.2026': ['20:45', '21:00', '21:30', '22:00', '22:30'],
-
-  // ── Temmuz 2026 — Biletix'teki gerçek Astra Lumina takvimiyle
-  //    senkronize (30.06.2026 itibarıyla). Sadece 1, 3, 4, 5, 8, 10,
-  //    11 Temmuz'da satış var; ayın geri kalanı boş — haftalık tekrar
-  //    eden kuralın (HSEANS) o günler için hayalet seans üretmesini
-  //    engellemek için 12-31 Temmuz arasındaki Çar/Cum/Cmt/Paz
-  //    günleri açıkça [] olarak override edildi.
-  '01.07.2026': ['21:15', '21:30', '22:00', '22:30'],
-  '03.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
-  '04.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
-  '05.07.2026': ['21:15', '21:30', '22:00', '22:30'],
-  '08.07.2026': ['21:15', '21:30', '22:00', '22:30'],
-  '10.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
-  '11.07.2026': ['21:15', '21:30', '22:00', '22:30', '23:00'],
-  '15.07.2026': [],
-  '17.07.2026': [],
-  '18.07.2026': [],
-  '19.07.2026': [],
-  '22.07.2026': [],
-  '24.07.2026': [],
-  '25.07.2026': [],
-  '26.07.2026': [],
-  '29.07.2026': [],
-  '31.07.2026': [],
-};
 const HSEANS: Record<number, string[]> = {
   3: ['21:00', '21:30', '22:00', '22:30'],
   5: ['21:00', '21:30', '22:00', '22:30', '23:00'],
@@ -44,10 +17,24 @@ const HSEANS: Record<number, string[]> = {
   0: ['21:00', '21:30', '22:00', '22:30'],
 };
 
+function getSaatler(ds: string, takvim: SeansTakvimi): string[] | null {
+  if (ds in takvim) {
+    const list = takvim[ds];
+    return list.length > 0 ? list : null;
+  }
+  const p = ds.split('.');
+  return HSEANS[new Date(+p[2], +p[1] - 1, +p[0]).getDay()] ?? null;
+}
+
+function isEtkinlik(ds: string, takvim: SeansTakvimi) {
+  const s = getSaatler(ds, takvim);
+  return s !== null && s.length > 0;
+}
+
 function pad(n: number) { return String(n).padStart(2, '0'); }
 
 function todayStr() {
-  const n = new Date();
+  const n = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
   return `${pad(n.getDate())}.${pad(n.getMonth() + 1)}.${n.getFullYear()}`;
 }
 
@@ -69,17 +56,6 @@ function fmtDate(ds: string) {
   const p = ds.split('.');
   const m = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
   return `${+p[0]} ${m[+p[1] - 1]} ${p[2]}, ${getDayName(ds)}`;
-}
-
-function getSaatler(ds: string): string[] | null {
-  if (OZEL[ds]) return OZEL[ds];
-  const p = ds.split('.');
-  return HSEANS[new Date(+p[2], +p[1] - 1, +p[0]).getDay()] ?? null;
-}
-
-function isEtkinlik(ds: string) {
-  const s = getSaatler(ds);
-  return s !== null && s.length > 0;
 }
 
 function nowSaat() {
@@ -196,6 +172,8 @@ export default function ScanPage() {
   const [selectedSeans, setSelectedSeans] = useState('');
   const [biletler, setBiletler] = useState<Record<string, BiletDoc>>({});
   const [kurumsalPaketler, setKurumsalPaketler] = useState<Record<string, KurumsalPaketRaw>>({});
+  const [takvim, setTakvim] = useState<SeansTakvimi>({});
+  const [takvimLoaded, setTakvimLoaded] = useState(false);
 
   // Scan state
   const [qrActive, setQrActive] = useState(false);
@@ -235,19 +213,24 @@ export default function ScanPage() {
     return () => off(r, 'value', unsub as never);
   }, []);
 
+  useEffect(() => {
+    const unsub = watchSeansTakvimi(t => { setTakvim(t); setTakvimLoaded(true); });
+    return unsub;
+  }, []);
+
   // ── Initial seans selection ────────────────────────────────────────────────
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !takvimLoaded) return;
     let gun = todayStr();
-    if (!isEtkinlik(gun)) {
+    if (!isEtkinlik(gun, takvim)) {
       for (let i = 1; i <= 14; i++) {
         const d = addDays(gun, i);
-        if (isEtkinlik(d)) { gun = d; break; }
+        if (isEtkinlik(d, takvim)) { gun = d; break; }
       }
     }
     setSelectedGun(gun);
-  }, [user]);
+  }, [user, takvimLoaded]);
 
   // ── Seans stats ───────────────────────────────────────────────────────────
 
@@ -632,7 +615,7 @@ export default function ScanPage() {
     );
   }
 
-  const saatler = selectedGun ? (getSaatler(selectedGun) ?? []) : [];
+  const saatler = selectedGun ? (getSaatler(selectedGun, takvim) ?? []) : [];
 
   return (
     <>

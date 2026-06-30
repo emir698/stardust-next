@@ -7,13 +7,14 @@ import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/hooks/useAuth';
-import { useSatisList, useCodes, useUsers, useKurumsalPaketler, usePNRler, useBiletler } from '@/hooks/useFirebaseData';
+import { useSatisList, useCodes, useUsers, useKurumsalPaketler, usePNRler, useBiletler, useSeansTakvimi } from '@/hooks/useFirebaseData';
+import { setSeansSaatleri, deleteSeansTarih, seedSeansTakvimi } from '@/lib/db/seans';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalActions } from '@/components/ui/Modal';
 import { toast } from '@/components/ui/Toast';
-import { todayStr, fmtMoney } from '@/lib/utils';
+import { todayStr, fmtMoney, dateToInput, inputToDate } from '@/lib/utils';
 import type { UserRole, KurumsalPaket } from '@/types';
 
 const FIREBASE_CONFIG = {
@@ -275,6 +276,140 @@ function KurumsalBiletTakibi() {
   );
 }
 
+
+function SeansTakvimiYonetimi() {
+  const { takvim, loading } = useSeansTakvimi();
+
+  const [modal, setModal]       = useState(false);
+  const [editTarih, setEditTarih] = useState('');
+  const [saatInput, setSaatInput] = useState('');
+  const [saving, setSaving]     = useState(false);
+  const [seeding, setSeeding]   = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const sortedEntries = Object.entries(takvim).sort(([a], [b]) => {
+    const toMs = (s: string) => {
+      const [d, m, y] = s.split('.');
+      return new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getTime();
+    };
+    return toMs(a) - toMs(b);
+  });
+
+  const openAdd = () => {
+    setEditTarih('');
+    setSaatInput('');
+    setModal(true);
+  };
+
+  const openEdit = (tarih: string, saatler: string[]) => {
+    setEditTarih(dateToInput(tarih));
+    setSaatInput(saatler.join(', '));
+    setModal(true);
+  };
+
+  const handleSave = async () => {
+    if (!editTarih) { toast('Tarih seçin', 'err'); return; }
+    setSaving(true);
+    const tarih = inputToDate(editTarih);
+    const saatler = saatInput
+      .split(/[,\s]+/)
+      .map(s => s.trim())
+      .filter(s => /^\d{2}:\d{2}$/.test(s));
+    await setSeansSaatleri(tarih, saatler);
+    toast(`${tarih} kaydedildi`, 'ok');
+    setSaving(false);
+    setModal(false);
+  };
+
+  const handleDelete = async (tarih: string) => {
+    setDeleting(tarih);
+    await deleteSeansTarih(tarih);
+    toast(`${tarih} silindi`, 'ok');
+    setDeleting(null);
+  };
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    await seedSeansTakvimi();
+    toast('Mevcut takvim Firebase\'e aktarıldı', 'ok');
+    setSeeding(false);
+  };
+
+  const gunAdi = (ds: string) => {
+    const [d, m, y] = ds.split('.');
+    const names = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+    return names[new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay()];
+  };
+
+  return (
+    <div style={{ border:'1px solid var(--br)', borderRadius:12, overflow:'hidden' }}>
+      <div style={{ padding:'1rem 1.25rem', borderBottom:'1px solid var(--br)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div>
+          <div style={{ fontSize:13, fontWeight:600, color:'var(--color-tx)', textTransform:'uppercase', letterSpacing:'.5px' }}>Seans Takvimi</div>
+          <div style={{ fontSize:12, color:'var(--color-mu)', marginTop:2 }}>Firebase üzerinden yönet — kaydettiğin an web ve Gate uygulaması güncellenir.</div>
+        </div>
+        <div style={{ display:'flex', gap:8 }}>
+          {Object.keys(takvim).length === 0 && !loading && (
+            <Button onClick={handleSeed} disabled={seeding}>{seeding ? 'Aktarılıyor...' : '📥 Mevcut Takvimi Aktar'}</Button>
+          )}
+          <Button onClick={openAdd}>+ Tarih Ekle</Button>
+        </div>
+      </div>
+
+      <div style={{ padding:'1rem 1.25rem' }}>
+        {loading && <div style={{ fontSize:13, color:'var(--color-mu)' }}>Yükleniyor...</div>}
+
+        {!loading && sortedEntries.length === 0 && (
+          <div style={{ fontSize:13, color:'var(--color-mu)', textAlign:'center', padding:'24px 0' }}>
+            Henüz takvimde tarih yok. "Mevcut Takvimi Aktar" ile başlayabilirsiniz.
+          </div>
+        )}
+
+        {sortedEntries.map(([tarih, saatler]) => (
+          <div key={tarih} style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 0', borderBottom:'1px solid var(--br)' }}>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:13, fontWeight:600, color:'var(--color-tx)' }}>
+                {tarih} <span style={{ fontWeight:400, color:'var(--color-mu)' }}>{gunAdi(tarih)}</span>
+              </div>
+              <div style={{ fontSize:12, color:'var(--color-mu)', marginTop:2 }}>
+                {saatler.length === 0
+                  ? <span style={{ color:'var(--rd)' }}>Etkinlik yok (override)</span>
+                  : saatler.join(' · ')}
+              </div>
+            </div>
+            <Button onClick={() => openEdit(tarih, saatler)}>Düzenle</Button>
+            <Button variant="danger" onClick={() => handleDelete(tarih)} disabled={deleting === tarih}>
+              {deleting === tarih ? '...' : 'Sil'}
+            </Button>
+          </div>
+        ))}
+      </div>
+
+      <Modal open={modal} onClose={() => setModal(false)} title={editTarih ? 'Seans Düzenle' : 'Yeni Tarih Ekle'}>
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+          <div>
+            <div style={{ fontSize:12, color:'var(--color-mu)', marginBottom:4 }}>Tarih</div>
+            <Input type="date" value={editTarih} onChange={e => setEditTarih(e.target.value)} />
+          </div>
+          <div>
+            <div style={{ fontSize:12, color:'var(--color-mu)', marginBottom:4 }}>Seans saatleri (virgülle ayır)</div>
+            <Input
+              placeholder="21:15, 21:30, 22:00, 22:30"
+              value={saatInput}
+              onChange={e => setSaatInput(e.target.value)}
+            />
+            <div style={{ fontSize:11, color:'var(--color-mu)', marginTop:4 }}>Boş bırakırsan o gün "etkinlik yok" olarak işaretlenir (haftalık kuralı override eder).</div>
+          </div>
+        </div>
+        <ModalActions>
+          <Button variant="default" onClick={() => setModal(false)}>İptal</Button>
+          <Button onClick={handleSave} disabled={saving}>{saving ? 'Kaydediliyor...' : 'Kaydet'}</Button>
+        </ModalActions>
+      </Modal>
+    </div>
+  );
+}
+
 function TehlikeliIslemler() {
   const satisList = useSatisList();
   const codes     = useCodes();
@@ -357,6 +492,7 @@ export default function AdminPage() {
         <KullaniciYonetimi />
         <KurumsalYonetimi />
         <KurumsalBiletTakibi />
+        <SeansTakvimiYonetimi />
         <TehlikeliIslemler />
       </div>
     </div>

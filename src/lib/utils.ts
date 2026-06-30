@@ -1,4 +1,5 @@
 import { OZEL_SAATLER, HAFTALIK_SAATLER } from '@/types';
+import type { SeansTakvimi } from '@/lib/db/seans';
 
 // ─── Tarih Formatları ────────────────────────────────────────────────────────
 
@@ -7,7 +8,6 @@ function pad(x: number): string {
 }
 
 export function todayStr(): string {
-  // Türkiye saati (UTC+3) — sunucu UTC'de olsa bile doğru tarihi verir
   const n = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
   return pad(n.getDate()) + '.' + pad(n.getMonth() + 1) + '.' + n.getFullYear();
 }
@@ -70,17 +70,35 @@ export function genID(): string {
 }
 
 // ─── Seans Saatleri ─────────────────────────────────────────────────────────
+// Firebase takvim üzerinden çalışır. takvim henüz yüklenmemişse haftalık kurala fallback yapar.
 
+export function getSaatlerFromTakvim(ds: string, takvim: SeansTakvimi): string[] | null {
+  if (ds in takvim) {
+    const list = takvim[ds];
+    return list.length > 0 ? list : null; // boş dizi = o gün etkinlik yok
+  }
+  const [d, m, y] = ds.split('.');
+  const day = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay();
+  return HAFTALIK_SAATLER[day] ?? null;
+}
+
+export function isEtkinlikGununuFromTakvim(ds: string, takvim: SeansTakvimi): boolean {
+  return getSaatlerFromTakvim(ds, takvim) !== null;
+}
+
+// Legacy — OZEL_SAATLER kodda tanımlıyken kullanılan eski versiyon. Yavaş yavaş kaldırılacak.
 export function getSaatler(ds: string): string[] | null {
-  if (OZEL_SAATLER[ds]) return OZEL_SAATLER[ds];
+  if (ds in OZEL_SAATLER) {
+    const list = OZEL_SAATLER[ds];
+    return list.length > 0 ? list : null;
+  }
   const [d, m, y] = ds.split('.');
   const day = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay();
   return HAFTALIK_SAATLER[day] ?? null;
 }
 
 export function isEtkinlikGunu(ds: string): boolean {
-  const saatler = getSaatler(ds);
-  return saatler !== null && saatler.length > 0;
+  return getSaatler(ds) !== null;
 }
 
 // ─── PNR Üretimi ─────────────────────────────────────────────────────────────

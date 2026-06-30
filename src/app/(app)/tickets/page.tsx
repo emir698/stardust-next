@@ -6,14 +6,14 @@ import { update } from 'firebase/database';
 import { ref } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/hooks/useAuth';
-import { useSatisList, useCodes, useBatches } from '@/hooks/useFirebaseData';
+import { useSatisList, useCodes, useBatches, useSeansTakvimi } from '@/hooks/useFirebaseData';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalActions } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { toast } from '@/components/ui/Toast';
 import {
-  todayStr, dateToInput, inputToDate, getSaatler,
-  isEtkinlikGunu, fmtMoney, genID, genPNR, getDayName,
+  todayStr, dateToInput, inputToDate, getSaatlerFromTakvim,
+  isEtkinlikGununuFromTakvim, fmtMoney, genID, genPNR, getDayName,
 } from '@/lib/utils';
 import { sendBiletMail } from '@/lib/email';
 import { hesaplaFiyat } from '@/lib/pricing';
@@ -50,6 +50,7 @@ export default function TicketsPage() {
   const satisList = useSatisList();
   const codes = useCodes();
   const batches = useBatches();
+  const { takvim } = useSeansTakvimi();
 
   const [selectedTarih, setSelectedTarih] = useState(todayStr());
   const [selectedSeans, setSelectedSeans] = useState<string | null>(null);
@@ -71,8 +72,8 @@ export default function TicketsPage() {
   const [lastTarih, setLastTarih] = useState('');
   const [lastSeans, setLastSeans] = useState('');
 
-  const saatler = getSaatler(selectedTarih);
-  const isEtkinlik = isEtkinlikGunu(selectedTarih);
+  const saatler = getSaatlerFromTakvim(selectedTarih, takvim);
+  const isEtkinlik = isEtkinlikGununuFromTakvim(selectedTarih, takvim);
 
   // Gerçek zamanlı seans sayacı — useSatisList'ten her render'da hesaplanır
   const seansCounts = buildSeansCounts(satisList, selectedTarih);

@@ -5,6 +5,7 @@ import { watchSatisList, watchPNRler, watchBiletler } from '@/lib/db/tickets';
 import { watchCodes, watchBatches } from '@/lib/db/codes';
 import { watchKurumsalPaketler } from '@/lib/db/kurumsal';
 import { watchUsers } from '@/lib/db/users';
+import { watchSeansTakvimi, type SeansTakvimi } from '@/lib/db/seans';
 import type { Satis, PNRKayit, IndirimKodu, CodeBatch, KurumsalPaket, AppUser } from '@/types';
 
 export function useSatisList() {
@@ -47,4 +48,14 @@ export function useUsers() {
   const [users, setUsers] = useState<Array<{ uid: string; name: string; role: AppUser['role']; email?: string }>>([]);
   useEffect(() => watchUsers(setUsers), []);
   return users;
+}
+
+export function useSeansTakvimi() {
+  const [takvim, setTakvim] = useState<SeansTakvimi>({});
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const unsub = watchSeansTakvimi((t) => { setTakvim(t); setLoading(false); });
+    return unsub;
+  }, []);
+  return { takvim, loading };
 }
