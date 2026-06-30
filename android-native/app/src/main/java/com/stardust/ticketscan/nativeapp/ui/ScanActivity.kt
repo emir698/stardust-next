@@ -39,7 +39,6 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
 
     private lateinit var barcodeInput: EditText
     private lateinit var seansLabel: TextView
-    private lateinit var statPill: TextView
     private lateinit var gateBanner: TextView
     private lateinit var qrCard: FrameLayout
     private lateinit var cameraPreview: PreviewView
@@ -80,7 +79,6 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
 
         barcodeInput = findViewById(R.id.barcodeInput)
         seansLabel = findViewById(R.id.seansLabel)
-        statPill = findViewById(R.id.statPill)
         gateBanner = findViewById(R.id.gateBanner)
         qrCard = findViewById(R.id.qrCard)
         cameraPreview = findViewById(R.id.cameraPreview)
@@ -128,7 +126,6 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
         lifecycleScope.launch {
             FirebaseRepository.watchBiletler().collect { map ->
                 biletler = map
-                updateStatPill()
             }
         }
         lifecycleScope.launch {
@@ -162,17 +159,6 @@ class ScanActivity : AppCompatActivity(), ResultSheetFragment.Listener {
         // never going to show in the first place.
         barcodeInput.postDelayed({ imm.hideSoftInputFromWindow(barcodeInput.windowToken, 0) }, 100)
         barcodeInput.postDelayed({ imm.hideSoftInputFromWindow(barcodeInput.windowToken, 0) }, 300)
-    }
-
-    private fun updateStatPill() {
-        if (gate == Gate.GENEL) {
-            val stat = FirebaseRepository.getSeansIstatistik(biletler, selectedGun, selectedSeans)
-            statPill.text = "${stat.giris}/${stat.toplam}"
-        } else {
-            val ilgili = biletler.values.filter { it.tarih == selectedGun && it.seans == selectedSeans && it.kullanildi }
-            val ormanGiris = ilgili.count { it.ormanGiris }
-            statPill.text = "$ormanGiris/${ilgili.size}"
-        }
     }
 
     // ── Barcode input (mirrors handleBarcodeInput / handleBarcodeKeyDown) ──

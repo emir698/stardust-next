@@ -25,10 +25,12 @@
                 android:text="← Geri"
                 android:textAllCaps="false"
                 android:textColor="@color/textMuted"
-                android:textSize="13sp"
+                android:textSize="17sp"
+                android:textStyle="bold"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
                 android:paddingStart="0dp"
+                android:paddingVertical="8dp"
                 android:elevation="0dp"
                 android:stateListAnimator="@null" />
 
@@ -43,42 +45,24 @@
                 android:textStyle="bold"
                 android:fontFamily="monospace" />
 
-            <LinearLayout
+            <Button
+                android:id="@+id/listeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/statPill"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_pill"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp"
-                    android:textColor="@color/textMuted"
-                    android:textSize="11sp"
-                    android:fontFamily="monospace" />
-
-                <Button
-                    android:id="@+id/listeButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_button_dark"
-                    android:text="☰ Liste"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="12sp"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="8dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:elevation="0dp"
-                    android:stateListAnimator="@null" />
-            </LinearLayout>
+                android:background="@drawable/bg_button_dark"
+                android:text="☰ Liste"
+                android:textAllCaps="false"
+                android:textColor="@color/textPrimary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:paddingHorizontal="18dp"
+                android:paddingVertical="12dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:elevation="0dp"
+                android:stateListAnimator="@null" />
         </RelativeLayout>
 
         <View
