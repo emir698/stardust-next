@@ -10,6 +10,8 @@
         <item name="android:navigationBarColor">@color/bg</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+        <item name="android:buttonStyle">@style/Widget.AppCompat.Button</item>
+        <item name="materialButtonStyle">@style/Widget.AppCompat.Button</item>
     </style>
 
     <style name="Theme.StardustScan.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
