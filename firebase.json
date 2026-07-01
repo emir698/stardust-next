@@ -17,6 +17,7 @@
     }
   ],
   "hosting": {
+    "site": "box-office-discount",
     "public": "gate-hosting",
     "ignore": [
       "firebase.json",
